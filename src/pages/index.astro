@@ -28,6 +28,9 @@ import pingboardLogo from '@/assets/logos/pingboard.svg'
 // Import hero image
 import heroImage from '@/assets/loops.jpg'
 
+// Import logo
+import logoE from '@/assets/logo-e.svg'
+
 const logos = [
 	{ name: "Stork Club", src: storkclubLogo.src },
 	{ name: "Halo", src: haloLogo.src },
@@ -43,9 +46,7 @@ const logos = [
 		<div class="mx-auto max-w-7xl rounded-3xl px-6 transition-all duration-300 lg:px-12" id="nav-container">
 			<div class="relative flex flex-wrap items-center justify-between gap-6 py-3 duration-200 lg:gap-0 lg:py-6">
 				<a href="/" class="flex items-center gap-2">
-					<div class="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
-						<span class="text-base font-bold text-primary-foreground">E</span>
-					</div>
+					<img src={logoE.src} alt="Equipped" class="h-8 w-auto" />
 					<span class="text-xl font-semibold tracking-tight">Equipped</span>
 				</a>
 
@@ -423,9 +424,7 @@ const logos = [
 		<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 			<div class="flex flex-col items-center justify-between gap-6 md:flex-row">
 				<div class="flex items-center gap-2">
-					<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
-						<span class="text-sm font-bold text-primary-foreground">E</span>
-					</div>
+					<img src={logoE.src} alt="Equipped" class="h-7 w-auto" />
 					<span class="text-lg font-semibold">Equipped</span>
 				</div>
 

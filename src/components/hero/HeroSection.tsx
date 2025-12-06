@@ -86,14 +86,14 @@ export function HeroSection({ heroImage, logos }: HeroSectionProps) {
 									href="https://tryequipped.com/users/sign_up"
 									className="group inline-flex h-12 items-center justify-center gap-1 rounded-full bg-primary px-6 text-base font-medium text-primary-foreground transition-all hover:bg-primary/90 hover:shadow-lg"
 								>
-									<span className="text-nowrap">Start Building</span>
+									<span className="text-nowrap">Sign up for free</span>
 									<ChevronRight className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
 								</a>
 								<a
 									href="#how-it-works"
 									className="inline-flex h-12 items-center justify-center rounded-full px-6 text-base font-medium transition-colors hover:bg-muted"
 								>
-									<span className="text-nowrap">Request a demo</span>
+									<span className="text-nowrap">I'm a Consultant</span>
 								</a>
 							</div>
 						</div>
