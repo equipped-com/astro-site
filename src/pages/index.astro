@@ -1,120 +1,85 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro'
+import HeroSection from '@/components/hero/HeroSection'
 import {
 	ArrowRight,
 	Check,
 	Laptop,
-	Package,
 	RefreshCw,
 	Shield,
 	Truck,
 	Users,
 	Zap,
 	BarChart3,
-	Globe,
-	Clock,
 	ChevronRight,
 	Star,
 	Monitor,
 	Smartphone,
 	Headphones,
 } from '@lucide/astro'
+
+// Import logos from assets
+import storkclubLogo from '@/assets/logos/storkclub.svg'
+import haloLogo from '@/assets/logos/halo.svg'
+import upgradedLogo from '@/assets/logos/upgraded.svg'
+import jdiLogo from '@/assets/logos/jdi.svg'
+import pingboardLogo from '@/assets/logos/pingboard.svg'
+
+// Import hero image
+import heroImage from '@/assets/loops.jpg'
+
+const logos = [
+	{ name: "Stork Club", src: storkclubLogo.src },
+	{ name: "Halo", src: haloLogo.src },
+	{ name: "Upgraded", src: upgradedLogo.src },
+	{ name: "JDI", src: jdiLogo.src },
+	{ name: "Pingboard", src: pingboardLogo.src },
+]
 ---
 
 <BaseLayout title="Equipped - Run your business and we handle the tech">
 	<!-- Navigation -->
-	<nav class="fixed top-0 left-0 right-0 z-50 border-b border-border bg-background/80 backdrop-blur-md">
-		<div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-			<a href="/" class="flex items-center gap-2">
-				<div class="flex h-8 w-8 items-center justify-center rounded-md bg-primary">
-					<span class="text-sm font-bold text-primary-foreground">E</span>
+	<nav class="fixed top-0 left-0 right-0 z-50 pt-2">
+		<div class="mx-auto max-w-7xl rounded-3xl px-6 transition-all duration-300 lg:px-12" id="nav-container">
+			<div class="relative flex flex-wrap items-center justify-between gap-6 py-3 duration-200 lg:gap-0 lg:py-6">
+				<a href="/" class="flex items-center gap-2">
+					<div class="flex h-9 w-9 items-center justify-center rounded-lg bg-primary">
+						<span class="text-base font-bold text-primary-foreground">E</span>
+					</div>
+					<span class="text-xl font-semibold tracking-tight">Equipped</span>
+				</a>
+
+				<div class="hidden items-center gap-8 md:flex">
+					<a href="#features" class="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">Features</a>
+					<a href="#how-it-works" class="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">How it works</a>
+					<a href="#order" class="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">Order</a>
 				</div>
-				<span class="text-xl font-semibold tracking-tight">Equipped</span>
-			</a>
 
-			<div class="hidden items-center gap-8 md:flex">
-				<a href="#features" class="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">Features</a>
-				<a href="#how-it-works" class="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">How it works</a>
-				<a href="#order" class="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">Order</a>
-			</div>
-
-			<div class="flex items-center gap-3">
-				<a
-					href="https://tryequipped.com/users/sign_in"
-					class="hidden text-sm font-medium text-muted-foreground transition-colors hover:text-foreground sm:block"
-				>
-					Sign in
-				</a>
-				<a
-					href="https://tryequipped.com/users/sign_up"
-					class="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-				>
-					Get Started
-				</a>
+				<div class="flex items-center gap-3">
+					<a
+						href="https://tryequipped.com/users/sign_in"
+						class="hidden text-sm font-medium text-muted-foreground transition-colors hover:text-foreground sm:block"
+					>
+						Sign in
+					</a>
+					<a
+						href="https://tryequipped.com/users/sign_up"
+						class="inline-flex h-10 items-center justify-center rounded-full bg-primary px-5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+					>
+						Get Started
+					</a>
+				</div>
 			</div>
 		</div>
 	</nav>
 
-	<main>
-		<!-- Hero Section -->
-		<section class="relative overflow-hidden pt-32 pb-20 sm:pt-40 sm:pb-32">
-			<!-- Subtle background pattern -->
-			<div class="absolute inset-0 -z-10">
-				<div class="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(120,119,198,0.08),transparent)]"></div>
-			</div>
-
-			<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-				<div class="mx-auto max-w-3xl text-center">
-					<!-- Badge -->
-					<div class="mb-8 inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-1.5 text-sm">
-						<span class="flex h-2 w-2 rounded-full bg-accent"></span>
-						<span class="text-muted-foreground">Trusted by 100+ growing companies</span>
-					</div>
-
-					<h1 class="mb-6 text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl">
-						Run your business.
-						<span class="block text-primary">We handle the tech.</span>
-					</h1>
-
-					<p class="mx-auto mb-10 max-w-2xl text-lg text-muted-foreground sm:text-xl">
-						The easiest way to get your team the tech they need - wherever they are.
-						Track assets, manage IT spend, and keep everyone productive.
-					</p>
-
-					<div class="flex flex-col items-center justify-center gap-4 sm:flex-row">
-						<a
-							href="https://tryequipped.com/users/sign_up"
-							class="inline-flex w-full items-center justify-center gap-2 rounded-md bg-primary px-6 py-3 text-base font-medium text-primary-foreground transition-colors hover:bg-primary/90 sm:w-auto"
-						>
-							Start for free
-							<ArrowRight class="h-4 w-4" />
-						</a>
-						<a
-							href="#how-it-works"
-							class="inline-flex w-full items-center justify-center gap-2 rounded-md border border-border bg-card px-6 py-3 text-base font-medium transition-colors hover:bg-muted sm:w-auto"
-						>
-							See how it works
-						</a>
-					</div>
-
-					<!-- Trust indicators -->
-					<div class="mt-12 flex flex-wrap items-center justify-center gap-x-8 gap-y-4 text-sm text-muted-foreground">
-						<div class="flex items-center gap-2">
-							<Check class="h-4 w-4 text-primary" />
-							<span>No credit card required</span>
-						</div>
-						<div class="flex items-center gap-2">
-							<Check class="h-4 w-4 text-primary" />
-							<span>Setup in minutes</span>
-						</div>
-						<div class="flex items-center gap-2">
-							<Check class="h-4 w-4 text-primary" />
-							<span>Free device shipping</span>
-						</div>
-					</div>
-				</div>
-			</div>
-		</section>
+	<main class="overflow-x-hidden">
+		<!-- Hero Section with Ken Burns -->
+		<HeroSection
+			client:load
+			heroImage={heroImage.src}
+			logos={logos}
+		/>
 
 		<!-- Features Section -->
 		<section id="features" class="border-t border-border bg-muted/30 py-20 sm:py-28">
@@ -131,7 +96,7 @@ import {
 				<div class="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
 					<!-- Feature 1 -->
 					<div class="group rounded-lg border border-border bg-card p-6 transition-all hover:border-primary/30">
-						<div class="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-md bg-secondary">
+						<div class="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-secondary">
 							<Truck class="h-5 w-5 text-secondary-foreground" />
 						</div>
 						<h3 class="mb-2 text-lg font-semibold">Global Device Delivery</h3>
@@ -142,7 +107,7 @@ import {
 
 					<!-- Feature 2 -->
 					<div class="group rounded-lg border border-border bg-card p-6 transition-all hover:border-primary/30">
-						<div class="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-md bg-secondary">
+						<div class="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-secondary">
 							<Zap class="h-5 w-5 text-secondary-foreground" />
 						</div>
 						<h3 class="mb-2 text-lg font-semibold">Zero-Touch Setup</h3>
@@ -153,7 +118,7 @@ import {
 
 					<!-- Feature 3 -->
 					<div class="group rounded-lg border border-border bg-card p-6 transition-all hover:border-primary/30">
-						<div class="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-md bg-secondary">
+						<div class="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-secondary">
 							<BarChart3 class="h-5 w-5 text-secondary-foreground" />
 						</div>
 						<h3 class="mb-2 text-lg font-semibold">Asset Tracking</h3>
@@ -164,7 +129,7 @@ import {
 
 					<!-- Feature 4 -->
 					<div class="group rounded-lg border border-border bg-card p-6 transition-all hover:border-primary/30">
-						<div class="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-md bg-secondary">
+						<div class="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-secondary">
 							<RefreshCw class="h-5 w-5 text-secondary-foreground" />
 						</div>
 						<h3 class="mb-2 text-lg font-semibold">Device Lifecycle</h3>
@@ -175,7 +140,7 @@ import {
 
 					<!-- Feature 5 -->
 					<div class="group rounded-lg border border-border bg-card p-6 transition-all hover:border-primary/30">
-						<div class="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-md bg-secondary">
+						<div class="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-secondary">
 							<Shield class="h-5 w-5 text-secondary-foreground" />
 						</div>
 						<h3 class="mb-2 text-lg font-semibold">Security Built-In</h3>
@@ -186,7 +151,7 @@ import {
 
 					<!-- Feature 6 -->
 					<div class="group rounded-lg border border-border bg-card p-6 transition-all hover:border-primary/30">
-						<div class="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-md bg-secondary">
+						<div class="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-secondary">
 							<Users class="h-5 w-5 text-secondary-foreground" />
 						</div>
 						<h3 class="mb-2 text-lg font-semibold">White-Glove Service</h3>
@@ -268,7 +233,7 @@ import {
 		<!-- MacBook Order CTA Section -->
 		<section id="order" class="py-16 sm:py-20">
 			<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-				<div class="overflow-hidden rounded-xl border border-border bg-foreground">
+				<div class="overflow-hidden rounded-2xl border border-border bg-foreground">
 					<div class="grid lg:grid-cols-2 lg:gap-8">
 						<div class="px-6 py-12 sm:px-12 sm:py-16 lg:py-20 xl:px-16">
 							<h2 class="mb-5 text-3xl font-extrabold text-background sm:text-4xl">
@@ -299,7 +264,7 @@ import {
 
 							<a
 								href="https://tryequipped.com/users/sign_up/?ref=cta"
-								class="inline-flex items-center gap-2 rounded-md border border-background/20 bg-background/10 px-6 py-3 font-medium text-background transition-all hover:bg-background/20"
+								class="inline-flex items-center gap-2 rounded-lg border border-background/20 bg-background/10 px-6 py-3 font-medium text-background transition-all hover:bg-background/20"
 							>
 								Try us as your preferred Apple reseller
 								<ArrowRight class="h-4 w-4" />
@@ -308,7 +273,6 @@ import {
 
 						<div class="relative hidden items-end justify-center overflow-hidden lg:flex">
 							<div class="absolute inset-0 bg-gradient-to-br from-primary/20 to-transparent"></div>
-							<!-- Placeholder for MacBook image -->
 							<div class="relative flex h-full w-full items-center justify-center p-8">
 								<div class="flex flex-col items-center gap-4 text-background/60">
 									<Laptop class="h-32 w-32" />
@@ -427,7 +391,7 @@ import {
 		<!-- Final CTA Section -->
 		<section class="py-20 sm:py-28">
 			<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-				<div class="rounded-xl border border-border bg-muted/50 px-6 py-16 text-center sm:px-12 sm:py-20">
+				<div class="rounded-2xl border border-border bg-muted/50 px-6 py-16 text-center sm:px-12 sm:py-20">
 					<h2 class="mb-4 text-3xl font-bold tracking-tight sm:text-4xl">
 						Ready to simplify your IT?
 					</h2>
@@ -437,14 +401,14 @@ import {
 					<div class="flex flex-col items-center justify-center gap-4 sm:flex-row">
 						<a
 							href="https://tryequipped.com/users/sign_up"
-							class="inline-flex w-full items-center justify-center gap-2 rounded-md bg-primary px-8 py-3 text-base font-medium text-primary-foreground transition-colors hover:bg-primary/90 sm:w-auto"
+							class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-8 py-3 text-base font-medium text-primary-foreground transition-colors hover:bg-primary/90 sm:w-auto"
 						>
 							Get started free
 							<ArrowRight class="h-4 w-4" />
 						</a>
 						<a
 							href="mailto:hello@tryequipped.com"
-							class="inline-flex w-full items-center justify-center rounded-md border border-border bg-card px-8 py-3 text-base font-medium transition-colors hover:bg-muted sm:w-auto"
+							class="inline-flex w-full items-center justify-center rounded-lg border border-border bg-card px-8 py-3 text-base font-medium transition-colors hover:bg-muted sm:w-auto"
 						>
 							Contact sales
 						</a>
@@ -459,7 +423,7 @@ import {
 		<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 			<div class="flex flex-col items-center justify-between gap-6 md:flex-row">
 				<div class="flex items-center gap-2">
-					<div class="flex h-8 w-8 items-center justify-center rounded-md bg-primary">
+					<div class="flex h-8 w-8 items-center justify-center rounded-lg bg-primary">
 						<span class="text-sm font-bold text-primary-foreground">E</span>
 					</div>
 					<span class="text-lg font-semibold">Equipped</span>
@@ -479,4 +443,23 @@ import {
 			</div>
 		</div>
 	</footer>
+
+	<!-- Navigation scroll effect -->
+	<script>
+		const navContainer = document.getElementById('nav-container')
+		let lastScrollY = 0
+
+		function updateNav() {
+			const scrollY = window.scrollY
+			if (scrollY > 50) {
+				navContainer?.classList.add('bg-background/80', 'backdrop-blur-xl', 'shadow-sm')
+			} else {
+				navContainer?.classList.remove('bg-background/80', 'backdrop-blur-xl', 'shadow-sm')
+			}
+			lastScrollY = scrollY
+		}
+
+		window.addEventListener('scroll', updateNav, { passive: true })
+		updateNav()
+	</script>
 </BaseLayout>
