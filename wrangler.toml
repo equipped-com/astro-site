@@ -1,0 +1,20 @@
+#:schema node_modules/wrangler/config-schema.json
+name = "tryequipped"
+compatibility_date = "2025-09-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Custom domain configuration
+# Domain: tryequipped.preview.frst.dev
+[[routes]]
+pattern = "tryequipped.preview.frst.dev"
+custom_domain = true
+
+# CloudFlare Workers Configuration with Static Assets
+# Static files are served from /dist
+[assets]
+directory = "dist"
+binding = "ASSETS"
+not_found_handling = "single-page-application"
+
+[vars]
+ENVIRONMENT = "production"
