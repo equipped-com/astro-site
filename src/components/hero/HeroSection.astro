@@ -28,11 +28,11 @@ const { heroImage, logos } = Astro.props
 				src={heroImage}
 				alt="Hero background"
 				class="h-full w-full object-cover"
-				widths={[640, 1024, 1920]}
+				widths={[480, 768, 1280, 1920]}
 				sizes="100vw"
 				loading="eager"
 				fetchpriority="high"
-				quality={70}
+				quality={60}
 			/>
 		</div>
 		<!-- Overlay gradients -->
@@ -93,7 +93,7 @@ const { heroImage, logos } = Astro.props
 				</p>
 			</div>
 			<div class="relative w-full py-6 md:w-[calc(100%-11rem)] md:pl-6">
-				<InfiniteSlider client:visible speed={40} speedOnHover={20} gap={80}>
+				<InfiniteSlider client:idle speed={40} speedOnHover={20} gap={80}>
 					{logos.map((logo) => (
 						<div class="flex items-center justify-center">
 							<img
@@ -107,13 +107,13 @@ const { heroImage, logos } = Astro.props
 					))}
 				</InfiniteSlider>
 				<ProgressiveBlur
-					client:visible
+					client:idle
 					className="pointer-events-none absolute left-0 top-0 z-10 h-full w-20"
 					direction="left"
 					blurIntensity={1}
 				/>
 				<ProgressiveBlur
-					client:visible
+					client:idle
 					className="pointer-events-none absolute right-0 top-0 z-10 h-full w-20"
 					direction="right"
 					blurIntensity={1}

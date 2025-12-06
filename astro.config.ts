@@ -3,7 +3,7 @@ import sitemap from '@astrojs/sitemap'
 import tailwindcss from '@tailwindcss/vite'
 import { defineConfig } from 'astro/config'
 
-const assetPrefix = 'lib/'
+const assetPrefix = 'lib'
 
 export default defineConfig({
 	site: 'https://tryequipped.com',
