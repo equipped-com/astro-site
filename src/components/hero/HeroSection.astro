@@ -1,0 +1,152 @@
+---
+import { Image } from "astro:assets"
+import { ChevronRight } from "@lucide/astro"
+import { InfiniteSlider } from "@/components/ui/infinite-slider"
+import { ProgressiveBlur } from "@/components/ui/progressive-blur"
+
+interface Logo {
+	name: string
+	src: string
+}
+
+interface Props {
+	heroImage: ImageMetadata
+	logos: Logo[]
+}
+
+const { heroImage, logos } = Astro.props
+---
+
+<!-- Hero Section -->
+<section class="relative min-h-[50vh] overflow-hidden">
+	<!-- Ken Burns Background Image (CSS Animation) -->
+	<div class="absolute inset-0 overflow-hidden">
+		<div class="hero-ken-burns absolute inset-0">
+			<Image
+				src={heroImage}
+				alt="Hero background"
+				class="h-full w-full object-cover"
+				widths={[640, 1024, 1920]}
+				sizes="100vw"
+				loading="eager"
+				quality={85}
+			/>
+		</div>
+		<!-- Overlay gradients -->
+		<div class="absolute inset-0 bg-gradient-to-b from-background/80 via-background/60 to-background"></div>
+		<div class="absolute inset-0 bg-gradient-to-r from-background/90 via-transparent to-background/50"></div>
+	</div>
+
+	<!-- Content -->
+	<div class="relative z-10 flex min-h-[50vh] flex-col justify-center py-16 md:py-20 lg:py-24">
+		<div class="mx-auto flex max-w-7xl flex-col px-6 lg:block lg:px-12">
+			<div class="mx-auto max-w-lg text-center lg:ml-0 lg:max-w-full lg:text-left">
+				<!-- Badge -->
+				<div class="mb-6 inline-flex animate-slide-up items-center gap-2 rounded-full border border-border bg-card/80 px-4 py-1.5 text-sm opacity-0 backdrop-blur-sm [animation-delay:200ms] [animation-fill-mode:forwards]">
+					<span class="flex h-2 w-2 rounded-full bg-green-500"></span>
+					<span class="text-muted-foreground">Now shipping to 50+ countries</span>
+				</div>
+
+				<!-- Title -->
+				<h1 class="mt-4 max-w-2xl animate-slide-up text-balance text-4xl font-extrabold tracking-tight opacity-0 [animation-delay:300ms] [animation-fill-mode:forwards] sm:text-5xl md:text-6xl lg:mt-8 xl:text-7xl">
+					<span class="block">All things tech,</span>
+					<span class="block">one monthly fee.</span>
+					<span class="block text-primary">It's that simple.</span>
+				</h1>
+
+				<!-- Subtitle -->
+				<p class="mt-6 max-w-xl animate-slide-up text-balance text-lg text-muted-foreground opacity-0 [animation-delay:500ms] [animation-fill-mode:forwards] md:text-xl">
+					Equipped is the easiest way to get your team the tech they need wherever they are, keep track of your assets and IT spend, and keep your team fully equipped and productive.
+				</p>
+
+				<!-- CTAs -->
+				<div class="mt-10 flex animate-slide-up flex-col items-center justify-center gap-3 opacity-0 [animation-delay:700ms] [animation-fill-mode:forwards] sm:flex-row lg:justify-start">
+					<a
+						href="https://tryequipped.com/users/sign_up"
+						class="group inline-flex h-12 items-center justify-center gap-1 rounded-full bg-primary px-6 text-base font-medium text-primary-foreground transition-all hover:bg-primary/90 hover:shadow-lg"
+					>
+						<span class="text-nowrap">Sign up for free</span>
+						<ChevronRight class="ml-1 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+					</a>
+					<a
+						href="#how-it-works"
+						class="inline-flex h-12 items-center justify-center rounded-full px-6 text-base font-medium transition-colors hover:bg-muted"
+					>
+						<span class="text-nowrap">I'm a Consultant</span>
+					</a>
+				</div>
+			</div>
+		</div>
+	</div>
+</section>
+
+<!-- Logo Section -->
+<section class="relative z-20 bg-background pb-8">
+	<div class="mx-auto max-w-7xl px-6">
+		<div class="flex flex-col items-center md:flex-row">
+			<div class="mb-4 md:mb-0 md:max-w-44 md:border-r md:border-border md:pr-6">
+				<p class="text-center text-sm text-muted-foreground md:text-end">
+					Powering the best teams
+				</p>
+			</div>
+			<div class="relative w-full py-6 md:w-[calc(100%-11rem)] md:pl-6">
+				<InfiniteSlider client:visible speed={40} speedOnHover={20} gap={80}>
+					{logos.map((logo) => (
+						<div class="flex items-center justify-center">
+							<img
+								class="h-6 w-auto opacity-60 grayscale transition-all hover:opacity-100 hover:grayscale-0 md:h-8"
+								src={logo.src}
+								alt={logo.name}
+							/>
+						</div>
+					))}
+				</InfiniteSlider>
+				<ProgressiveBlur
+					client:visible
+					className="pointer-events-none absolute left-0 top-0 z-10 h-full w-20"
+					direction="left"
+					blurIntensity={1}
+				/>
+				<ProgressiveBlur
+					client:visible
+					className="pointer-events-none absolute right-0 top-0 z-10 h-full w-20"
+					direction="right"
+					blurIntensity={1}
+				/>
+			</div>
+		</div>
+	</div>
+</section>
+
+<style>
+	/* Ken Burns CSS Animation - smooth, GPU-accelerated */
+	@keyframes kenBurns {
+		0% {
+			transform: scale(1) translate(0, 0);
+		}
+		25% {
+			transform: scale(1.12) translate(2%, -1.5%);
+		}
+		50% {
+			transform: scale(1.08) translate(-1.5%, 1%);
+		}
+		75% {
+			transform: scale(1.15) translate(1.5%, -0.5%);
+		}
+		100% {
+			transform: scale(1) translate(0, 0);
+		}
+	}
+
+	.hero-ken-burns {
+		animation: kenBurns 30s ease-in-out infinite;
+		will-change: transform;
+	}
+
+	/* Reduce motion for accessibility */
+	@media (prefers-reduced-motion: reduce) {
+		.hero-ken-burns {
+			animation: none;
+		}
+	}
+</style>

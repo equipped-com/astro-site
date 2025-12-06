@@ -1,9 +1,11 @@
 ---
 import BaseLayout from '@/layouts/BaseLayout.astro'
-import HeroSection from '@/components/hero/HeroSection'
+import HeroSection from '@/components/hero/HeroSection.astro'
+import FeatureCard from '@/components/sections/FeatureCard.astro'
+import TestimonialCard from '@/components/sections/TestimonialCard.astro'
+import StatCard from '@/components/sections/StatCard.astro'
 import {
 	ArrowRight,
-	Check,
 	Laptop,
 	RefreshCw,
 	Shield,
@@ -12,23 +14,17 @@ import {
 	Zap,
 	BarChart3,
 	ChevronRight,
-	Star,
 	Monitor,
 	Smartphone,
 	Headphones,
 } from '@lucide/astro'
 
-// Import logos from assets
 import storkclubLogo from '@/assets/logos/storkclub.svg'
 import haloLogo from '@/assets/logos/halo.svg'
 import upgradedLogo from '@/assets/logos/upgraded.svg'
 import jdiLogo from '@/assets/logos/jdi.svg'
 import pingboardLogo from '@/assets/logos/pingboard.svg'
-
-// Import hero image
 import heroImage from '@/assets/loops.jpg'
-
-// Import logo
 import logoE from '@/assets/logo-e.svg'
 
 const logos = [
@@ -37,6 +33,34 @@ const logos = [
 	{ name: "Upgraded", src: upgradedLogo.src },
 	{ name: "JDI", src: jdiLogo.src },
 	{ name: "Pingboard", src: pingboardLogo.src },
+]
+
+const features = [
+	{ icon: Truck, title: "Global Device Delivery", description: "Ship pre-configured devices to employees anywhere in the world. Ready to work on arrival." },
+	{ icon: Zap, title: "Zero-Touch Setup", description: "Devices arrive configured with all software, settings, and security policies already in place." },
+	{ icon: BarChart3, title: "Asset Tracking", description: "Real-time visibility into your entire device inventory. Know who has what, always." },
+	{ icon: RefreshCw, title: "Device Lifecycle", description: "Manage upgrades, repairs, and replacements. Trade in old devices for credit." },
+	{ icon: Shield, title: "Security Built-In", description: "Enforce security policies, manage access, and ensure compliance from day one." },
+	{ icon: Users, title: "White-Glove Service", description: "Personalized support for you and your team. We're an extension of your IT department." },
+]
+
+const stats = [
+	{ value: "3 days", label: "Average onboarding time" },
+	{ value: "100+", label: "Companies trust us" },
+	{ value: "50+", label: "Countries shipped to" },
+	{ value: "24/7", label: "Support available" },
+]
+
+const testimonials = [
+	{ quote: "Equipped reduced our onboarding time from 3 weeks to 3 days. The global deployment capabilities are game-changing for our distributed team.", author: "Sarah Johnson", role: "IT Director, TechCorp", initials: "SJ" },
+	{ quote: "Finally, a service that understands remote work. Our new hires in 15 countries all had the same great first-day experience.", author: "Michael Rodriguez", role: "Head of People, StartupXYZ", initials: "MR" },
+	{ quote: "The asset tracking dashboard alone is worth it. We finally have visibility into our entire fleet and IT spend.", author: "Amanda Lee", role: "CFO, GrowthCo", initials: "AL" },
+]
+
+const steps = [
+	{ number: 1, title: "Add your new hire", description: "Enter employee details and select the device package. Choose from MacBooks, Windows laptops, monitors, and accessories." },
+	{ number: 2, title: "We configure & ship", description: "We set up the device with your software, security policies, and branding. Then ship it directly to your employee." },
+	{ number: 3, title: "They're ready to work", description: "Your employee opens the box, powers on, and starts working immediately. No IT tickets, no delays, no frustration." },
 ]
 ---
 
@@ -49,117 +73,35 @@ const logos = [
 					<img src={logoE.src} alt="Equipped" class="h-8 w-auto" />
 					<span class="text-xl font-semibold tracking-tight">Equipped</span>
 				</a>
-
 				<div class="hidden items-center gap-8 md:flex">
 					<a href="#features" class="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">Features</a>
 					<a href="#how-it-works" class="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">How it works</a>
 					<a href="#order" class="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">Order</a>
 				</div>
-
 				<div class="flex items-center gap-3">
-					<a
-						href="https://tryequipped.com/users/sign_in"
-						class="hidden text-sm font-medium text-muted-foreground transition-colors hover:text-foreground sm:block"
-					>
-						Sign in
-					</a>
-					<a
-						href="https://tryequipped.com/users/sign_up"
-						class="inline-flex h-10 items-center justify-center rounded-full bg-primary px-5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
-					>
-						Get Started
-					</a>
+					<a href="https://tryequipped.com/users/sign_in" class="hidden text-sm font-medium text-muted-foreground transition-colors hover:text-foreground sm:block">Sign in</a>
+					<a href="https://tryequipped.com/users/sign_up" class="inline-flex h-10 items-center justify-center rounded-full bg-primary px-5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90">Get Started</a>
 				</div>
 			</div>
 		</div>
 	</nav>
 
 	<main class="overflow-x-hidden">
-		<!-- Hero Section with Ken Burns -->
-		<HeroSection
-			client:load
-			heroImage={heroImage.src}
-			logos={logos}
-		/>
+		<HeroSection heroImage={heroImage} logos={logos} />
 
 		<!-- Features Section -->
 		<section id="features" class="border-t border-border bg-muted/30 py-20 sm:py-28">
 			<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 				<div class="mx-auto max-w-2xl text-center">
-					<h2 class="mb-4 text-3xl font-bold tracking-tight sm:text-4xl">
-						Everything you need to manage IT
-					</h2>
-					<p class="text-lg text-muted-foreground">
-						From day-one device setup to offboarding - we've got you covered.
-					</p>
+					<h2 class="mb-4 text-3xl font-bold tracking-tight sm:text-4xl">Everything you need to manage IT</h2>
+					<p class="text-lg text-muted-foreground">From day-one device setup to offboarding - we've got you covered.</p>
 				</div>
-
 				<div class="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-					<!-- Feature 1 -->
-					<div class="group rounded-lg border border-border bg-card p-6 transition-all hover:border-primary/30">
-						<div class="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-secondary">
-							<Truck class="h-5 w-5 text-secondary-foreground" />
-						</div>
-						<h3 class="mb-2 text-lg font-semibold">Global Device Delivery</h3>
-						<p class="text-sm text-muted-foreground">
-							Ship pre-configured devices to employees anywhere in the world. Ready to work on arrival.
-						</p>
-					</div>
-
-					<!-- Feature 2 -->
-					<div class="group rounded-lg border border-border bg-card p-6 transition-all hover:border-primary/30">
-						<div class="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-secondary">
-							<Zap class="h-5 w-5 text-secondary-foreground" />
-						</div>
-						<h3 class="mb-2 text-lg font-semibold">Zero-Touch Setup</h3>
-						<p class="text-sm text-muted-foreground">
-							Devices arrive configured with all software, settings, and security policies already in place.
-						</p>
-					</div>
-
-					<!-- Feature 3 -->
-					<div class="group rounded-lg border border-border bg-card p-6 transition-all hover:border-primary/30">
-						<div class="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-secondary">
-							<BarChart3 class="h-5 w-5 text-secondary-foreground" />
-						</div>
-						<h3 class="mb-2 text-lg font-semibold">Asset Tracking</h3>
-						<p class="text-sm text-muted-foreground">
-							Real-time visibility into your entire device inventory. Know who has what, always.
-						</p>
-					</div>
-
-					<!-- Feature 4 -->
-					<div class="group rounded-lg border border-border bg-card p-6 transition-all hover:border-primary/30">
-						<div class="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-secondary">
-							<RefreshCw class="h-5 w-5 text-secondary-foreground" />
-						</div>
-						<h3 class="mb-2 text-lg font-semibold">Device Lifecycle</h3>
-						<p class="text-sm text-muted-foreground">
-							Manage upgrades, repairs, and replacements. Trade in old devices for credit.
-						</p>
-					</div>
-
-					<!-- Feature 5 -->
-					<div class="group rounded-lg border border-border bg-card p-6 transition-all hover:border-primary/30">
-						<div class="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-secondary">
-							<Shield class="h-5 w-5 text-secondary-foreground" />
-						</div>
-						<h3 class="mb-2 text-lg font-semibold">Security Built-In</h3>
-						<p class="text-sm text-muted-foreground">
-							Enforce security policies, manage access, and ensure compliance from day one.
-						</p>
-					</div>
-
-					<!-- Feature 6 -->
-					<div class="group rounded-lg border border-border bg-card p-6 transition-all hover:border-primary/30">
-						<div class="mb-4 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-secondary">
-							<Users class="h-5 w-5 text-secondary-foreground" />
-						</div>
-						<h3 class="mb-2 text-lg font-semibold">White-Glove Service</h3>
-						<p class="text-sm text-muted-foreground">
-							Personalized support for you and your team. We're an extension of your IT department.
-						</p>
-					</div>
+					{features.map(({ icon: Icon, title, description }) => (
+						<FeatureCard title={title} description={description}>
+							<Icon slot="icon" class="h-5 w-5 text-secondary-foreground" />
+						</FeatureCard>
+					))}
 				</div>
 			</div>
 		</section>
@@ -168,62 +110,23 @@ const logos = [
 		<section id="how-it-works" class="py-20 sm:py-28">
 			<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 				<div class="mx-auto max-w-2xl text-center">
-					<h2 class="mb-4 text-3xl font-bold tracking-tight sm:text-4xl">
-						Onboarding made magical
-					</h2>
-					<p class="text-lg text-muted-foreground">
-						New hires start productive from day one - no more waiting for IT.
-					</p>
+					<h2 class="mb-4 text-3xl font-bold tracking-tight sm:text-4xl">Onboarding made magical</h2>
+					<p class="text-lg text-muted-foreground">New hires start productive from day one - no more waiting for IT.</p>
 				</div>
-
 				<div class="mt-16 grid gap-8 lg:grid-cols-3">
-					<!-- Step 1 -->
-					<div class="relative">
-						<div class="mb-6 flex items-center gap-4">
-							<div class="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-lg font-bold text-primary-foreground">
-								1
+					{steps.map(({ number, title, description }, i) => (
+						<div class="relative">
+							<div class="mb-6 flex items-center gap-4">
+								<div class="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-lg font-bold text-primary-foreground">{number}</div>
+								{i < steps.length - 1 && <div class="hidden h-px flex-1 bg-border lg:block" />}
 							</div>
-							<div class="hidden h-px flex-1 bg-border lg:block"></div>
+							<h3 class="mb-3 text-xl font-semibold">{title}</h3>
+							<p class="text-muted-foreground">{description}</p>
 						</div>
-						<h3 class="mb-3 text-xl font-semibold">Add your new hire</h3>
-						<p class="text-muted-foreground">
-							Enter employee details and select the device package. Choose from MacBooks, Windows laptops, monitors, and accessories.
-						</p>
-					</div>
-
-					<!-- Step 2 -->
-					<div class="relative">
-						<div class="mb-6 flex items-center gap-4">
-							<div class="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-lg font-bold text-primary-foreground">
-								2
-							</div>
-							<div class="hidden h-px flex-1 bg-border lg:block"></div>
-						</div>
-						<h3 class="mb-3 text-xl font-semibold">We configure & ship</h3>
-						<p class="text-muted-foreground">
-							We set up the device with your software, security policies, and branding. Then ship it directly to your employee.
-						</p>
-					</div>
-
-					<!-- Step 3 -->
-					<div class="relative">
-						<div class="mb-6 flex items-center gap-4">
-							<div class="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-lg font-bold text-primary-foreground">
-								3
-							</div>
-						</div>
-						<h3 class="mb-3 text-xl font-semibold">They're ready to work</h3>
-						<p class="text-muted-foreground">
-							Your employee opens the box, powers on, and starts working immediately. No IT tickets, no delays, no frustration.
-						</p>
-					</div>
+					))}
 				</div>
-
 				<div class="mt-12 text-center">
-					<a
-						href="https://tryequipped.com/users/sign_up"
-						class="inline-flex items-center gap-2 text-primary transition-colors hover:text-primary/80"
-					>
+					<a href="https://tryequipped.com/users/sign_up" class="inline-flex items-center gap-2 text-primary transition-colors hover:text-primary/80">
 						<span class="font-medium">See it in action</span>
 						<ChevronRight class="h-4 w-4" />
 					</a>
@@ -240,40 +143,20 @@ const logos = [
 							<h2 class="mb-5 text-3xl font-extrabold text-background sm:text-4xl">
 								Order a <span class="bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">MacBook Pro</span> today.
 							</h2>
-							<p class="mb-8 text-lg text-background/70">
-								Upgrade plans available. Trade-in older devices for credit.
-							</p>
-
+							<p class="mb-8 text-lg text-background/70">Upgrade plans available. Trade-in older devices for credit.</p>
 							<div class="mb-8 flex flex-wrap gap-4">
-								<div class="flex items-center gap-2 text-sm text-background/80">
-									<Monitor class="h-4 w-4" />
-									<span>MacBooks</span>
-								</div>
-								<div class="flex items-center gap-2 text-sm text-background/80">
-									<Laptop class="h-4 w-4" />
-									<span>iPads</span>
-								</div>
-								<div class="flex items-center gap-2 text-sm text-background/80">
-									<Smartphone class="h-4 w-4" />
-									<span>iPhones</span>
-								</div>
-								<div class="flex items-center gap-2 text-sm text-background/80">
-									<Headphones class="h-4 w-4" />
-									<span>Accessories</span>
-								</div>
+								<div class="flex items-center gap-2 text-sm text-background/80"><Monitor class="h-4 w-4" /><span>MacBooks</span></div>
+								<div class="flex items-center gap-2 text-sm text-background/80"><Laptop class="h-4 w-4" /><span>iPads</span></div>
+								<div class="flex items-center gap-2 text-sm text-background/80"><Smartphone class="h-4 w-4" /><span>iPhones</span></div>
+								<div class="flex items-center gap-2 text-sm text-background/80"><Headphones class="h-4 w-4" /><span>Accessories</span></div>
 							</div>
-
-							<a
-								href="https://tryequipped.com/users/sign_up/?ref=cta"
-								class="inline-flex items-center gap-2 rounded-lg border border-background/20 bg-background/10 px-6 py-3 font-medium text-background transition-all hover:bg-background/20"
-							>
+							<a href="https://tryequipped.com/users/sign_up/?ref=cta" class="inline-flex items-center gap-2 rounded-lg border border-background/20 bg-background/10 px-6 py-3 font-medium text-background transition-all hover:bg-background/20">
 								Try us as your preferred Apple reseller
 								<ArrowRight class="h-4 w-4" />
 							</a>
 						</div>
-
 						<div class="relative hidden items-end justify-center overflow-hidden lg:flex">
-							<div class="absolute inset-0 bg-gradient-to-br from-primary/20 to-transparent"></div>
+							<div class="absolute inset-0 bg-gradient-to-br from-primary/20 to-transparent" />
 							<div class="relative flex h-full w-full items-center justify-center p-8">
 								<div class="flex flex-col items-center gap-4 text-background/60">
 									<Laptop class="h-32 w-32" />
@@ -290,22 +173,7 @@ const logos = [
 		<section class="border-y border-border bg-muted/30 py-16 sm:py-20">
 			<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 				<div class="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-					<div class="text-center">
-						<div class="mb-2 text-4xl font-bold text-primary">3 days</div>
-						<div class="text-sm text-muted-foreground">Average onboarding time</div>
-					</div>
-					<div class="text-center">
-						<div class="mb-2 text-4xl font-bold text-primary">100+</div>
-						<div class="text-sm text-muted-foreground">Companies trust us</div>
-					</div>
-					<div class="text-center">
-						<div class="mb-2 text-4xl font-bold text-primary">50+</div>
-						<div class="text-sm text-muted-foreground">Countries shipped to</div>
-					</div>
-					<div class="text-center">
-						<div class="mb-2 text-4xl font-bold text-primary">24/7</div>
-						<div class="text-sm text-muted-foreground">Support available</div>
-					</div>
+					{stats.map(({ value, label }) => <StatCard value={value} label={label} />)}
 				</div>
 			</div>
 		</section>
@@ -314,77 +182,11 @@ const logos = [
 		<section class="py-20 sm:py-28">
 			<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 				<div class="mx-auto max-w-2xl text-center">
-					<h2 class="mb-4 text-3xl font-bold tracking-tight sm:text-4xl">
-						Loved by IT teams everywhere
-					</h2>
-					<p class="text-lg text-muted-foreground">
-						See why companies choose Equipped for their IT needs.
-					</p>
+					<h2 class="mb-4 text-3xl font-bold tracking-tight sm:text-4xl">Loved by IT teams everywhere</h2>
+					<p class="text-lg text-muted-foreground">See why companies choose Equipped for their IT needs.</p>
 				</div>
-
 				<div class="mt-16 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-					<!-- Testimonial 1 -->
-					<div class="rounded-lg border border-border bg-card p-6">
-						<div class="mb-4 flex gap-1">
-							{Array.from({ length: 5 }).map(() => (
-								<Star class="h-4 w-4 fill-primary text-primary" />
-							))}
-						</div>
-						<p class="mb-6 text-muted-foreground">
-							"Equipped reduced our onboarding time from 3 weeks to 3 days. The global deployment capabilities are game-changing for our distributed team."
-						</p>
-						<div class="flex items-center gap-3">
-							<div class="flex h-10 w-10 items-center justify-center rounded-full bg-secondary text-sm font-semibold">
-								SJ
-							</div>
-							<div>
-								<div class="font-medium">Sarah Johnson</div>
-								<div class="text-sm text-muted-foreground">IT Director, TechCorp</div>
-							</div>
-						</div>
-					</div>
-
-					<!-- Testimonial 2 -->
-					<div class="rounded-lg border border-border bg-card p-6">
-						<div class="mb-4 flex gap-1">
-							{Array.from({ length: 5 }).map(() => (
-								<Star class="h-4 w-4 fill-primary text-primary" />
-							))}
-						</div>
-						<p class="mb-6 text-muted-foreground">
-							"Finally, a service that understands remote work. Our new hires in 15 countries all had the same great first-day experience."
-						</p>
-						<div class="flex items-center gap-3">
-							<div class="flex h-10 w-10 items-center justify-center rounded-full bg-secondary text-sm font-semibold">
-								MR
-							</div>
-							<div>
-								<div class="font-medium">Michael Rodriguez</div>
-								<div class="text-sm text-muted-foreground">Head of People, StartupXYZ</div>
-							</div>
-						</div>
-					</div>
-
-					<!-- Testimonial 3 -->
-					<div class="rounded-lg border border-border bg-card p-6">
-						<div class="mb-4 flex gap-1">
-							{Array.from({ length: 5 }).map(() => (
-								<Star class="h-4 w-4 fill-primary text-primary" />
-							))}
-						</div>
-						<p class="mb-6 text-muted-foreground">
-							"The asset tracking dashboard alone is worth it. We finally have visibility into our entire fleet and IT spend."
-						</p>
-						<div class="flex items-center gap-3">
-							<div class="flex h-10 w-10 items-center justify-center rounded-full bg-secondary text-sm font-semibold">
-								AL
-							</div>
-							<div>
-								<div class="font-medium">Amanda Lee</div>
-								<div class="text-sm text-muted-foreground">CFO, GrowthCo</div>
-							</div>
-						</div>
-					</div>
+					{testimonials.map((t) => <TestimonialCard {...t} />)}
 				</div>
 			</div>
 		</section>
@@ -393,26 +195,14 @@ const logos = [
 		<section class="py-20 sm:py-28">
 			<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 				<div class="rounded-2xl border border-border bg-muted/50 px-6 py-16 text-center sm:px-12 sm:py-20">
-					<h2 class="mb-4 text-3xl font-bold tracking-tight sm:text-4xl">
-						Ready to simplify your IT?
-					</h2>
-					<p class="mx-auto mb-8 max-w-xl text-lg text-muted-foreground">
-						Join hundreds of companies that trust Equipped to keep their teams productive.
-					</p>
+					<h2 class="mb-4 text-3xl font-bold tracking-tight sm:text-4xl">Ready to simplify your IT?</h2>
+					<p class="mx-auto mb-8 max-w-xl text-lg text-muted-foreground">Join hundreds of companies that trust Equipped to keep their teams productive.</p>
 					<div class="flex flex-col items-center justify-center gap-4 sm:flex-row">
-						<a
-							href="https://tryequipped.com/users/sign_up"
-							class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-8 py-3 text-base font-medium text-primary-foreground transition-colors hover:bg-primary/90 sm:w-auto"
-						>
+						<a href="https://tryequipped.com/users/sign_up" class="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-primary px-8 py-3 text-base font-medium text-primary-foreground transition-colors hover:bg-primary/90 sm:w-auto">
 							Get started free
 							<ArrowRight class="h-4 w-4" />
 						</a>
-						<a
-							href="mailto:hello@tryequipped.com"
-							class="inline-flex w-full items-center justify-center rounded-lg border border-border bg-card px-8 py-3 text-base font-medium transition-colors hover:bg-muted sm:w-auto"
-						>
-							Contact sales
-						</a>
+						<a href="mailto:hello@tryequipped.com" class="inline-flex w-full items-center justify-center rounded-lg border border-border bg-card px-8 py-3 text-base font-medium transition-colors hover:bg-muted sm:w-auto">Contact sales</a>
 					</div>
 				</div>
 			</div>
@@ -427,7 +217,6 @@ const logos = [
 					<img src={logoE.src} alt="Equipped" class="h-7 w-auto" />
 					<span class="text-lg font-semibold">Equipped</span>
 				</div>
-
 				<div class="flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground">
 					<a href="#features" class="transition-colors hover:text-foreground">Features</a>
 					<a href="#how-it-works" class="transition-colors hover:text-foreground">How it works</a>
@@ -435,29 +224,20 @@ const logos = [
 					<a href="https://tryequipped.com/privacy" class="transition-colors hover:text-foreground">Privacy</a>
 					<a href="https://tryequipped.com/terms" class="transition-colors hover:text-foreground">Terms</a>
 				</div>
-
-				<div class="text-sm text-muted-foreground">
-					&copy; {new Date().getFullYear()} Equipped. All rights reserved.
-				</div>
+				<div class="text-sm text-muted-foreground">&copy; {new Date().getFullYear()} Equipped. All rights reserved.</div>
 			</div>
 		</div>
 	</footer>
 
-	<!-- Navigation scroll effect -->
 	<script>
 		const navContainer = document.getElementById('nav-container')
-		let lastScrollY = 0
-
 		function updateNav() {
-			const scrollY = window.scrollY
-			if (scrollY > 50) {
+			if (window.scrollY > 50) {
 				navContainer?.classList.add('bg-background/80', 'backdrop-blur-xl', 'shadow-sm')
 			} else {
 				navContainer?.classList.remove('bg-background/80', 'backdrop-blur-xl', 'shadow-sm')
 			}
-			lastScrollY = scrollY
 		}
-
 		window.addEventListener('scroll', updateNav, { passive: true })
 		updateNav()
 	</script>

@@ -1,0 +1,30 @@
+---
+import { Star } from "@lucide/astro"
+
+interface Props {
+	quote: string
+	author: string
+	role: string
+	initials: string
+}
+
+const { quote, author, role, initials } = Astro.props
+---
+
+<div class="rounded-lg border border-border bg-card p-6">
+	<div class="mb-4 flex gap-1">
+		{Array.from({ length: 5 }).map(() => (
+			<Star class="h-4 w-4 fill-primary text-primary" />
+		))}
+	</div>
+	<p class="mb-6 text-muted-foreground">"{quote}"</p>
+	<div class="flex items-center gap-3">
+		<div class="flex h-10 w-10 items-center justify-center rounded-full bg-secondary text-sm font-semibold">
+			{initials}
+		</div>
+		<div>
+			<div class="font-medium">{author}</div>
+			<div class="text-sm text-muted-foreground">{role}</div>
+		</div>
+	</div>
+</div>

@@ -13,7 +13,6 @@ custom_domain = true
 # Static files are served from /dist
 [assets]
 directory = "dist"
-binding = "ASSETS"
 not_found_handling = "single-page-application"
 
 [vars]
