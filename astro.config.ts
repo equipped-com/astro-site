@@ -6,7 +6,7 @@ import { defineConfig } from 'astro/config'
 const assetPrefix = 'lib/'
 
 export default defineConfig({
-	site: 'https://tryequipped.preview.frst.dev',
+	site: 'https://tryequipped.com',
 	output: 'static',
 	outDir: 'dist',
 

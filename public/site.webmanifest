@@ -1,0 +1,25 @@
+{
+	"name": "Equipped - IT Asset Management",
+	"short_name": "Equipped",
+	"description": "Run your business and we handle the tech. IT asset management and device provisioning made simple.",
+	"start_url": "/",
+	"display": "standalone",
+	"background_color": "#ffffff",
+	"theme_color": "#000000",
+	"orientation": "portrait-primary",
+	"icons": [
+		{
+			"src": "/favicon.svg",
+			"sizes": "any",
+			"type": "image/svg+xml",
+			"purpose": "any maskable"
+		},
+		{
+			"src": "/apple-touch-icon.png",
+			"sizes": "180x180",
+			"type": "image/png"
+		}
+	],
+	"categories": ["business", "productivity"],
+	"lang": "en-US"
+}

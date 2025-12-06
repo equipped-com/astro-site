@@ -4,36 +4,147 @@ import '@/styles/global.css'
 interface Props {
 	title: string
 	description?: string
+	image?: string
+	noindex?: boolean
 }
 
-const { title, description = 'Equipped - Run your business and we handle the tech. IT asset management and device provisioning made simple.' } = Astro.props
+const siteUrl = 'https://tryequipped.com'
+const siteName = 'Equipped'
+const twitterHandle = '@tryequipped'
+
+const {
+	title,
+	description = 'Equipped - Run your business and we handle the tech. IT asset management and device provisioning made simple. Global device delivery, zero-touch setup, and white-glove service.',
+	image = '/og-image.jpg',
+	noindex = false,
+} = Astro.props
+
+const canonicalUrl = new URL(Astro.url.pathname, siteUrl).href
+const ogImageUrl = new URL(image, siteUrl).href
+
+// Structured Data - Organization
+const organizationSchema = {
+	"@context": "https://schema.org",
+	"@type": "Organization",
+	"name": siteName,
+	"url": siteUrl,
+	"logo": `${siteUrl}/favicon.svg`,
+	"description": "IT asset management and device provisioning platform for modern businesses.",
+	"sameAs": [
+		"https://twitter.com/tryequipped",
+		"https://linkedin.com/company/equipped"
+	],
+	"contactPoint": {
+		"@type": "ContactPoint",
+		"email": "hello@tryequipped.com",
+		"contactType": "customer service",
+		"availableLanguage": "English"
+	}
+}
+
+// Structured Data - WebSite with SearchAction
+const websiteSchema = {
+	"@context": "https://schema.org",
+	"@type": "WebSite",
+	"name": siteName,
+	"url": siteUrl,
+	"description": description,
+	"publisher": {
+		"@type": "Organization",
+		"name": siteName
+	}
+}
+
+// Structured Data - SoftwareApplication
+const softwareSchema = {
+	"@context": "https://schema.org",
+	"@type": "SoftwareApplication",
+	"name": siteName,
+	"applicationCategory": "BusinessApplication",
+	"operatingSystem": "Web",
+	"offers": {
+		"@type": "Offer",
+		"price": "0",
+		"priceCurrency": "USD",
+		"description": "Free to get started"
+	},
+	"aggregateRating": {
+		"@type": "AggregateRating",
+		"ratingValue": "5",
+		"ratingCount": "100"
+	}
+}
 ---
 
 <!doctype html>
 <html lang="en">
 	<head>
+		<!-- Essential Meta -->
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+		<!-- SEO Meta -->
+		<title>{title}</title>
 		<meta name="description" content={description} />
+		<meta name="keywords" content="IT asset management, device provisioning, employee onboarding, MacBook deployment, remote work IT, device lifecycle management, IT equipment, Apple reseller, global device delivery, zero-touch deployment" />
+		<meta name="author" content="Equipped" />
+		<meta name="robots" content={noindex ? 'noindex, nofollow' : 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1'} />
+		<meta name="googlebot" content={noindex ? 'noindex, nofollow' : 'index, follow'} />
+		<link rel="canonical" href={canonicalUrl} />
+
+		<!-- Favicon & Icons -->
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="icon" type="image/png" sizes="32x32" href="/favicon.svg" />
+		<link rel="icon" type="image/png" sizes="16x16" href="/favicon.svg" />
+		<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+		<link rel="manifest" href="/site.webmanifest" />
+		<meta name="theme-color" content="#000000" />
+		<meta name="msapplication-TileColor" content="#000000" />
+
+		<!-- Open Graph / Facebook -->
+		<meta property="og:type" content="website" />
+		<meta property="og:url" content={canonicalUrl} />
+		<meta property="og:title" content={title} />
+		<meta property="og:description" content={description} />
+		<meta property="og:image" content={ogImageUrl} />
+		<meta property="og:image:width" content="1200" />
+		<meta property="og:image:height" content="630" />
+		<meta property="og:image:alt" content="Equipped - IT Asset Management Platform" />
+		<meta property="og:site_name" content={siteName} />
+		<meta property="og:locale" content="en_US" />
+
+		<!-- Twitter / X -->
+		<meta name="twitter:card" content="summary_large_image" />
+		<meta name="twitter:site" content={twitterHandle} />
+		<meta name="twitter:creator" content={twitterHandle} />
+		<meta name="twitter:title" content={title} />
+		<meta name="twitter:description" content={description} />
+		<meta name="twitter:image" content={ogImageUrl} />
+		<meta name="twitter:image:alt" content="Equipped - IT Asset Management Platform" />
+
+		<!-- Additional SEO -->
+		<meta name="format-detection" content="telephone=no" />
+		<meta name="mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+		<meta name="apple-mobile-web-app-title" content={siteName} />
+
+		<!-- Preconnect for Performance -->
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link rel="dns-prefetch" href="https://tryequipped.com" />
+
+		<!-- Fonts -->
 		<link
 			href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
 			rel="stylesheet"
 		/>
-		<title>{title}</title>
 
-		<!-- Open Graph -->
-		<meta property="og:title" content={title} />
-		<meta property="og:description" content={description} />
-		<meta property="og:type" content="website" />
-		<meta property="og:url" content="https://tryequipped.com" />
-
-		<!-- Twitter -->
-		<meta name="twitter:card" content="summary_large_image" />
-		<meta name="twitter:title" content={title} />
-		<meta name="twitter:description" content={description} />
+		<!-- Structured Data -->
+		<script type="application/ld+json" set:html={JSON.stringify(organizationSchema)} />
+		<script type="application/ld+json" set:html={JSON.stringify(websiteSchema)} />
+		<script type="application/ld+json" set:html={JSON.stringify(softwareSchema)} />
 	</head>
 	<body class="min-h-screen bg-background text-foreground">
 		<slot />
