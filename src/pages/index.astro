@@ -28,11 +28,11 @@ import heroImage from '@/assets/loops.jpg'
 import logoE from '@/assets/logo-e.svg'
 
 const logos = [
-	{ name: "Stork Club", src: storkclubLogo.src },
-	{ name: "Halo", src: haloLogo.src },
-	{ name: "Upgraded", src: upgradedLogo.src },
-	{ name: "JDI", src: jdiLogo.src },
-	{ name: "Pingboard", src: pingboardLogo.src },
+	{ name: "Stork Club", src: storkclubLogo.src, width: 160, height: 24 },
+	{ name: "Halo", src: haloLogo.src, width: 72, height: 24 },
+	{ name: "Upgraded", src: upgradedLogo.src, width: 108, height: 24 },
+	{ name: "JDI", src: jdiLogo.src, width: 31, height: 24 },
+	{ name: "Pingboard", src: pingboardLogo.src, width: 120, height: 24 },
 ]
 
 const features = [
@@ -70,7 +70,7 @@ const steps = [
 		<div class="mx-auto max-w-7xl rounded-3xl px-6 transition-all duration-300 lg:px-12" id="nav-container">
 			<div class="relative flex flex-wrap items-center justify-between gap-6 py-3 duration-200 lg:gap-0 lg:py-6">
 				<a href="/" class="flex items-center gap-2">
-					<img src={logoE.src} alt="Equipped" class="h-8 w-auto" />
+					<img src={logoE.src} alt="Equipped" class="h-8 w-auto" width="29" height="32" />
 					<span class="text-xl font-semibold tracking-tight">Equipped</span>
 				</a>
 				<div class="hidden items-center gap-8 md:flex">
@@ -214,7 +214,7 @@ const steps = [
 		<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
 			<div class="flex flex-col items-center justify-between gap-6 md:flex-row">
 				<div class="flex items-center gap-2">
-					<img src={logoE.src} alt="Equipped" class="h-7 w-auto" />
+					<img src={logoE.src} alt="Equipped" class="h-7 w-auto" width="26" height="28" />
 					<span class="text-lg font-semibold">Equipped</span>
 				</div>
 				<div class="flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground">

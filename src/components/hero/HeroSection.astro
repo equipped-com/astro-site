@@ -7,6 +7,8 @@ import { ProgressiveBlur } from "@/components/ui/progressive-blur"
 interface Logo {
 	name: string
 	src: string
+	width: number
+	height: number
 }
 
 interface Props {
@@ -29,7 +31,8 @@ const { heroImage, logos } = Astro.props
 				widths={[640, 1024, 1920]}
 				sizes="100vw"
 				loading="eager"
-				quality={85}
+				fetchpriority="high"
+				quality={70}
 			/>
 		</div>
 		<!-- Overlay gradients -->
@@ -97,6 +100,8 @@ const { heroImage, logos } = Astro.props
 								class="h-6 w-auto opacity-60 grayscale transition-all hover:opacity-100 hover:grayscale-0 md:h-8"
 								src={logo.src}
 								alt={logo.name}
+								width={logo.width}
+								height={logo.height}
 							/>
 						</div>
 					))}

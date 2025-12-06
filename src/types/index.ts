@@ -27,4 +27,6 @@ export interface Step {
 export interface Logo {
 	name: string
 	src: string
+	width: number
+	height: number
 }
