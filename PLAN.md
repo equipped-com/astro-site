@@ -24,35 +24,60 @@ Transforming the static [Astro](https://astro.build/) landing page into a full-s
 
 > **Docs:** [Hono on Cloudflare Workers](https://hono.dev/docs/getting-started/cloudflare-workers) | [Hono + Clerk middleware](https://github.com/honojs/middleware/tree/main/packages/clerk-auth)
 
+### Current State (Static Assets Only)
+
+The site currently runs as **pure static assets** with no worker:
+- Cache/security headers via `public/_headers` file
+- No `src/worker.ts` - intentionally removed for simplicity
+- Docs: https://developers.cloudflare.com/workers/static-assets/headers/
+
+This is by design - the worker is only needed when we add API routes.
+
 ### 1.1 Install Dependencies
 ```bash
 npm install hono @hono/clerk-auth
 ```
 
-### 1.2 Restructure Worker (`src/worker.ts`)
+### 1.2 Create Worker (`src/worker.ts`)
 
-Replace the simple cache-header worker with Hono routing:
+Create a new Hono-based worker to handle API routes:
 
 ```
 src/worker.ts
-├── Static asset handling (existing cache/security headers)
 ├── API routes (/api/*)
 │   ├── /api/auth/* - Clerk webhook endpoints
 │   ├── /api/devices - Device CRUD
 │   ├── /api/user - User profile
 │   └── /api/health - Health check
-└── Fallback to Astro static assets
+└── Fallback to ASSETS binding for static files
 ```
 
 **Key Considerations:**
-- Preserve existing cache/security headers for static assets
+- Cache/security headers remain in `public/_headers` (works alongside worker)
+- Use `run_worker_first = ["/api/*"]` to only invoke worker for API routes
+- Static assets still served directly without worker overhead
 - Use Hono middleware for auth verification on protected routes
-- Keep `run_worker_first = true` in wrangler.toml
 
 ### 1.3 Update wrangler.toml
 
-Add D1 binding and environment variables:
+Add worker entry point, D1 binding, and environment variables:
 ```toml
+#:schema node_modules/wrangler/config-schema.json
+name = "tryequipped"
+main = "src/worker.ts"
+compatibility_date = "2025-09-01"
+compatibility_flags = ["nodejs_compat"]
+
+[[routes]]
+pattern = "tryequipped.preview.frst.dev"
+custom_domain = true
+
+[assets]
+directory = "dist"
+binding = "ASSETS"
+not_found_handling = "single-page-application"
+run_worker_first = ["/api/*"]
+
 [[d1_databases]]
 binding = "DB"
 database_name = "equipped-db"
@@ -310,29 +335,20 @@ CLERK_WEBHOOK_SECRET=whsec_xxx
 
 ### 7.2 Updated wrangler.toml
 
-```toml
-name = "tryequipped"
-main = "dist/worker.js"
-compatibility_date = "2024-12-01"
-assets = { directory = "dist", run_worker_first = true }
-
-[[d1_databases]]
-binding = "DB"
-database_name = "equipped-db"
-database_id = "xxx-xxx-xxx"
-
-[vars]
-ENVIRONMENT = "production"
-```
+See Phase 1.3 for complete wrangler.toml with:
+- `main = "src/worker.ts"` for Hono API routes
+- `run_worker_first = ["/api/*"]` for selective worker invocation
+- D1 database binding
+- Clerk environment variables
 
 ### 7.3 Build Process
 
-Update build to handle both Astro static + Worker:
+Wrangler handles TypeScript compilation automatically - no custom build step needed:
 ```json
 {
   "scripts": {
-    "build": "astro build && npm run build:worker",
-    "build:worker": "esbuild src/worker.ts --bundle --outfile=dist/worker.js --format=esm"
+    "build": "astro build",
+    "deploy": "astro build && wrangler deploy"
   }
 }
 ```
