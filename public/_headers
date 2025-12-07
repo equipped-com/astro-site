@@ -1,0 +1,32 @@
+# Security headers for all responses
+/*
+	X-Content-Type-Options: nosniff
+	X-Frame-Options: DENY
+	Referrer-Policy: strict-origin-when-cross-origin
+	Permissions-Policy: geolocation=(), microphone=(), camera=()
+
+# HTML pages - always revalidate
+/
+	Cache-Control: public, max-age=0, must-revalidate
+
+/*.html
+	Cache-Control: public, max-age=0, must-revalidate
+
+# Astro hashed assets - immutable forever
+/_astro/*
+	Cache-Control: public, max-age=31536000, immutable
+
+# Custom lib hashed assets - immutable forever
+/lib/*
+	Cache-Control: public, max-age=31536000, immutable
+
+# Images and fonts - long cache
+/*.webp
+	Cache-Control: public, max-age=31536000, immutable
+
+/*.woff2
+	Cache-Control: public, max-age=31536000, immutable
+
+# SVGs - 1 day cache
+/*.svg
+	Cache-Control: public, max-age=86400
