@@ -3,6 +3,7 @@
 ## Project Overview
 
 Transforming the static [Astro](https://astro.build/) landing page into a full-stack application with:
+
 - [Hono](https://hono.dev/) API routing on [Cloudflare Workers](https://developers.cloudflare.com/workers/)
 - [Clerk](https://clerk.com/) authentication (sign up, sign in, session management)
 - [Cloudflare D1](https://developers.cloudflare.com/d1/) database for user and device data
@@ -10,13 +11,13 @@ Transforming the static [Astro](https://astro.build/) landing page into a full-s
 
 ### Quick Links
 
-| Service | Dashboard | Docs |
-|---------|-----------|------|
-| **Clerk** | [dashboard.clerk.com](https://dashboard.clerk.com/) | [clerk.com/docs](https://clerk.com/docs) |
+| Service        | Dashboard                                           | Docs                                                            |
+| -------------- | --------------------------------------------------- | --------------------------------------------------------------- |
+| **Clerk**      | [dashboard.clerk.com](https://dashboard.clerk.com/) | [clerk.com/docs](https://clerk.com/docs)                        |
 | **Cloudflare** | [dash.cloudflare.com](https://dash.cloudflare.com/) | [developers.cloudflare.com](https://developers.cloudflare.com/) |
-| **Hono** | - | [hono.dev/docs](https://hono.dev/docs/) |
-| **shadcn/ui** | - | [ui.shadcn.com](https://ui.shadcn.com/) |
-| **21st.dev** | - | [21st.dev](https://21st.dev/) |
+| **Hono**       | -                                                   | [hono.dev/docs](https://hono.dev/docs/)                         |
+| **shadcn/ui**  | -                                                   | [ui.shadcn.com](https://ui.shadcn.com/)                         |
+| **21st.dev**   | -                                                   | [21st.dev](https://21st.dev/)                                   |
 
 ---
 
@@ -27,13 +28,15 @@ Transforming the static [Astro](https://astro.build/) landing page into a full-s
 ### Current State (Static Assets Only)
 
 The site currently runs as **pure static assets** with no worker:
+
 - Cache/security headers via `public/_headers` file
 - No `src/worker.ts` - intentionally removed for simplicity
-- Docs: https://developers.cloudflare.com/workers/static-assets/headers/
+- Docs: <https://developers.cloudflare.com/workers/static-assets/headers/>
 
 This is by design - the worker is only needed when we add API routes.
 
 ### 1.1 Install Dependencies
+
 ```bash
 npm install hono @hono/clerk-auth
 ```
@@ -53,6 +56,7 @@ src/worker.ts
 ```
 
 **Key Considerations:**
+
 - Cache/security headers remain in `public/_headers` (works alongside worker)
 - Use `run_worker_first = ["/api/*"]` to only invoke worker for API routes
 - Static assets still served directly without worker overhead
@@ -61,6 +65,7 @@ src/worker.ts
 ### 1.3 Update wrangler.toml
 
 Add worker entry point, D1 binding, and environment variables:
+
 ```toml
 #:schema node_modules/wrangler/config-schema.json
 name = "tryequipped"
@@ -92,9 +97,10 @@ CLERK_SECRET_KEY = ""
 
 ## Phase 2: Clerk Authentication Setup
 
-> **Docs:** [Clerk React Quickstart](https://clerk.com/docs/quickstarts/react) | [Clerk + Astro](https://clerk.com/docs/references/astro/overview) | [Webhooks](https://clerk.com/docs/webhooks/overview)
+> **Docs:** [Clerk React Quickstart](https://clerk.com/docs/quickstarts/react) | [Clerk + Astro](https://clerk.com/docs/reference/astro/react) | [Webhooks](https://clerk.com/docs/webhooks/overview)
 
 ### 2.1 Create Clerk Application
+
 - Go to [dashboard.clerk.com](https://dashboard.clerk.com/) and create a new application
 - Configure sign-in methods (email, Google OAuth recommended)
 - Get publishable key and secret key
@@ -102,11 +108,13 @@ CLERK_SECRET_KEY = ""
 ### 2.2 Add Clerk to Frontend
 
 **Install Clerk React SDK:**
+
 ```bash
 npm install @clerk/clerk-react
 ```
 
 **Create auth components:**
+
 ```
 src/components/auth/
 ├── ClerkProvider.tsx       # Clerk context wrapper
@@ -129,6 +137,7 @@ src/pages/
 ### 2.4 Update Navigation
 
 Replace external tryequipped.com auth links with internal routes:
+
 - "Sign in" -> `/sign-in`
 - "Get Started" -> `/sign-up`
 
@@ -222,14 +231,14 @@ src/api/
 
 ### 4.2 Device API Endpoints
 
-| Method | Path | Description |
-|--------|------|-------------|
-| GET | `/api/devices` | List user's devices |
-| POST | `/api/devices` | Create new device |
-| GET | `/api/devices/:id` | Get device details |
-| PUT | `/api/devices/:id` | Update device |
-| DELETE | `/api/devices/:id` | Delete device |
-| POST | `/api/devices/:id/assign` | Assign to employee |
+| Method | Path                      | Description         |
+| ------ | ------------------------- | ------------------- |
+| GET    | `/api/devices`            | List user's devices |
+| POST   | `/api/devices`            | Create new device   |
+| GET    | `/api/devices/:id`        | Get device details  |
+| PUT    | `/api/devices/:id`        | Update device       |
+| DELETE | `/api/devices/:id`        | Delete device       |
+| POST   | `/api/devices/:id/assign` | Assign to employee  |
 
 ### 4.3 Clerk Webhook Handler
 
@@ -237,11 +246,11 @@ Handle user.created, user.updated events to sync to D1:
 
 ```typescript
 // POST /api/auth/webhook
-app.post('/api/auth/webhook', async (c) => {
-    const payload = await c.req.json()
-    // Verify webhook signature
-    // Sync user to D1
-})
+app.post("/api/auth/webhook", async (c) => {
+  const payload = await c.req.json();
+  // Verify webhook signature
+  // Sync user to D1
+});
 ```
 
 ---
@@ -268,6 +277,7 @@ src/components/dashboard/
 ### 5.2 Dashboard Navigation
 
 Based on original site structure:
+
 - **Devices** - Main device inventory
 - **Orders** - Order history (placeholder)
 - **Store** - Device catalog (placeholder)
@@ -303,6 +313,7 @@ MVP feature set for "Basic device list UI":
 ### 6.1 Privacy Policy Page
 
 Create `src/pages/privacy.astro`:
+
 - Standard privacy policy content
 - Use BaseLayout
 - Match site design
@@ -310,6 +321,7 @@ Create `src/pages/privacy.astro`:
 ### 6.2 Terms of Service Page
 
 Create `src/pages/terms.astro`:
+
 - Standard terms of service
 - Use BaseLayout
 - Match site design
@@ -317,6 +329,7 @@ Create `src/pages/terms.astro`:
 ### 6.3 Update Footer Links
 
 Change footer links from external tryequipped.com to internal:
+
 - Privacy -> `/privacy`
 - Terms -> `/terms`
 
@@ -327,6 +340,7 @@ Change footer links from external tryequipped.com to internal:
 ### 7.1 Environment Variables
 
 Required secrets in Cloudflare dashboard:
+
 ```
 CLERK_PUBLISHABLE_KEY=pk_live_xxx
 CLERK_SECRET_KEY=sk_live_xxx
@@ -336,6 +350,7 @@ CLERK_WEBHOOK_SECRET=whsec_xxx
 ### 7.2 Updated wrangler.toml
 
 See Phase 1.3 for complete wrangler.toml with:
+
 - `main = "src/worker.ts"` for Hono API routes
 - `run_worker_first = ["/api/*"]` for selective worker invocation
 - D1 database binding
@@ -344,6 +359,7 @@ See Phase 1.3 for complete wrangler.toml with:
 ### 7.3 Build Process
 
 Wrangler handles TypeScript compilation automatically - no custom build step needed:
+
 ```json
 {
   "scripts": {
@@ -358,24 +374,28 @@ Wrangler handles TypeScript compilation automatically - no custom build step nee
 ## Implementation Order
 
 ### Sprint 1: Foundation
+
 1. [ ] Set up Hono in worker.ts with basic routing
 2. [ ] Create D1 database and run initial migration
 3. [ ] Install Clerk and create auth pages (sign-in, sign-up)
 4. [ ] Update navigation to use internal auth routes
 
 ### Sprint 2: API Layer
+
 5. [ ] Implement Clerk webhook handler for user sync
 6. [ ] Create device CRUD API endpoints
 7. [ ] Add auth middleware to protect API routes
 8. [ ] Test API with curl/Postman
 
 ### Sprint 3: Dashboard
+
 9. [ ] Create dashboard layout with sidebar
 10. [ ] Build device list component with table view
 11. [ ] Add device modal and form
 12. [ ] Implement device edit/delete functionality
 
 ### Sprint 4: Polish
+
 13. [ ] Add privacy and terms pages
 14. [ ] Update all external links to internal
 15. [ ] Add loading states and error handling
@@ -449,14 +469,14 @@ migrations/
 
 ## Dependencies to Add
 
-| Package | Version | Docs |
-|---------|---------|------|
-| [hono](https://www.npmjs.com/package/hono) | ^4.x | [hono.dev](https://hono.dev/) |
-| [@clerk/clerk-react](https://www.npmjs.com/package/@clerk/clerk-react) | ^5.x | [clerk.com/docs](https://clerk.com/docs) |
-| [motion](https://www.npmjs.com/package/motion) | ^11.x | [motion.dev](https://motion.dev/) (Framer Motion) |
-| [@tanstack/react-table](https://www.npmjs.com/package/@tanstack/react-table) | ^8.x | [tanstack.com/table](https://tanstack.com/table/) |
-| [@hono/clerk-auth](https://www.npmjs.com/package/@hono/clerk-auth) | ^2.x | [GitHub](https://github.com/honojs/middleware/tree/main/packages/clerk-auth) |
-| [esbuild](https://www.npmjs.com/package/esbuild) | ^0.24.x | [esbuild.github.io](https://esbuild.github.io/) |
+| Package                                                                      | Version | Docs                                                                         |
+| ---------------------------------------------------------------------------- | ------- | ---------------------------------------------------------------------------- |
+| [hono](https://www.npmjs.com/package/hono)                                   | ^4.x    | [hono.dev](https://hono.dev/)                                                |
+| [@clerk/clerk-react](https://www.npmjs.com/package/@clerk/clerk-react)       | ^5.x    | [clerk.com/docs](https://clerk.com/docs)                                     |
+| [motion](https://www.npmjs.com/package/motion)                               | ^11.x   | [motion.dev](https://motion.dev/) (Framer Motion)                            |
+| [@tanstack/react-table](https://www.npmjs.com/package/@tanstack/react-table) | ^8.x    | [tanstack.com/table](https://tanstack.com/table/)                            |
+| [@hono/clerk-auth](https://www.npmjs.com/package/@hono/clerk-auth)           | ^2.x    | [GitHub](https://github.com/honojs/middleware/tree/main/packages/clerk-auth) |
+| [esbuild](https://www.npmjs.com/package/esbuild)                             | ^0.24.x | [esbuild.github.io](https://esbuild.github.io/)                              |
 
 ```bash
 npm install hono @clerk/clerk-react motion @tanstack/react-table
@@ -470,6 +490,7 @@ npm install -D @hono/clerk-auth esbuild
 Component source: [21st.dev](https://21st.dev) - shadcn-compatible component registry
 
 ### Installation Pattern
+
 ```bash
 npx shadcn@latest add "https://21st.dev/r/{author}/{component}"
 ```
@@ -478,15 +499,15 @@ npx shadcn@latest add "https://21st.dev/r/{author}/{component}"
 
 #### Landing Page
 
-| Component | Source | Install | Use For |
-|-----------|--------|---------|---------|
+| Component                | Source                                                                                      | Install                                                                      | Use For                                                    |
+| ------------------------ | ------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- | ---------------------------------------------------------- |
 | **Testimonials Columns** | [shabanhr/testimonials-columns-1](https://21st.dev/shabanhr/testimonials-columns-1/default) | `npx shadcn@latest add "https://21st.dev/r/shabanhr/testimonials-columns-1"` | Replace current testimonials section with animated columns |
-| **Pricing Section** | [aymanch-03/pricing-section](https://21st.dev/aymanch-03/pricing-section/default) | `npx shadcn@latest add "https://21st.dev/r/aymanch-03/pricing-section"` | Add pricing page/section with monthly/yearly toggle |
+| **Pricing Section**      | [aymanch-03/pricing-section](https://21st.dev/aymanch-03/pricing-section/default)           | `npx shadcn@latest add "https://21st.dev/r/aymanch-03/pricing-section"`      | Add pricing page/section with monthly/yearly toggle        |
 
 #### Authentication
 
-| Component | Source | Notes |
-|-----------|--------|-------|
+| Component          | Source                                                                                | Notes                                      |
+| ------------------ | ------------------------------------------------------------------------------------- | ------------------------------------------ |
 | **Sign-In Card 2** | [jatin-yadav05/sign-in-card-2](https://21st.dev/jatin-yadav05/sign-in-card-2/default) | Design inspiration for later customization |
 
 **MVP Approach:** Use Clerk's default `<SignIn />` and `<SignUp />` components out of the box. Get auth working first, style later.
@@ -496,12 +517,12 @@ npx shadcn@latest add "https://21st.dev/r/{author}/{component}"
 1. **Clerk Theming API** (Recommended first step)
    - Use `appearance` prop on Clerk components
    - Customize colors, fonts, border radius via CSS variables
-   - Docs: https://clerk.com/docs/customization/overview
+   - Docs: <https://clerk.com/docs/customization/overview>
 
 2. **Clerk Elements** (More control)
    - Build custom UI with Clerk's unstyled primitives
    - Full control over markup while Clerk handles logic
-   - Docs: https://clerk.com/docs/customization/elements
+   - Docs: <https://clerk.com/docs/customization/elements>
 
 3. **Full Custom UI** (Maximum flexibility)
    - Use `useSignIn()` / `useSignUp()` hooks
@@ -509,6 +530,7 @@ npx shadcn@latest add "https://21st.dev/r/{author}/{component}"
    - Wire to 21st.dev sign-in-card-2 component design
 
 **Design Inspiration to Match Later:**
+
 - Dark glassmorphic card with purple gradient accents
 - 3D tilt effect on mouse movement
 - Animated light beams on borders
@@ -517,15 +539,16 @@ npx shadcn@latest add "https://21st.dev/r/{author}/{component}"
 
 #### Dashboard
 
-| Component | Source | Install | Use For |
-|-----------|--------|---------|---------|
-| **Aceternity Sidebar** | [aceternity/sidebar](https://21st.dev/aceternity/sidebar/default) | `npx shadcn@latest add "https://21st.dev/r/aceternity/sidebar"` | Main dashboard navigation - expands on hover, collapses to icons |
-| **Empty State** | [serafimcloud/empty-state](https://21st.dev/serafimcloud/empty-state) | `npx shadcn@latest add "https://21st.dev/r/serafimcloud/empty-state"` | "No devices yet" screens with animated icons |
-| **Data Table** | [shadcn/ui official](https://ui.shadcn.com/docs/components/data-table) | `npx shadcn@latest add table` | Device list with TanStack sorting/filtering |
+| Component              | Source                                                                 | Install                                                               | Use For                                                          |
+| ---------------------- | ---------------------------------------------------------------------- | --------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| **Aceternity Sidebar** | [aceternity/sidebar](https://21st.dev/aceternity/sidebar/default)      | `npx shadcn@latest add "https://21st.dev/r/aceternity/sidebar"`       | Main dashboard navigation - expands on hover, collapses to icons |
+| **Empty State**        | [serafimcloud/empty-state](https://21st.dev/serafimcloud/empty-state)  | `npx shadcn@latest add "https://21st.dev/r/serafimcloud/empty-state"` | "No devices yet" screens with animated icons                     |
+| **Data Table**         | [shadcn/ui official](https://ui.shadcn.com/docs/components/data-table) | `npx shadcn@latest add table`                                         | Device list with TanStack sorting/filtering                      |
 
 #### Additional Resources
 
 Browse for more options:
+
 - [30 Table Components](https://21st.dev/s/table)
 - [10 Sidebar Components](https://21st.dev/s/sidebar)
 - [79 Card Components](https://21st.dev/s/card) - for device cards, stat cards
@@ -534,10 +557,11 @@ Browse for more options:
 ### Component Dependencies
 
 These 21st.dev components require:
+
 - `motion` (Framer Motion) - for animations
 - `@tanstack/react-table` - for data tables
 - `lucide-react` - for icons (already installed)
 
 ---
 
-*Plan created by WALL-E - December 2024*
+_Plan created by WALL-E - December 2024_
