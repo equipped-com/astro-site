@@ -2,15 +2,27 @@
 
 ## Project Overview
 
-Transforming the static Astro landing page into a full-stack application with:
-- Hono-based API routing on Cloudflare Workers
-- Clerk authentication (sign up, sign in, session management)
-- Cloudflare D1 database for user and device data
-- React-based authenticated dashboard with basic device list UI
+Transforming the static [Astro](https://astro.build/) landing page into a full-stack application with:
+- [Hono](https://hono.dev/) API routing on [Cloudflare Workers](https://developers.cloudflare.com/workers/)
+- [Clerk](https://clerk.com/) authentication (sign up, sign in, session management)
+- [Cloudflare D1](https://developers.cloudflare.com/d1/) database for user and device data
+- [React](https://react.dev/) authenticated dashboard with basic device list UI
+
+### Quick Links
+
+| Service | Dashboard | Docs |
+|---------|-----------|------|
+| **Clerk** | [dashboard.clerk.com](https://dashboard.clerk.com/) | [clerk.com/docs](https://clerk.com/docs) |
+| **Cloudflare** | [dash.cloudflare.com](https://dash.cloudflare.com/) | [developers.cloudflare.com](https://developers.cloudflare.com/) |
+| **Hono** | - | [hono.dev/docs](https://hono.dev/docs/) |
+| **shadcn/ui** | - | [ui.shadcn.com](https://ui.shadcn.com/) |
+| **21st.dev** | - | [21st.dev](https://21st.dev/) |
 
 ---
 
 ## Phase 1: Worker Architecture with Hono
+
+> **Docs:** [Hono on Cloudflare Workers](https://hono.dev/docs/getting-started/cloudflare-workers) | [Hono + Clerk middleware](https://github.com/honojs/middleware/tree/main/packages/clerk-auth)
 
 ### 1.1 Install Dependencies
 ```bash
@@ -55,8 +67,10 @@ CLERK_SECRET_KEY = ""
 
 ## Phase 2: Clerk Authentication Setup
 
+> **Docs:** [Clerk React Quickstart](https://clerk.com/docs/quickstarts/react) | [Clerk + Astro](https://clerk.com/docs/references/astro/overview) | [Webhooks](https://clerk.com/docs/webhooks/overview)
+
 ### 2.1 Create Clerk Application
-- Go to clerk.com and create a new application
+- Go to [dashboard.clerk.com](https://dashboard.clerk.com/) and create a new application
 - Configure sign-in methods (email, Google OAuth recommended)
 - Get publishable key and secret key
 
@@ -96,6 +110,8 @@ Replace external tryequipped.com auth links with internal routes:
 ---
 
 ## Phase 3: Cloudflare D1 Database
+
+> **Docs:** [D1 Overview](https://developers.cloudflare.com/d1/) | [Wrangler D1 Commands](https://developers.cloudflare.com/workers/wrangler/commands/#d1) | [D1 + Workers](https://developers.cloudflare.com/d1/get-started/)
 
 ### 3.1 Create Database
 
@@ -159,6 +175,8 @@ npx wrangler d1 execute equipped-db --remote --file=migrations/0001_initial.sql
 ---
 
 ## Phase 4: API Routes
+
+> **Docs:** [Hono Routing](https://hono.dev/docs/api/routing) | [Hono Middleware](https://hono.dev/docs/guides/middleware) | [Drizzle ORM](https://orm.drizzle.team/) (optional)
 
 ### 4.1 API Structure
 
@@ -415,19 +433,18 @@ migrations/
 
 ## Dependencies to Add
 
-```json
-{
-  "dependencies": {
-    "hono": "^4.x",
-    "@clerk/clerk-react": "^5.x",
-    "motion": "^11.x",
-    "@tanstack/react-table": "^8.x"
-  },
-  "devDependencies": {
-    "@hono/clerk-auth": "^2.x",
-    "esbuild": "^0.24.x"
-  }
-}
+| Package | Version | Docs |
+|---------|---------|------|
+| [hono](https://www.npmjs.com/package/hono) | ^4.x | [hono.dev](https://hono.dev/) |
+| [@clerk/clerk-react](https://www.npmjs.com/package/@clerk/clerk-react) | ^5.x | [clerk.com/docs](https://clerk.com/docs) |
+| [motion](https://www.npmjs.com/package/motion) | ^11.x | [motion.dev](https://motion.dev/) (Framer Motion) |
+| [@tanstack/react-table](https://www.npmjs.com/package/@tanstack/react-table) | ^8.x | [tanstack.com/table](https://tanstack.com/table/) |
+| [@hono/clerk-auth](https://www.npmjs.com/package/@hono/clerk-auth) | ^2.x | [GitHub](https://github.com/honojs/middleware/tree/main/packages/clerk-auth) |
+| [esbuild](https://www.npmjs.com/package/esbuild) | ^0.24.x | [esbuild.github.io](https://esbuild.github.io/) |
+
+```bash
+npm install hono @clerk/clerk-react motion @tanstack/react-table
+npm install -D @hono/clerk-auth esbuild
 ```
 
 ---
