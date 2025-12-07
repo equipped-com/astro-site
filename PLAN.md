@@ -419,7 +419,9 @@ migrations/
 {
   "dependencies": {
     "hono": "^4.x",
-    "@clerk/clerk-react": "^5.x"
+    "@clerk/clerk-react": "^5.x",
+    "motion": "^11.x",
+    "@tanstack/react-table": "^8.x"
   },
   "devDependencies": {
     "@hono/clerk-auth": "^2.x",
@@ -427,6 +429,81 @@ migrations/
   }
 }
 ```
+
+---
+
+## UI Components (21st.dev + shadcn)
+
+Component source: [21st.dev](https://21st.dev) - shadcn-compatible component registry
+
+### Installation Pattern
+```bash
+npx shadcn@latest add "https://21st.dev/r/{author}/{component}"
+```
+
+### Selected Components
+
+#### Landing Page
+
+| Component | Source | Install | Use For |
+|-----------|--------|---------|---------|
+| **Testimonials Columns** | [shabanhr/testimonials-columns-1](https://21st.dev/shabanhr/testimonials-columns-1/default) | `npx shadcn@latest add "https://21st.dev/r/shabanhr/testimonials-columns-1"` | Replace current testimonials section with animated columns |
+| **Pricing Section** | [aymanch-03/pricing-section](https://21st.dev/aymanch-03/pricing-section/default) | `npx shadcn@latest add "https://21st.dev/r/aymanch-03/pricing-section"` | Add pricing page/section with monthly/yearly toggle |
+
+#### Authentication
+
+| Component | Source | Notes |
+|-----------|--------|-------|
+| **Sign-In Card 2** | [jatin-yadav05/sign-in-card-2](https://21st.dev/jatin-yadav05/sign-in-card-2/default) | Design inspiration for later customization |
+
+**MVP Approach:** Use Clerk's default `<SignIn />` and `<SignUp />` components out of the box. Get auth working first, style later.
+
+**Post-MVP Customization Options:**
+
+1. **Clerk Theming API** (Recommended first step)
+   - Use `appearance` prop on Clerk components
+   - Customize colors, fonts, border radius via CSS variables
+   - Docs: https://clerk.com/docs/customization/overview
+
+2. **Clerk Elements** (More control)
+   - Build custom UI with Clerk's unstyled primitives
+   - Full control over markup while Clerk handles logic
+   - Docs: https://clerk.com/docs/customization/elements
+
+3. **Full Custom UI** (Maximum flexibility)
+   - Use `useSignIn()` / `useSignUp()` hooks
+   - Build completely custom forms
+   - Wire to 21st.dev sign-in-card-2 component design
+
+**Design Inspiration to Match Later:**
+- Dark glassmorphic card with purple gradient accents
+- 3D tilt effect on mouse movement
+- Animated light beams on borders
+- Backdrop blur + translucent borders
+- Google SSO button styling
+
+#### Dashboard
+
+| Component | Source | Install | Use For |
+|-----------|--------|---------|---------|
+| **Aceternity Sidebar** | [aceternity/sidebar](https://21st.dev/aceternity/sidebar/default) | `npx shadcn@latest add "https://21st.dev/r/aceternity/sidebar"` | Main dashboard navigation - expands on hover, collapses to icons |
+| **Empty State** | [serafimcloud/empty-state](https://21st.dev/serafimcloud/empty-state) | `npx shadcn@latest add "https://21st.dev/r/serafimcloud/empty-state"` | "No devices yet" screens with animated icons |
+| **Data Table** | [shadcn/ui official](https://ui.shadcn.com/docs/components/data-table) | `npx shadcn@latest add table` | Device list with TanStack sorting/filtering |
+
+#### Additional Resources
+
+Browse for more options:
+- [30 Table Components](https://21st.dev/s/table)
+- [10 Sidebar Components](https://21st.dev/s/sidebar)
+- [79 Card Components](https://21st.dev/s/card) - for device cards, stat cards
+- [Dashboard Discovery](https://21st.dev/community/components/s/dashboard)
+
+### Component Dependencies
+
+These 21st.dev components require:
+- `motion` (Framer Motion) - for animations
+- `@tanstack/react-table` - for data tables
+- `lucide-react` - for icons (already installed)
 
 ---
 
