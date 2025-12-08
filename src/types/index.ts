@@ -62,8 +62,16 @@ export interface ShippingData {
 	}
 }
 
+export interface DeliveryData {
+	speed: 'standard' | 'express' | 'custom'
+	estimatedDate: Date
+	cost: number
+	customDate?: Date
+}
+
 export interface OrderContext {
 	assignment: AssignmentData
 	shipping?: ShippingData
-	// Future: delivery, payment, etc.
+	delivery?: DeliveryData
+	// Future: payment, etc.
 }
