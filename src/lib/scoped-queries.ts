@@ -40,12 +40,46 @@ export interface Person {
 export interface Order {
 	id: string
 	account_id: string
-	order_number: string
-	status: 'draft' | 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled'
-	total_amount: number
-	currency: string
+	created_by_user_id: string
+	assigned_to_person_id?: string
+	status: 'pending' | 'pending_leasing_approval' | 'processing' | 'shipped' | 'delivered' | 'cancelled' | 'returned'
+	payment_method?: string
+	subtotal: number
+	shipping_cost: number
+	tax_amount: number
+	total: number
+	monthly_cost?: number
+	shipping_address?: string
+	shipping_city?: string
+	shipping_state?: string
+	shipping_zip?: string
+	shipping_country?: string
+	tracking_number?: string
+	carrier?: string
+	estimated_delivery?: string
+	delivered_at?: string
+	is_synthetic?: boolean
 	created_at: string
 	updated_at?: string
+}
+
+export interface OrderItem {
+	id: string
+	order_id: string
+	product_name: string
+	product_sku?: string
+	product_image_url?: string
+	quantity: number
+	unit_price: number
+	monthly_price?: number
+	total_price: number
+	specs?: string
+}
+
+export interface OrderWithItems extends Order {
+	items?: OrderItem[]
+	creator_name?: string
+	assignee_name?: string
 }
 
 export interface InsertDeviceData {
@@ -66,10 +100,20 @@ export interface InsertPersonData {
 }
 
 export interface InsertOrderData {
-	order_number: string
+	created_by_user_id: string
+	assigned_to_person_id?: string
 	status?: Order['status']
-	total_amount: number
-	currency?: string
+	payment_method?: string
+	subtotal: number
+	shipping_cost?: number
+	tax_amount?: number
+	total: number
+	monthly_cost?: number
+	shipping_address?: string
+	shipping_city?: string
+	shipping_state?: string
+	shipping_zip?: string
+	shipping_country?: string
 }
 
 /**
@@ -298,15 +342,38 @@ export function scopedQuery(c: Context) {
 			 */
 			insert(data: InsertOrderData): D1PreparedStatement {
 				const id = generateId()
-				const status = data.status || 'draft'
-				const currency = data.currency || 'USD'
+				const status = data.status || 'pending'
+				const shipping_cost = data.shipping_cost ?? 0
+				const tax_amount = data.tax_amount ?? 0
+				const shipping_country = data.shipping_country || 'US'
 
 				return db
 					.prepare(
-						`INSERT INTO orders (id, account_id, order_number, status, total_amount, currency, created_at)
-						VALUES (?, ?, ?, ?, ?, ?, datetime('now'))`,
+						`INSERT INTO orders (
+							id, account_id, created_by_user_id, assigned_to_person_id, status,
+							payment_method, subtotal, shipping_cost, tax_amount, total, monthly_cost,
+							shipping_address, shipping_city, shipping_state, shipping_zip, shipping_country,
+							created_at
+						) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))`,
 					)
-					.bind(id, accountId, data.order_number, status, data.total_amount, currency)
+					.bind(
+						id,
+						accountId,
+						data.created_by_user_id,
+						data.assigned_to_person_id || null,
+						status,
+						data.payment_method || null,
+						data.subtotal,
+						shipping_cost,
+						tax_amount,
+						data.total,
+						data.monthly_cost || null,
+						data.shipping_address || null,
+						data.shipping_city || null,
+						data.shipping_state || null,
+						data.shipping_zip || null,
+						shipping_country,
+					)
 			},
 
 			/**
@@ -316,21 +383,29 @@ export function scopedQuery(c: Context) {
 				const setClauses: string[] = []
 				const values: unknown[] = []
 
-				if (data.order_number !== undefined) {
-					setClauses.push('order_number = ?')
-					values.push(data.order_number)
-				}
 				if (data.status !== undefined) {
 					setClauses.push('status = ?')
 					values.push(data.status)
 				}
-				if (data.total_amount !== undefined) {
-					setClauses.push('total_amount = ?')
-					values.push(data.total_amount)
+				if (data.payment_method !== undefined) {
+					setClauses.push('payment_method = ?')
+					values.push(data.payment_method)
 				}
-				if (data.currency !== undefined) {
-					setClauses.push('currency = ?')
-					values.push(data.currency)
+				if (data.subtotal !== undefined) {
+					setClauses.push('subtotal = ?')
+					values.push(data.subtotal)
+				}
+				if (data.shipping_cost !== undefined) {
+					setClauses.push('shipping_cost = ?')
+					values.push(data.shipping_cost)
+				}
+				if (data.tax_amount !== undefined) {
+					setClauses.push('tax_amount = ?')
+					values.push(data.tax_amount)
+				}
+				if (data.total !== undefined) {
+					setClauses.push('total = ?')
+					values.push(data.total)
 				}
 
 				setClauses.push("updated_at = datetime('now')")

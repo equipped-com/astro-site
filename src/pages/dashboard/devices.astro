@@ -1,10 +1,8 @@
 ---
+import DeviceInventory from '@/components/fleet/DeviceInventory'
 import DashboardLayout from '@/layouts/DashboardLayout.astro'
 ---
 
 <DashboardLayout title="Devices">
-	<div>
-		<h2>Device Management</h2>
-		<p>Manage your organization's devices here.</p>
-	</div>
+	<DeviceInventory client:load />
 </DashboardLayout>

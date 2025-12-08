@@ -72,6 +72,53 @@ export interface FindMyStatusResponse {
 	error?: string
 }
 
+export type TradeInStatus = 'quote' | 'label_sent' | 'in_transit' | 'received' | 'inspecting' | 'credited' | 'disputed'
+
+export interface ShippingLabel {
+	labelId: string
+	trackingNumber: string
+	carrier: string
+	labelUrl: string
+	createdAt: string
+	expiresAt: string
+}
+
+export interface ShipmentTracking {
+	trackingNumber: string
+	carrier: string
+	status: 'label_created' | 'in_transit' | 'delivered' | 'exception'
+	currentLocation?: string
+	estimatedDelivery?: string
+	events: TrackingEvent[]
+}
+
+export interface TrackingEvent {
+	timestamp: string
+	status: string
+	location: string
+	description: string
+}
+
+export interface InspectionResult {
+	inspectionId: string
+	inspectedAt: string
+	actualCondition: ConditionGrade
+	estimatedValue: number
+	finalValue: number
+	adjustmentReason?: string
+	requiresApproval: boolean
+	inspector?: string
+}
+
+export interface ValueAdjustment {
+	adjustmentId: string
+	originalValue: number
+	newValue: number
+	reason: string
+	createdAt: string
+	status: 'pending_approval' | 'approved' | 'disputed' | 'device_returned'
+}
+
 export interface TradeInItem {
 	id: string
 	serial: string
@@ -80,7 +127,14 @@ export interface TradeInItem {
 	color: string
 	conditionGrade: ConditionGrade
 	estimatedValue: number
+	finalValue?: number
 	valuationId: string
 	expiresAt: string
-	status: 'pending' | 'accepted' | 'shipped' | 'received' | 'processed'
+	status: TradeInStatus
+	shippingLabel?: ShippingLabel
+	tracking?: ShipmentTracking
+	inspection?: InspectionResult
+	adjustment?: ValueAdjustment
+	creditedAt?: string
+	creditAmount?: number
 }
