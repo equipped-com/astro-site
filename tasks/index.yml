@@ -264,7 +264,8 @@ epics:
       - id: tenant-context
         name: Tenant Context Helper
         file: multi-tenancy/tenant-context.md
-        done: false
+        done: true
+        commit: e915d45
         complexity: medium
         depends_on:
           - multi-tenancy/subdomain-routing
