@@ -1,0 +1,125 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro'
+import { Spinner } from '@/components/dashboard'
+import { Skeleton } from '@/components/dashboard'
+import { CardSkeleton } from '@/components/dashboard'
+import { TableSkeleton } from '@/components/dashboard'
+import { FullPageLoader } from '@/components/dashboard'
+---
+
+<BaseLayout title="Loading States Example">
+	<div class="min-h-screen bg-background p-8">
+		<div class="mx-auto max-w-4xl space-y-12">
+			<div>
+				<h1 class="mb-2 text-3xl font-bold text-foreground">
+					Loading States Components
+				</h1>
+				<p class="mb-8 text-muted-foreground">
+					Examples of all loading state components used in the dashboard
+				</p>
+			</div>
+
+			<!-- Spinner Examples -->
+			<section>
+				<h2 class="mb-4 text-2xl font-semibold text-foreground">
+					Spinner Component
+				</h2>
+				<div class="flex gap-8 rounded-lg border border-border bg-card p-6">
+					<div class="flex flex-col items-center gap-2">
+						<Spinner client:load size="sm" />
+						<p class="text-xs text-muted-foreground">Small</p>
+					</div>
+					<div class="flex flex-col items-center gap-2">
+						<Spinner client:load size="md" />
+						<p class="text-xs text-muted-foreground">Medium</p>
+					</div>
+					<div class="flex flex-col items-center gap-2">
+						<Spinner client:load size="lg" />
+						<p class="text-xs text-muted-foreground">Large</p>
+					</div>
+				</div>
+			</section>
+
+			<!-- Skeleton Examples -->
+			<section>
+				<h2 class="mb-4 text-2xl font-semibold text-foreground">
+					Skeleton Component
+				</h2>
+				<div class="space-y-3 rounded-lg border border-border bg-card p-6">
+					<Skeleton className="h-4 w-3/4" />
+					<Skeleton className="h-4 w-1/2" />
+					<Skeleton className="h-4 w-2/3" />
+				</div>
+			</section>
+
+			<!-- Card Skeleton Examples -->
+			<section>
+				<h2 class="mb-4 text-2xl font-semibold text-foreground">
+					Card Skeleton Component
+				</h2>
+				<div class="space-y-4">
+					<div>
+						<h3 class="mb-3 text-sm font-medium text-foreground">
+							Default Variant
+						</h3>
+						<CardSkeleton count={1} variant="default" />
+					</div>
+					<div>
+						<h3 class="mb-3 text-sm font-medium text-foreground">
+							Stat Variant
+						</h3>
+						<CardSkeleton count={2} variant="stat" />
+					</div>
+					<div>
+						<h3 class="mb-3 text-sm font-medium text-foreground">
+							Feature Variant
+						</h3>
+						<CardSkeleton count={1} variant="feature" />
+					</div>
+				</div>
+			</section>
+
+			<!-- Table Skeleton Example -->
+			<section>
+				<h2 class="mb-4 text-2xl font-semibold text-foreground">
+					Table Skeleton Component
+				</h2>
+				<TableSkeleton rows={4} columns={5} />
+			</section>
+
+			<!-- Full Page Loader Note -->
+			<section>
+				<h2 class="mb-4 text-2xl font-semibold text-foreground">
+					Full Page Loader
+				</h2>
+				<div class="rounded-lg border border-border bg-card p-6">
+					<p class="text-sm text-muted-foreground">
+						The FullPageLoader component is a fixed overlay and should be rendered separately. It accepts:
+					</p>
+					<ul class="mt-4 space-y-2 text-sm text-muted-foreground">
+						<li>- <code className="font-mono">message</code>: Main loading message (default: "Loading")</li>
+						<li>- <code className="font-mono">subMessage</code>: Sub message (default: "Please wait while we prepare your dashboard...")</li>
+					</ul>
+				</div>
+			</section>
+
+			<!-- Dark Mode Note -->
+			<section>
+				<h2 class="mb-4 text-2xl font-semibold text-foreground">
+					Dark Mode Support
+				</h2>
+				<div class="rounded-lg border border-border bg-card p-6">
+					<p class="text-sm text-muted-foreground">
+						All components automatically support dark mode through CSS custom properties defined in global.css.
+						The color schemes are:
+					</p>
+					<ul class="mt-4 space-y-2 text-sm text-muted-foreground">
+						<li>- <code className="font-mono">--muted</code>: Background for skeleton animations</li>
+						<li>- <code className="font-mono">--primary</code>: Spinner color</li>
+						<li>- <code className="font-mono">--foreground</code>: Text colors</li>
+					</ul>
+				</div>
+			</section>
+		</div>
+	</div>
+</BaseLayout>
