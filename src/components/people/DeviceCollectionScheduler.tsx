@@ -88,18 +88,14 @@ export default function DeviceCollectionScheduler({
 						onClick={() => onMethodSelected(method.id)}
 						className={cn(
 							'w-full rounded-lg border-2 p-4 text-left transition-all hover:border-primary/50',
-							selectedMethod === method.id
-								? 'border-primary bg-primary/5'
-								: 'border-border bg-background',
+							selectedMethod === method.id ? 'border-primary bg-primary/5' : 'border-border bg-background',
 						)}
 					>
 						<div className="flex items-start gap-4">
 							<div
 								className={cn(
 									'flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg',
-									selectedMethod === method.id
-										? 'bg-primary text-white'
-										: 'bg-muted text-muted-foreground',
+									selectedMethod === method.id ? 'bg-primary text-white' : 'bg-muted text-muted-foreground',
 								)}
 							>
 								{method.icon}
@@ -111,9 +107,7 @@ export default function DeviceCollectionScheduler({
 										<p className="font-semibold">{method.label}</p>
 										<p className="mt-1 text-sm text-muted-foreground">{method.description}</p>
 									</div>
-									{selectedMethod === method.id && (
-										<CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0 ml-2" />
-									)}
+									{selectedMethod === method.id && <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0 ml-2" />}
 								</div>
 
 								{selectedMethod === method.id && (
@@ -135,9 +129,7 @@ export default function DeviceCollectionScheduler({
 			{selectedMethod && (
 				<div className="rounded-md border border-blue-200 bg-blue-50 p-3 text-sm text-blue-800">
 					<p className="font-medium">Collection method selected</p>
-					<p className="text-xs mt-1">
-						You can coordinate the details after completing the offboarding process
-					</p>
+					<p className="text-xs mt-1">You can coordinate the details after completing the offboarding process</p>
 				</div>
 			)}
 		</div>

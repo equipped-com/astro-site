@@ -64,8 +64,7 @@ export default function DataWipeRequest({ deviceCount, onWipeOptionSelected, sel
 			<div>
 				<h3 className="font-semibold text-lg">Request Secure Data Wipe</h3>
 				<p className="mt-1 text-sm text-muted-foreground">
-					Choose the level of data security for wiping {deviceCount}{' '}
-					{deviceCount === 1 ? 'device' : 'devices'}
+					Choose the level of data security for wiping {deviceCount} {deviceCount === 1 ? 'device' : 'devices'}
 				</p>
 			</div>
 
@@ -77,18 +76,14 @@ export default function DataWipeRequest({ deviceCount, onWipeOptionSelected, sel
 						onClick={() => onWipeOptionSelected(option.id)}
 						className={cn(
 							'w-full rounded-lg border-2 p-4 text-left transition-all hover:border-primary/50',
-							selectedOption === option.id
-								? 'border-primary bg-primary/5'
-								: 'border-border bg-background',
+							selectedOption === option.id ? 'border-primary bg-primary/5' : 'border-border bg-background',
 						)}
 					>
 						<div className="flex items-start gap-4">
 							<div
 								className={cn(
 									'flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-lg',
-									selectedOption === option.id
-										? 'bg-primary text-white'
-										: 'bg-muted text-muted-foreground',
+									selectedOption === option.id ? 'bg-primary text-white' : 'bg-muted text-muted-foreground',
 								)}
 							>
 								{option.icon}
@@ -107,9 +102,7 @@ export default function DataWipeRequest({ deviceCount, onWipeOptionSelected, sel
 										</div>
 										<p className="mt-1 text-sm text-muted-foreground">{option.description}</p>
 									</div>
-									{selectedOption === option.id && (
-										<CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0 ml-2" />
-									)}
+									{selectedOption === option.id && <CheckCircle2 className="h-5 w-5 text-primary flex-shrink-0 ml-2" />}
 								</div>
 
 								{selectedOption === option.id && (
@@ -131,17 +124,15 @@ export default function DataWipeRequest({ deviceCount, onWipeOptionSelected, sel
 			{selectedOption && (
 				<div className="rounded-md border border-green-200 bg-green-50 p-3 text-sm text-green-800">
 					<p className="font-medium">Data wipe will be tracked</p>
-					<p className="text-xs mt-1">
-						Wipe status and completion will be recorded in the device history
-					</p>
+					<p className="text-xs mt-1">Wipe status and completion will be recorded in the device history</p>
 				</div>
 			)}
 
 			<div className="rounded-md border border-orange-200 bg-orange-50 p-3 text-sm text-orange-800">
 				<p className="font-medium">Important Security Note</p>
 				<p className="text-xs mt-1">
-					Data wipes will be performed after devices are returned and verified. Ensure all necessary
-					backups are completed before device return.
+					Data wipes will be performed after devices are returned and verified. Ensure all necessary backups are
+					completed before device return.
 				</p>
 			</div>
 		</div>

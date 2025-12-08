@@ -2,8 +2,8 @@
 
 import { AlertTriangle, Calendar, CheckCircle2, Laptop, Shield, X } from 'lucide-react'
 import { useState } from 'react'
-import { cn } from '@/lib/utils'
 import { Spinner } from '@/components/dashboard/Spinner'
+import { cn } from '@/lib/utils'
 import DataWipeRequest from './DataWipeRequest'
 import DeviceCollectionScheduler from './DeviceCollectionScheduler'
 
@@ -65,7 +65,7 @@ export default function OffboardingWizard({ person, isOpen, onClose, onComplete 
 				throw new Error('Failed to fetch devices')
 			}
 
-			const data = await response.json()
+			const data = (await response.json()) as { devices: Device[] }
 			setDevices(data.devices || [])
 		} catch (err) {
 			setError(err instanceof Error ? err.message : 'Failed to load devices')
@@ -118,11 +118,11 @@ export default function OffboardingWizard({ person, isOpen, onClose, onComplete 
 			})
 
 			if (!response.ok) {
-				const data = await response.json()
+				const data = (await response.json()) as { error?: string }
 				throw new Error(data.error || 'Failed to complete offboarding')
 			}
 
-			const data = await response.json()
+			const data = (await response.json()) as { person: Person }
 			onComplete(data.person)
 			handleCloseWizard()
 		} catch (err) {
@@ -189,9 +189,7 @@ export default function OffboardingWizard({ person, isOpen, onClose, onComplete 
 								<div
 									className={cn(
 										'flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold',
-										currentStep === step.key
-											? 'bg-primary text-white'
-											: 'bg-muted text-muted-foreground',
+										currentStep === step.key ? 'bg-primary text-white' : 'bg-muted text-muted-foreground',
 									)}
 								>
 									{index + 1}
@@ -213,9 +211,7 @@ export default function OffboardingWizard({ person, isOpen, onClose, onComplete 
 				{/* Content */}
 				<div className="flex-1 overflow-y-auto p-6">
 					{error && (
-						<div className="mb-4 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-800">
-							{error}
-						</div>
+						<div className="mb-4 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-800">{error}</div>
 					)}
 
 					{/* Overview Step */}
@@ -227,8 +223,8 @@ export default function OffboardingWizard({ person, isOpen, onClose, onComplete 
 									<div>
 										<p className="font-semibold text-orange-900">Starting Offboarding Process</p>
 										<p className="mt-1 text-sm text-orange-800">
-											This will initiate the offboarding workflow for {person.first_name} {person.last_name}.
-											You'll be able to manage device returns, schedule data wipes, and revoke access.
+											This will initiate the offboarding workflow for {person.first_name} {person.last_name}. You'll be
+											able to manage device returns, schedule data wipes, and revoke access.
 										</p>
 									</div>
 								</div>
@@ -294,9 +290,7 @@ export default function OffboardingWizard({ person, isOpen, onClose, onComplete 
 								<div className="rounded-lg border border-border bg-muted/50 p-8 text-center">
 									<Laptop className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
 									<p className="font-medium text-muted-foreground">No devices assigned</p>
-									<p className="text-sm text-muted-foreground mt-1">
-										This employee has no devices to return
-									</p>
+									<p className="text-sm text-muted-foreground mt-1">This employee has no devices to return</p>
 								</div>
 							) : (
 								<>
@@ -321,14 +315,10 @@ export default function OffboardingWizard({ person, isOpen, onClose, onComplete 
 														<td className="px-4 py-3 text-sm font-medium">
 															{device.name}
 															{device.device_type && (
-																<span className="ml-2 text-xs text-muted-foreground">
-																	({device.device_type})
-																</span>
+																<span className="ml-2 text-xs text-muted-foreground">({device.device_type})</span>
 															)}
 														</td>
-														<td className="px-4 py-3 text-sm text-muted-foreground">
-															{device.serial_number || 'N/A'}
-														</td>
+														<td className="px-4 py-3 text-sm text-muted-foreground">{device.serial_number || 'N/A'}</td>
 														<td className="px-4 py-3">
 															<span className="inline-flex items-center rounded-full border border-blue-200 bg-blue-100 px-2.5 py-0.5 text-xs font-semibold text-blue-800">
 																{device.status.charAt(0).toUpperCase() + device.status.slice(1)}
@@ -342,9 +332,7 @@ export default function OffboardingWizard({ person, isOpen, onClose, onComplete 
 
 									<div className="rounded-md bg-blue-50 border border-blue-200 p-3 text-sm text-blue-800">
 										<p className="font-medium">Total devices: {devices.length}</p>
-										<p className="text-xs mt-1">
-											These devices will be unassigned when marked as returned
-										</p>
+										<p className="text-xs mt-1">These devices will be unassigned when marked as returned</p>
 									</div>
 								</>
 							)}
@@ -388,9 +376,7 @@ export default function OffboardingWizard({ person, isOpen, onClose, onComplete 
 							<div className="space-y-4">
 								<div className="grid grid-cols-2 gap-4">
 									<div className="rounded-md border border-border p-4">
-										<p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-											Employee
-										</p>
+										<p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Employee</p>
 										<p className="mt-1 font-medium">
 											{person.first_name} {person.last_name}
 										</p>
@@ -398,9 +384,7 @@ export default function OffboardingWizard({ person, isOpen, onClose, onComplete 
 									</div>
 
 									<div className="rounded-md border border-border p-4">
-										<p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-											Last Day
-										</p>
+										<p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Last Day</p>
 										<p className="mt-1 font-medium flex items-center gap-2">
 											<Calendar className="h-4 w-4" />
 											{new Date(lastDay).toLocaleDateString('en-US', {
@@ -412,9 +396,7 @@ export default function OffboardingWizard({ person, isOpen, onClose, onComplete 
 									</div>
 
 									<div className="rounded-md border border-border p-4">
-										<p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-											Devices
-										</p>
+										<p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Devices</p>
 										<p className="mt-1 font-medium flex items-center gap-2">
 											<Laptop className="h-4 w-4" />
 											{devices.length} {devices.length === 1 ? 'device' : 'devices'}
@@ -429,9 +411,7 @@ export default function OffboardingWizard({ person, isOpen, onClose, onComplete 
 									</div>
 
 									<div className="rounded-md border border-border p-4 col-span-2">
-										<p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-											Data Wipe
-										</p>
+										<p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Data Wipe</p>
 										<p className="mt-1 font-medium flex items-center gap-2">
 											<Shield className="h-4 w-4" />
 											{wipeOption || 'Not specified'}

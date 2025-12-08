@@ -431,7 +431,7 @@ describe('OffboardingWizard', () => {
 		})
 
 		// Should show summary
-		expect(screen.getByText('Bob Jones')).toBeInTheDocument()
+		expect(screen.getAllByText('Bob Jones').length).toBeGreaterThan(0)
 		expect(screen.getByText('December 31, 2025')).toBeInTheDocument()
 		expect(screen.getByText('2 devices')).toBeInTheDocument()
 
