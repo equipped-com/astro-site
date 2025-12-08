@@ -419,7 +419,8 @@ epics:
       - id: order-details
         name: Order Details View
         file: orders/order-details.md
-        done: false
+        done: true
+        commit: 187288f
         complexity: medium
         depends_on:
           - orders/order-list
@@ -517,7 +518,8 @@ epics:
       - id: device-assignment
         name: Device Assignment
         file: fleet/device-assignment.md
-        done: false
+        done: true
+        commit: 187288f
         complexity: medium
         depends_on:
           - fleet/device-inventory
