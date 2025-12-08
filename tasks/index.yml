@@ -522,7 +522,8 @@ epics:
       - id: organization-settings
         name: Organization Settings
         file: settings/organization-settings.md
-        done: false
+        done: true
+        commit: 75100cf
         complexity: medium
         depends_on:
           - api/auth-middleware
