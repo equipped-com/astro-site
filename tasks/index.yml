@@ -399,7 +399,7 @@ epics:
       - id: terms-page
         name: Terms of Service Page
         file: static-pages/terms-page.md
-        done: false
+        done: true
         complexity: low
       - id: update-footer
         name: Update Footer Links
