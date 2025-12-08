@@ -3,6 +3,8 @@ import { cors } from 'hono/cors'
 import { logger } from 'hono/logger'
 import type { Role, User } from './api/middleware'
 import { authMiddleware, requireAccountAccess, requireAdmin, requireAuth, tenantMiddleware } from './api/middleware'
+import userRoutes from './api/routes/user'
+import clerkWebhook from './api/routes/webhooks/clerk'
 
 // Define custom context variables
 interface Variables {
@@ -47,6 +49,13 @@ app.onError((err, c) => {
 		500,
 	)
 })
+
+// ============================================================================
+// WEBHOOK ROUTES (no auth - use signature verification instead)
+// ============================================================================
+
+// Clerk webhook - uses Svix signature verification, NOT Clerk auth
+app.route('/api/webhooks/clerk', clerkWebhook)
 
 // ============================================================================
 // PUBLIC ROUTES (no auth required)
@@ -115,14 +124,8 @@ app.use('/api/*', tenantMiddleware())
 // Routes requiring authentication only (no account context)
 app.use('/api/user/*', requireAuth())
 
-// Example: Get current user info
-app.get('/api/user', c => {
-	const userId = c.get('userId')
-	return c.json({
-		userId,
-		message: 'User authenticated successfully',
-	})
-})
+// Mount user routes
+app.route('/api/user', userRoutes)
 
 // ============================================================================
 // ACCOUNT-SCOPED ROUTES - requires auth + account access
