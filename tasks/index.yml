@@ -684,7 +684,8 @@ epics:
       - id: regression-tests
         name: Establish Regression Testing & Bug Prevention
         file: testing/regression-tests.md
-        done: false
+        done: true
+        commit: ffd8ebf
         complexity: medium
         depends_on:
           - testing/setup-vitest
