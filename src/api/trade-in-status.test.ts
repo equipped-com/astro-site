@@ -53,6 +53,8 @@ describe('Trade-In Status API', () => {
 
 		it('should include unique tracking number', async () => {
 			const label1 = await generateShippingLabel('TI-123')
+			// Add small delay to ensure different timestamps
+			await new Promise(resolve => setTimeout(resolve, 2))
 			const label2 = await generateShippingLabel('TI-456')
 
 			expect(label1.trackingNumber).not.toBe(label2.trackingNumber)

@@ -172,10 +172,7 @@ describe('ValueAdjustmentModal Component', () => {
 			})
 		})
 
-		it('should not allow empty dispute reason', async () => {
-			const alertMock = vi.fn()
-			global.alert = alertMock
-
+		it('should not allow empty dispute reason', () => {
 			render(
 				<ValueAdjustmentModal tradeIn={mockTradeIn} adjustment={mockAdjustment} isOpen={true} onClose={() => {}} />,
 			)
@@ -184,11 +181,9 @@ describe('ValueAdjustmentModal Component', () => {
 			const disputeButton = screen.getByText('Dispute Adjustment')
 			fireEvent.click(disputeButton)
 
-			// Try to submit without reason
+			// Submit button should be disabled without reason
 			const submitButton = screen.getByText('Submit Dispute')
-			fireEvent.click(submitButton)
-
-			expect(alertMock).toHaveBeenCalledWith('Please provide a reason for your dispute.')
+			expect(submitButton).toBeDisabled()
 		})
 
 		it('should allow customer to request device return with shipping cost warning', () => {

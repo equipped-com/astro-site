@@ -447,9 +447,10 @@ describe('DeliveryStage Component Tests', () => {
 
 		render(<DeliveryStage onContinue={vi.fn()} />)
 
-		// Click custom date option (might be labeled "Select a date")
-		const customOption = screen.getByText(/select a date/i)
-		await user.click(customOption)
+		// Click custom date option - use getAllByText since "Select a date" appears multiple times
+		const customOptions = screen.getAllByText(/select a date/i)
+		// Click the first one (the title of the option card)
+		await user.click(customOptions[0])
 
 		// Continue should still be disabled until a date is selected
 		await waitFor(() => {
