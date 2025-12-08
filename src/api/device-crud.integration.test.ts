@@ -7,6 +7,8 @@
  * @REQ-INT-API-001 Create device for account
  * @REQ-INT-API-002 Auth + API integration
  * @REQ-INT-API-003 Device CRUD full lifecycle
+ *
+ * @vitest-environment node
  */
 import { Hono } from 'hono'
 import { beforeEach, describe, expect, it, type Mock, vi } from 'vitest'

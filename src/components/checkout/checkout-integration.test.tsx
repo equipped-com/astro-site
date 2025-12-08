@@ -69,9 +69,7 @@ describe('Checkout Flow Integration Tests', () => {
 			// Stage 1: Assignment
 			const onAssignmentContinue = vi.fn()
 
-			const { rerender } = render(
-				<AssignmentStage teamMembers={mockTeamMembers} onContinue={onAssignmentContinue} />,
-			)
+			const { rerender } = render(<AssignmentStage teamMembers={mockTeamMembers} onContinue={onAssignmentContinue} />)
 
 			// Select "Assign it to someone" option
 			const assignButton = screen.getByRole('button', { name: /assign it to someone/i })

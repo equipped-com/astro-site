@@ -9,6 +9,8 @@
  * @REQ-INT-MT-001 Multi-tenant isolation verified
  * @REQ-INT-MT-002 Two accounts cannot see each other's data
  * @REQ-INT-MT-003 Tenant context propagates through request lifecycle
+ *
+ * @vitest-environment node
  */
 
 import { Hono } from 'hono'
@@ -81,10 +83,7 @@ const DEVICES_ACCOUNT_B = [
 /**
  * Create a mock database with sequential responses
  */
-function createMockDb(options: {
-	firstResponses: (unknown | null)[]
-	allResponses?: unknown[][]
-}) {
+function createMockDb(options: { firstResponses: (unknown | null)[]; allResponses?: unknown[][] }) {
 	let firstCallIndex = 0
 	let allCallIndex = 0
 
@@ -372,18 +371,13 @@ describe('Multi-Tenant Isolation Integration Tests', () => {
 			})
 
 			const app = new Hono<{ Bindings: { DB: MockD1Database } }>()
-			app.use('*', async (c, next) => {
-				// @ts-expect-error - mocking env for tests
-				c.env = { DB: mockDb }
-				return next()
-			})
+
+			// Apply tenant middleware
 			app.use('*', tenantMiddleware())
 			app.get('/', c => c.json({ ok: true }))
 
-			// When: Accessing unknown tenant
-			const res = await app.request('/', {
-				headers: { host: 'nonexistent.tryequipped.com' },
-			})
+			// When: Accessing unknown tenant - pass env via third arg
+			const res = await app.request('/', { headers: { host: 'nonexistent.tryequipped.com' } }, { DB: mockDb })
 
 			// Then: 404 is returned
 			expect(res.status).toBe(404)
