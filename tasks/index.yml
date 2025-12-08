@@ -363,12 +363,12 @@ epics:
       - id: dashboard-layout
         name: Dashboard Layout
         file: dashboard/dashboard-layout.md
-        done: false
+        done: true
         complexity: medium
       - id: sidebar-navigation
         name: Sidebar Navigation
         file: dashboard/sidebar-navigation.md
-        done: false
+        done: true
         complexity: low
       - id: dashboard-home
         name: Dashboard Home Page
