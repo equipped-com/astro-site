@@ -493,7 +493,8 @@ epics:
       - id: return-shipping
         name: Return Shipping & Labels
         file: trade-in/return-shipping.md
-        done: false
+        done: true
+        commit: 3174704
         complexity: medium
         depends_on:
           - trade-in/device-valuation
