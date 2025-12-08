@@ -21,6 +21,7 @@ import storkclubLogo from '@/assets/logos/storkclub.svg'
 import upgradedLogo from '@/assets/logos/upgraded.svg'
 import heroImage from '@/assets/loops.jpg'
 import HeroSection from '@/components/hero/HeroSection.astro'
+import { AuthButtons } from '@/components/navigation/AuthButtons'
 import FeatureCard from '@/components/sections/FeatureCard.astro'
 import StatCard from '@/components/sections/StatCard.astro'
 import TestimonialCard from '@/components/sections/TestimonialCard.astro'
@@ -135,8 +136,7 @@ const steps = [
 					<a href="#order" class="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">Order</a>
 				</div>
 				<div class="flex items-center gap-3">
-					<a href="https://tryequipped.com/users/sign_in" class="hidden text-sm font-medium text-muted-foreground transition-colors hover:text-foreground sm:block">Sign in</a>
-					<a href="https://tryequipped.com/users/sign_up" class="inline-flex h-10 items-center justify-center rounded-full bg-primary px-5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90">Get Started</a>
+					<AuthButtons client:only="react" />
 				</div>
 			</div>
 		</div>

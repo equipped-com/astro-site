@@ -26,11 +26,20 @@ Landing page for Equipped - an IT asset management and device provisioning platf
 ## Commands
 
 ```bash
-npm run dev      # Dev server at localhost:4321
-npm run build    # Production build
-npm run deploy   # Deploy to CloudFlare Workers
-npm run check    # Biome linting
+# Development & Building
+bun run dev      # Dev server at localhost:4321
+bun run build    # Production build
+bun run deploy   # Deploy to CloudFlare Workers
+bun run check    # Biome linting
+
+# Testing (HIGH PRIORITY)
+bun run test                 # Run all tests once
+bun run test:watch           # Watch mode (recommended for dev)
+bun run test:coverage        # Generate coverage report
+bun run test:ui              # Visual UI dashboard
 ```
+
+**IMPORTANT:** Use `bun` instead of `npm` for faster execution. Falls back to `npm` if bun not available.
 
 ## Design Guidelines
 
@@ -45,6 +54,10 @@ npm run check    # Biome linting
 - Prefer **functional style** with ternary operators and `.map()`
 - Use **real functions** instead of arrow functions where applicable
 - Use **standard shadcn/ui color names** (primary, secondary, muted, accent)
+- **ALWAYS use TypeScript** - No plain JavaScript files allowed
+  - All new files must be `.ts` or `.tsx`
+  - Rewrite any existing `.js` files to TypeScript when touching them
+  - Strict mode enabled - no `any` types unless absolutely necessary
 
 ## Code Preferences
 
@@ -55,6 +68,154 @@ npm run check    # Biome linting
   - Bad: just passes data through, exists because it "feels proper"
 - **STREAMING FOR LARGE DATA**: Use streaming patterns instead of accumulating arrays in memory
 - **COMMENTS ONLY FOR COMPLEXITY**: Use clear variable/function names; add comments only where logic isn't self-evident
+
+## Testing Strategy - MANDATORY
+
+**Tests are NOT optional. All code must be tested.**
+
+### Testing Philosophy
+
+Tests serve THREE critical purposes:
+1. **Regression prevention** - Catch breaking changes before production
+2. **Living documentation** - Tests show exactly how code should behave
+3. **Refactoring confidence** - Safe to improve code with test coverage
+
+### Test Types & Framework
+
+- **Unit Tests** - Vitest - Individual functions, utilities, components
+- **Integration Tests** - Vitest - API endpoints, multi-component flows, database interactions
+- **E2E Tests** - Playwright (future) - Critical user journeys
+- **Regression Tests** - Vitest - Every bug fix gets a test to prevent reoccurrence
+
+### Coverage Requirements
+
+**MINIMUM (enforced in CI/CD):**
+- Functions: **90%**
+- Lines: **85%**
+- Branches: **80%**
+- Statements: **85%**
+
+**TARGET:**
+- Core features (auth, checkout, payments): **95%**
+- Utilities & helpers: **100%**
+- API endpoints: **90%+**
+- React components: **80%+**
+
+### When to Write Tests
+
+**REQUIRED - Do not commit without tests:**
+- [ ] **Every bug fix** (especially security bugs, auth, payments)
+- [ ] **Every API endpoint**
+- [ ] **Every auth/permission check**
+- [ ] **Every state management change**
+- [ ] **Every form submission**
+
+**STRONGLY RECOMMENDED:**
+- [ ] React components (especially with state/effects)
+- [ ] Utility functions used in multiple places
+- [ ] Complex business logic
+- [ ] Integration between systems
+
+**OPTIONAL (but appreciated):**
+- [ ] Simple presentational components (text labels, styled divs)
+- [ ] One-off scripts that won't be reused
+
+### Test Quality Requirements
+
+**Good test:**
+```typescript
+// ✅ GOOD: Describes behavior, tests edge cases, easy to understand
+describe('Checkout Assignment', () => {
+	it('should disable Continue button until a person is assigned', () => {
+		render(<AssignmentStage />)
+		expect(screen.getByText('Continue')).toBeDisabled()
+
+		fireEvent.click(screen.getByText('Assign to someone'))
+		expect(screen.getByText('Continue')).toBeDisabled() // Still disabled
+
+		fireEvent.click(screen.getByText('Alice'))
+		expect(screen.getByText('Continue')).toBeEnabled() // Now enabled
+	})
+})
+```
+
+**Bad test:**
+```typescript
+// ❌ BAD: Vague, hard to understand what it's testing
+describe('AssignmentStage', () => {
+	it('works correctly', () => {
+		const { container } = render(<AssignmentStage />)
+		fireEvent.click(container.querySelector('button'))
+		// ... unclear what this tests
+	})
+})
+```
+
+### Regression Test Pattern
+
+Every bug fix gets a regression test:
+
+```typescript
+/**
+ * REGRESSION TEST
+ * Issue: [GH-123 or JIRA-456]
+ * Description: [What was broken]
+ * Fix: [How was it fixed]
+ */
+describe('Trade-In Valuation [REGRESSION]', () => {
+	// Issue: GH-45 - Zero-value devices showed "Error"
+	it('should show "Recycle for Free" for zero-value devices', () => {
+		const valuation = valuateDevice({ model: 'old-iphone', condition: 'poor' })
+		expect(valuation.value).toBe(0)
+		expect(valuation.message).toContain('Recycle for Free')
+	})
+})
+```
+
+### Test Organization
+
+```
+src/
+├── components/
+│   ├── Spinner.tsx
+│   └── Spinner.test.tsx      # Co-located with component
+├── api/
+│   ├── auth-middleware.ts
+│   └── auth-middleware.test.ts
+├── lib/
+│   ├── utils.ts
+│   └── utils.test.ts
+└── test/                       # Shared test utilities
+    ├── setup.ts               # Test configuration
+    └── fixtures.ts            # Mock data
+```
+
+### Running Tests in Development
+
+```bash
+# Watch mode - tests re-run on file changes (RECOMMENDED)
+bun run test:watch
+
+# Single run
+bun run test
+
+# Coverage report
+bun run test:coverage
+
+# Visual dashboard
+bun run test:ui
+
+# Specific test file
+bun run test:watch -- src/components/Spinner.test.tsx
+```
+
+### Test Documentation
+
+Checkout the testing tasks for comprehensive patterns:
+- `tasks/testing/setup-vitest.md` - Framework setup & examples
+- `tasks/testing/auth-tests.md` - Auth system testing
+- `tasks/testing/integration-tests.md` - API & multi-component testing
+- `tasks/testing/regression-tests.md` - Bug fix verification
 
 ## Pre-Implementation Checklist
 
@@ -144,7 +305,7 @@ If an agent fails to complete a task:
 
 **Before starting a task:**
 ```bash
-node scripts/validate-task-dependencies.js
+bun scripts/validate-task-dependencies.js
 ```
 
 This shows:
@@ -154,7 +315,7 @@ This shows:
 
 **Check specific task:**
 ```bash
-node scripts/validate-task-dependencies.js api/device-crud
+bun scripts/validate-task-dependencies.js api/device-crud
 ```
 
 Shows exactly which dependencies are blocking the task.

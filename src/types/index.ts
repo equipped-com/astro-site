@@ -45,7 +45,25 @@ export interface AssignmentData {
 	isUnassigned: boolean
 }
 
+export interface ShippingData {
+	useAssigneeAddress: boolean
+	address?: {
+		firstName: string
+		lastName: string
+		addressLine1: string
+		addressLine2?: string
+		city: string
+		state: string
+		zipCode: string
+		country: string
+		email: string
+		phone: string
+		isBusinessAddress?: boolean
+	}
+}
+
 export interface OrderContext {
 	assignment: AssignmentData
-	// Future: shipping, delivery, payment, etc.
+	shipping?: ShippingData
+	// Future: delivery, payment, etc.
 }

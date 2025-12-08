@@ -14,9 +14,9 @@ const { title, description } = Astro.props
 
 <BaseLayout {title} description={description}>
 	<div class="flex h-screen flex-col bg-background text-foreground">
-		<DashboardHeader client:load />
+		<DashboardHeader client:only="react" />
 		<div class="flex flex-1 overflow-hidden">
-			<Sidebar client:load />
+			<Sidebar client:only="react" />
 			<main class="flex-1 overflow-auto">
 				<div class="p-8">
 					<slot />
