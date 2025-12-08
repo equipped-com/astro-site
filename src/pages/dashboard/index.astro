@@ -1,10 +1,27 @@
 ---
+import { ClerkProvider } from '@clerk/clerk-react'
+import { QuickActions } from '@/components/dashboard/QuickActions'
+import { QuickStats } from '@/components/dashboard/QuickStats'
+import { WelcomeCard } from '@/components/dashboard/WelcomeCard'
 import DashboardLayout from '@/layouts/DashboardLayout.astro'
+
+const publishableKey = import.meta.env.PUBLIC_CLERK_PUBLISHABLE_KEY
 ---
 
-<DashboardLayout title="Dashboard">
-	<div>
-		<h2>Welcome to your Dashboard</h2>
-		<p>Select an option from the sidebar to get started.</p>
+<DashboardLayout title="Dashboard - Equipped">
+	<div class="space-y-8">
+		<!-- Welcome message with user's name -->
+		<ClerkProvider
+			publishableKey={publishableKey}
+			client:only="react"
+		>
+			<WelcomeCard client:only="react" />
+		</ClerkProvider>
+
+		<!-- Quick stats cards -->
+		<QuickStats client:only="react" />
+
+		<!-- Quick actions -->
+		<QuickActions client:only="react" />
 	</div>
 </DashboardLayout>

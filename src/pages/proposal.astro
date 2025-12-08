@@ -1,0 +1,43 @@
+---
+/**
+ * Public Proposal View Page
+ *
+ * Accessible via /proposal?token=abc123 or proposals.tryequipped.com?token=abc123
+ * No authentication required - public proposal viewing.
+ *
+ * The token is extracted from URL query parameters client-side.
+ */
+
+import { PublicProposalView } from '@/components/proposals/PublicProposalView'
+import BaseLayout from '@/layouts/BaseLayout.astro'
+---
+
+<BaseLayout title="View Proposal - Equipped">
+	<div class="min-h-screen bg-background py-12 px-4">
+		<div class="max-w-4xl mx-auto">
+			<PublicProposalView client:only="react" token="" />
+		</div>
+	</div>
+
+	<script>
+		// Extract token from URL query parameters
+		const urlParams = new URLSearchParams(window.location.search)
+		const token = urlParams.get('token') || ''
+
+		// Pass token to React component via custom event
+		if (token) {
+			window.dispatchEvent(
+				new CustomEvent('proposal-token', {
+					detail: { token },
+				}),
+			)
+		} else {
+			// No token provided, show error
+			window.dispatchEvent(
+				new CustomEvent('proposal-token', {
+					detail: { token: null },
+				}),
+			)
+		}
+	</script>
+</BaseLayout>

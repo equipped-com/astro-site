@@ -7,6 +7,7 @@ import deviceRoutes from './api/routes/devices'
 import organizationRoutes from './api/routes/organization'
 import peopleRoutes from './api/routes/people'
 import proposalRoutes from './api/routes/proposals'
+import teamRoutes from './api/routes/team'
 import userRoutes from './api/routes/user'
 import clerkWebhook from './api/routes/webhooks/clerk'
 
@@ -159,6 +160,9 @@ app.route('/api/proposals', proposalRoutes)
 
 // Mount organization routes
 app.route('/api/organization', organizationRoutes)
+
+// Mount team routes
+app.route('/api/team', teamRoutes)
 
 // ============================================================================
 // ADMIN ROUTES - requires auth + account access + admin role
