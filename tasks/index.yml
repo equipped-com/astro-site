@@ -653,7 +653,8 @@ epics:
       - id: setup-vitest
         name: Setup Vitest Testing Infrastructure
         file: testing/setup-vitest.md
-        done: false
+        done: true
+        commit: 3c05dc4
         complexity: medium
         depends_on:
           - infrastructure/setup-hono-worker
