@@ -411,7 +411,8 @@ epics:
       - id: order-list
         name: Order List View
         file: orders/order-list.md
-        done: false
+        done: true
+        commit: 7c0899e
         complexity: medium
         depends_on:
           - api/device-crud

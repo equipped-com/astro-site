@@ -296,7 +296,8 @@ describe('ValueAdjustmentModal Component', () => {
 
 	describe('Error Handling', () => {
 		it('should handle accept errors gracefully', async () => {
-			const alertMock = vi.spyOn(window, 'alert').mockImplementation(() => {})
+			const alertMock = vi.fn()
+			global.alert = alertMock
 			;(global.fetch as any).mockResolvedValueOnce({
 				ok: false,
 				status: 500,
@@ -312,12 +313,11 @@ describe('ValueAdjustmentModal Component', () => {
 			await waitFor(() => {
 				expect(alertMock).toHaveBeenCalledWith('Failed to accept adjustment. Please try again.')
 			})
-
-			alertMock.mockRestore()
 		})
 
 		it('should handle dispute errors gracefully', async () => {
-			const alertMock = vi.spyOn(window, 'alert').mockImplementation(() => {})
+			const alertMock = vi.fn()
+			global.alert = alertMock
 			;(global.fetch as any).mockResolvedValueOnce({
 				ok: false,
 				status: 500,
@@ -340,8 +340,6 @@ describe('ValueAdjustmentModal Component', () => {
 			await waitFor(() => {
 				expect(alertMock).toHaveBeenCalledWith('Failed to submit dispute. Please try again.')
 			})
-
-			alertMock.mockRestore()
 		})
 	})
 })
