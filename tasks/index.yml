@@ -308,7 +308,8 @@ epics:
       - id: auth-navigation
         name: Update Navigation for Auth
         file: auth/auth-navigation.md
-        done: false
+        done: true
+        commit: afaaf2f
         complexity: medium
         depends_on:
           - auth/auth-pages
