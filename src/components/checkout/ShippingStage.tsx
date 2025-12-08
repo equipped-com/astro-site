@@ -164,15 +164,13 @@ export default function ShippingStage({
 			{mode === 'other' && (
 				<div className="mb-6">
 					{useAutocomplete ? (
-						<>
-							<AddressAutocomplete
-								value={autocompleteValue}
-								onChange={setAutocompleteValue}
-								onAddressSelect={handleAddressSelect}
-								onManualEntry={() => setUseAutocomplete(false)}
-								placeholder="Start typing an address..."
-							/>
-						</>
+						<AddressAutocomplete
+							value={autocompleteValue}
+							onChange={setAutocompleteValue}
+							onAddressSelect={handleAddressSelect}
+							onManualEntry={() => setUseAutocomplete(false)}
+							placeholder="Start typing an address..."
+						/>
 					) : (
 						<>
 							<div className="flex items-center justify-between mb-4">

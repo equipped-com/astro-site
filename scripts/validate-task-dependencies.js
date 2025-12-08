@@ -10,10 +10,10 @@
  *   node scripts/validate-task-dependencies.js api/device-crud    # Check specific task
  */
 
-import fs from 'fs'
+import fs from 'node:fs'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import yaml from 'js-yaml'
-import path from 'path'
-import { fileURLToPath } from 'url'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -114,7 +114,7 @@ function listReadyTasks(complexity = null) {
 	return { ready, blocked }
 }
 
-function formatOutput(validation, taskKey) {
+function formatOutput(validation, _taskKey) {
 	const lines = []
 
 	if (validation.message) {

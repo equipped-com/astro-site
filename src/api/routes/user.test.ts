@@ -49,7 +49,7 @@ describe('User Profile API', () => {
 	describe('@REQ-USER-001: Get user profile', () => {
 		test('should return user profile with accounts', async () => {
 			const mockDb = {
-				prepare: vi.fn((query: string) => ({
+				prepare: vi.fn((_query: string) => ({
 					bind: vi.fn(() => ({
 						first: vi.fn(async () => ({
 							id: 'user_123',
@@ -96,7 +96,7 @@ describe('User Profile API', () => {
 
 		test('should filter out null accounts', async () => {
 			const mockDb = {
-				prepare: vi.fn((query: string) => ({
+				prepare: vi.fn((_query: string) => ({
 					bind: vi.fn(() => ({
 						first: vi.fn(async () => ({
 							id: 'user_123',
@@ -122,7 +122,7 @@ describe('User Profile API', () => {
 
 		test('should return 404 if user not found', async () => {
 			const mockDb = {
-				prepare: vi.fn((query: string) => ({
+				prepare: vi.fn((_query: string) => ({
 					bind: vi.fn(() => ({
 						first: vi.fn(async () => null),
 					})),
@@ -235,7 +235,7 @@ describe('User Profile API', () => {
 	describe('@REQ-USER-004: List account memberships', () => {
 		test('should return all accounts user has access to', async () => {
 			const mockDb = {
-				prepare: vi.fn((query: string) => ({
+				prepare: vi.fn((_query: string) => ({
 					bind: vi.fn(() => ({
 						all: vi.fn(async () => ({
 							results: [
@@ -277,7 +277,7 @@ describe('User Profile API', () => {
 	describe('@REQ-USER-005: Switch active account', () => {
 		test('should switch to account user has access to', async () => {
 			const mockDb = {
-				prepare: vi.fn((query: string) => ({
+				prepare: vi.fn((_query: string) => ({
 					bind: vi.fn(() => ({
 						first: vi.fn(async () => ({
 							role: 'member',
@@ -314,7 +314,7 @@ describe('User Profile API', () => {
 	describe('@REQ-USER-006: Cannot switch to unauthorized account', () => {
 		test('should return 403 for unauthorized account', async () => {
 			const mockDb = {
-				prepare: vi.fn((query: string) => ({
+				prepare: vi.fn((_query: string) => ({
 					bind: vi.fn(() => ({
 						first: vi.fn(async () => null), // No access found
 					})),
