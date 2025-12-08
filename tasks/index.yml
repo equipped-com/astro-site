@@ -432,7 +432,8 @@ epics:
       - id: directory-view
         name: People Directory
         file: people/directory-view.md
-        done: false
+        done: true
+        commit: a422aba
         complexity: medium
         depends_on:
           - api/auth-middleware
