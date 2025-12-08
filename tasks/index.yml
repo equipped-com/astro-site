@@ -605,7 +605,8 @@ epics:
       - id: dashboard-home
         name: Dashboard Home Page
         file: dashboard/dashboard-home.md
-        done: false
+        done: true
+        commit: 183f066
         complexity: medium
         depends_on:
           - dashboard/dashboard-layout
