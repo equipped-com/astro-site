@@ -1,0 +1,258 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro'
+import { ChevronRight } from '@lucide/astro'
+import logoE from '@/assets/logo-e.svg'
+
+const lastUpdated = 'December 8, 2024'
+const effectiveDate = 'December 8, 2024'
+---
+
+<BaseLayout title="Terms of Service - Equipped">
+	<!-- Navigation -->
+	<nav class="fixed top-0 left-0 right-0 z-50 pt-2">
+		<div class="mx-auto max-w-7xl rounded-3xl px-6 transition-all duration-300 lg:px-12" id="nav-container">
+			<div class="relative flex flex-wrap items-center justify-between gap-6 py-3 duration-200 lg:gap-0 lg:py-6">
+				<a href="/" class="flex items-center gap-2">
+					<img src={logoE.src} alt="Equipped" class="h-8 w-auto" width="29" height="32" />
+					<span class="text-xl font-semibold tracking-tight">Equipped</span>
+				</a>
+				<div class="hidden items-center gap-8 md:flex">
+					<a href="/#features" class="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">Features</a>
+					<a href="/#how-it-works" class="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">How it works</a>
+					<a href="/#order" class="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">Order</a>
+				</div>
+				<div class="flex items-center gap-3">
+					<a href="https://tryequipped.com/users/sign_in" class="hidden text-sm font-medium text-muted-foreground transition-colors hover:text-foreground sm:block">Sign in</a>
+					<a href="https://tryequipped.com/users/sign_up" class="inline-flex h-10 items-center justify-center rounded-full bg-primary px-5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90">Get Started</a>
+				</div>
+			</div>
+		</div>
+	</nav>
+
+	<main class="overflow-x-hidden pt-24">
+		<!-- Breadcrumb & Header -->
+		<section class="border-b border-border bg-muted/30 py-12 sm:py-16">
+			<div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+				<div class="mb-6 flex items-center gap-2 text-sm text-muted-foreground">
+					<a href="/" class="transition-colors hover:text-foreground">Home</a>
+					<ChevronRight class="h-4 w-4" />
+					<span>Terms of Service</span>
+				</div>
+				<h1 class="mb-4 text-4xl font-bold tracking-tight sm:text-5xl">Terms of Service</h1>
+				<p class="text-lg text-muted-foreground">Effective {effectiveDate}</p>
+			</div>
+		</section>
+
+		<!-- Content -->
+		<section class="py-12 sm:py-16">
+			<div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+				<div class="prose prose-invert max-w-none space-y-8">
+					<!-- Table of Contents -->
+					<div class="rounded-lg border border-border bg-muted/50 p-6">
+						<h2 class="mb-4 text-lg font-semibold">Table of Contents</h2>
+						<ol class="space-y-2 text-sm text-muted-foreground">
+							<li><a href="#acceptance" class="transition-colors hover:text-foreground">1. Acceptance of Terms</a></li>
+							<li><a href="#services" class="transition-colors hover:text-foreground">2. Description of Services</a></li>
+							<li><a href="#accounts" class="transition-colors hover:text-foreground">3. User Accounts and Responsibilities</a></li>
+							<li><a href="#acceptable-use" class="transition-colors hover:text-foreground">4. Acceptable Use Policy</a></li>
+							<li><a href="#intellectual-property" class="transition-colors hover:text-foreground">5. Intellectual Property</a></li>
+							<li><a href="#payment" class="transition-colors hover:text-foreground">6. Payment Terms</a></li>
+							<li><a href="#limitation" class="transition-colors hover:text-foreground">7. Limitation of Liability</a></li>
+							<li><a href="#indemnification" class="transition-colors hover:text-foreground">8. Indemnification</a></li>
+							<li><a href="#termination" class="transition-colors hover:text-foreground">9. Termination</a></li>
+							<li><a href="#governing-law" class="transition-colors hover:text-foreground">10. Governing Law</a></li>
+							<li><a href="#contact" class="transition-colors hover:text-foreground">11. Contact Information</a></li>
+						</ol>
+					</div>
+
+					<!-- 1. Acceptance of Terms -->
+					<section id="acceptance" class="space-y-4">
+						<h2 class="text-2xl font-bold">1. Acceptance of Terms</h2>
+						<p class="text-muted-foreground">
+							By accessing and using the Equipped platform (the "Service"), you accept and agree to be bound by the terms and provision of this agreement. If you do not agree to abide by the above, please do not use this service. Equipped reserves the right to update these terms at any time without notice. Your continued use of the Service following the posting of revised terms means that you accept and agree to the changes.
+						</p>
+					</section>
+
+					<!-- 2. Description of Services -->
+					<section id="services" class="space-y-4">
+						<h2 class="text-2xl font-bold">2. Description of Services</h2>
+						<p class="text-muted-foreground">
+							Equipped is an IT asset management and device provisioning platform that helps organizations manage device procurement, configuration, deployment, and lifecycle management. Our service includes:
+						</p>
+						<ul class="list-inside list-disc space-y-2 text-muted-foreground">
+							<li>Global device procurement and delivery</li>
+							<li>Zero-touch device configuration and setup</li>
+							<li>Asset tracking and inventory management</li>
+							<li>Device lifecycle management including upgrades and replacements</li>
+							<li>Security policy enforcement and compliance management</li>
+							<li>Customer support and white-glove service</li>
+						</ul>
+					</section>
+
+					<!-- 3. User Accounts and Responsibilities -->
+					<section id="accounts" class="space-y-4">
+						<h2 class="text-2xl font-bold">3. User Accounts and Responsibilities</h2>
+						<p class="text-muted-foreground">
+							To use the Service, you may be required to create an account and provide accurate, complete, and current information. You are responsible for maintaining the confidentiality of your account information and password. You agree to accept responsibility for all activities that occur under your account. You must notify Equipped immediately of any unauthorized use of your account or any other breach of security.
+						</p>
+						<p class="text-muted-foreground">
+							You represent and warrant that you have the authority to bind the organization on whose behalf you are entering into these terms. All users must comply with applicable laws and regulations in their jurisdiction.
+						</p>
+					</section>
+
+					<!-- 4. Acceptable Use Policy -->
+					<section id="acceptable-use" class="space-y-4">
+						<h2 class="text-2xl font-bold">4. Acceptable Use Policy</h2>
+						<p class="text-muted-foreground">You agree not to use the Service for any unlawful purpose or in any way that could damage or impair the Service. Specifically, you agree not to:</p>
+						<ul class="list-inside list-disc space-y-2 text-muted-foreground">
+							<li>Use the Service to harass, abuse, or threaten others</li>
+							<li>Attempt to gain unauthorized access to the Service or its systems</li>
+							<li>Reverse engineer, decompile, or attempt to derive the source code of the Service</li>
+							<li>Use the Service to transmit viruses, malware, or any other malicious code</li>
+							<li>Use the Service for any illegal or unauthorized purpose</li>
+							<li>Violate any applicable laws, regulations, or third-party rights</li>
+							<li>Interfere with or disrupt the Service or its infrastructure</li>
+							<li>Use the Service to resell or provide to unauthorized parties</li>
+						</ul>
+					</section>
+
+					<!-- 5. Intellectual Property -->
+					<section id="intellectual-property" class="space-y-4">
+						<h2 class="text-2xl font-bold">5. Intellectual Property</h2>
+						<p class="text-muted-foreground">
+							All content, features, and functionality of the Service are owned by Equipped, its licensors, or other providers of such material and are protected by United States and international copyright, trademark, and other intellectual property laws.
+						</p>
+						<p class="text-muted-foreground">
+							You are granted a limited, non-exclusive, non-transferable license to use the Service for your internal business purposes. You may not reproduce, modify, distribute, or transmit the Service or its content without Equipped's prior written consent.
+						</p>
+					</section>
+
+					<!-- 6. Payment Terms -->
+					<section id="payment" class="space-y-4">
+						<h2 class="text-2xl font-bold">6. Payment Terms</h2>
+						<p class="text-muted-foreground">
+							The Service is offered on a subscription basis with monthly or annual billing cycles. Fees are exclusive of applicable taxes, which will be added to your invoice. Payment is due upon invoice or according to the payment terms specified in your service agreement.
+						</p>
+						<p class="text-muted-foreground">
+							You authorize Equipped to charge your payment method for all fees and charges incurred. If payment fails, Equipped reserves the right to suspend your account until payment is received. Device costs are separate from service fees and will be itemized on your invoice.
+						</p>
+						<p class="text-muted-foreground">
+							Refunds are not available except as required by law. Cancellation of your service does not entitle you to a refund of prepaid fees. For leasing options, payment terms are subject to the leasing agreement with our financial partners.
+						</p>
+					</section>
+
+					<!-- 7. Limitation of Liability -->
+					<section id="limitation" class="space-y-4">
+						<h2 class="text-2xl font-bold">7. Limitation of Liability</h2>
+						<p class="text-muted-foreground">
+							TO THE MAXIMUM EXTENT PERMITTED BY LAW, EQUIPPED SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, PUNITIVE, OR EXEMPLARY DAMAGES, INCLUDING BUT NOT LIMITED TO DAMAGES FOR LOSS OF PROFITS, GOODWILL, USE, DATA, OR OTHER INTANGIBLE LOSSES ARISING OUT OF OR RELATING TO THIS AGREEMENT OR THE SERVICE.
+						</p>
+						<p class="text-muted-foreground">
+							IN NO EVENT SHALL EQUIPPED'S TOTAL LIABILITY EXCEED THE AMOUNT PAID BY YOU IN THE TWELVE MONTHS PRECEDING THE EVENT GIVING RISE TO THE LIABILITY.
+						</p>
+						<p class="text-muted-foreground">
+							Some jurisdictions do not allow the exclusion of certain warranties or the limitation of liability, so some of the above exclusions may not apply to you.
+						</p>
+					</section>
+
+					<!-- 8. Indemnification -->
+					<section id="indemnification" class="space-y-4">
+						<h2 class="text-2xl font-bold">8. Indemnification</h2>
+						<p class="text-muted-foreground">
+							You agree to defend, indemnify, and hold harmless Equipped and its officers, directors, employees, agents, and licensors from and against any and all claims, damages, losses, liabilities, and expenses (including attorney's fees) arising out of or relating to:
+						</p>
+						<ul class="list-inside list-disc space-y-2 text-muted-foreground">
+							<li>Your use of the Service in violation of these terms</li>
+							<li>Your violation of any applicable law or regulation</li>
+							<li>Your infringement of any third-party intellectual property rights</li>
+							<li>User content you upload or transmit through the Service</li>
+							<li>Your misuse of the Service or breach of your account responsibilities</li>
+						</ul>
+					</section>
+
+					<!-- 9. Termination -->
+					<section id="termination" class="space-y-4">
+						<h2 class="text-2xl font-bold">9. Termination</h2>
+						<p class="text-muted-foreground">
+							Either party may terminate this agreement at any time by providing written notice to the other party. Termination is effective immediately upon delivery of notice. Upon termination, your right to use the Service ceases immediately. Sections that should survive termination include Intellectual Property, Limitation of Liability, Indemnification, and Governing Law.
+						</p>
+						<p class="text-muted-foreground">
+							Equipped may suspend or terminate your account at any time if you breach these terms, engage in illegal activities, or violate the acceptable use policy. Upon termination, you remain responsible for all accrued charges and fees.
+						</p>
+					</section>
+
+					<!-- 10. Governing Law -->
+					<section id="governing-law" class="space-y-4">
+						<h2 class="text-2xl font-bold">10. Governing Law</h2>
+						<p class="text-muted-foreground">
+							This agreement shall be governed by and construed in accordance with the laws of the State of California, without regard to its conflict of law provisions. You agree to submit to the exclusive jurisdiction of the state and federal courts located in San Francisco County, California for the resolution of any disputes.
+						</p>
+					</section>
+
+					<!-- 11. Contact Information -->
+					<section id="contact" class="space-y-4">
+						<h2 class="text-2xl font-bold">11. Contact Information</h2>
+						<p class="text-muted-foreground">
+							If you have any questions about these Terms of Service, please contact us at:
+						</p>
+						<div class="rounded-lg bg-muted/50 p-6">
+							<p class="font-semibold">Equipped</p>
+							<p class="text-sm text-muted-foreground">Email: hello@tryequipped.com</p>
+							<p class="text-sm text-muted-foreground">Website: https://tryequipped.com</p>
+						</div>
+					</section>
+
+					<!-- Last Updated -->
+					<div class="border-t border-border pt-8">
+						<p class="text-sm text-muted-foreground">Last updated: {lastUpdated}</p>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		<!-- CTA Section -->
+		<section class="border-t border-border py-16 sm:py-20">
+			<div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+				<div class="rounded-2xl border border-border bg-muted/50 px-6 py-16 text-center sm:px-12 sm:py-20">
+					<h2 class="mb-4 text-3xl font-bold tracking-tight">Questions about our service?</h2>
+					<p class="mx-auto mb-8 max-w-xl text-lg text-muted-foreground">Contact our team for more information about using Equipped.</p>
+					<a href="mailto:hello@tryequipped.com" class="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-8 py-3 text-base font-medium transition-colors hover:bg-muted">
+						Get in touch
+					</a>
+				</div>
+			</div>
+		</section>
+	</main>
+
+	<!-- Footer -->
+	<footer class="border-t border-border py-12">
+		<div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+			<div class="flex flex-col items-center justify-between gap-6 md:flex-row">
+				<div class="flex items-center gap-2">
+					<img src={logoE.src} alt="Equipped" class="h-7 w-auto" width="26" height="28" />
+					<span class="text-lg font-semibold">Equipped</span>
+				</div>
+				<div class="flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground">
+					<a href="/" class="transition-colors hover:text-foreground">Home</a>
+					<a href="mailto:hello@tryequipped.com" class="transition-colors hover:text-foreground">Contact</a>
+					<a href="https://tryequipped.com/privacy" class="transition-colors hover:text-foreground">Privacy</a>
+					<a href="https://tryequipped.com/terms" class="transition-colors hover:text-foreground">Terms</a>
+				</div>
+				<div class="text-sm text-muted-foreground">&copy; {new Date().getFullYear()} Equipped. All rights reserved.</div>
+			</div>
+		</div>
+	</footer>
+
+	<script>
+		const navContainer = document.getElementById('nav-container')
+		function updateNav() {
+			if (window.scrollY > 50) {
+				navContainer?.classList.add('bg-background/80', 'backdrop-blur-xl', 'shadow-sm')
+			} else {
+				navContainer?.classList.remove('bg-background/80', 'backdrop-blur-xl', 'shadow-sm')
+			}
+		}
+		window.addEventListener('scroll', updateNav, { passive: true })
+		updateNav()
+	</script>
+</BaseLayout>

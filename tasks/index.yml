@@ -378,7 +378,7 @@ epics:
       - id: loading-states
         name: Loading States
         file: dashboard/loading-states.md
-        done: false
+        done: true
         complexity: low
       - id: empty-states
         name: Empty States
