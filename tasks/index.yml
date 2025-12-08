@@ -689,7 +689,8 @@ epics:
       - id: setup-playwright
         name: Setup Playwright E2E Testing
         file: testing/setup-playwright.md
-        done: false
+        done: true
+        commit: 31bf0cc
         complexity: medium
         depends_on:
           - testing/setup-vitest
