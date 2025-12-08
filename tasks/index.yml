@@ -504,7 +504,8 @@ epics:
       - id: device-inventory
         name: Device Inventory View
         file: fleet/device-inventory.md
-        done: false
+        done: true
+        commit: 35436fe
         complexity: medium
         depends_on:
           - api/device-crud
@@ -532,7 +533,8 @@ epics:
       - id: team-access
         name: Team Access Management
         file: settings/team-access.md
-        done: false
+        done: true
+        commit: 1abfc48
         complexity: medium
         depends_on:
           - settings/organization-settings
