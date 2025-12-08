@@ -332,7 +332,8 @@ epics:
       - id: clerk-webhook
         name: Clerk Webhook Handler
         file: api/clerk-webhook.md
-        done: false
+        done: true
+        commit: afaaf2f
         complexity: high  # Security, signature verification
         depends_on:
           - auth/install-clerk
