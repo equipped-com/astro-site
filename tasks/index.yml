@@ -341,9 +341,9 @@ epics:
       - id: device-crud
         name: Device CRUD Endpoints (Tenant-Scoped)
         file: api/device-crud.md
-        done: false
+        done: true
+        commit: 74e77f3
         complexity: medium
-        escalation_reason: "Blocked: api/auth-middleware done, multi-tenancy/tenant-context incomplete, database/run-migrations done"
         depends_on:
           - api/auth-middleware
           - multi-tenancy/tenant-context
