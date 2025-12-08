@@ -389,7 +389,8 @@ epics:
       - id: checkout-delivery
         name: "Checkout Stage 3: Delivery"
         file: commerce/checkout-delivery.md
-        done: false
+        done: true
+        commit: d6608a7
         complexity: medium
         depends_on:
           - commerce/checkout-shipping
@@ -666,7 +667,8 @@ epics:
       - id: auth-tests
         name: Write Tests for Auth System
         file: testing/auth-tests.md
-        done: false
+        done: true
+        commit: ffd8ebf
         complexity: high
         depends_on:
           - testing/setup-vitest
