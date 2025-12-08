@@ -644,6 +644,42 @@ epics:
           - static-pages/privacy-page
           - static-pages/terms-page
 
+  testing:
+    name: Testing Infrastructure
+    description: Vitest setup, unit/integration/regression tests
+    priority: high
+    tasks:
+      - id: setup-vitest
+        name: Setup Vitest Testing Infrastructure
+        file: testing/setup-vitest.md
+        done: false
+        complexity: medium
+        depends_on:
+          - infrastructure/setup-hono-worker
+      - id: auth-tests
+        name: Write Tests for Auth System
+        file: testing/auth-tests.md
+        done: false
+        complexity: high
+        depends_on:
+          - testing/setup-vitest
+          - api/auth-middleware
+      - id: integration-tests
+        name: Write Integration Tests for API & Components
+        file: testing/integration-tests.md
+        done: false
+        complexity: high
+        depends_on:
+          - testing/setup-vitest
+          - api/device-crud
+      - id: regression-tests
+        name: Establish Regression Testing & Bug Prevention
+        file: testing/regression-tests.md
+        done: false
+        complexity: medium
+        depends_on:
+          - testing/setup-vitest
+
   integrations:
     name: External Integrations
     description: Third-party service integrations
