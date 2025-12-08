@@ -103,21 +103,40 @@ Tasks are organized in `tasks/{epic}/{task}.md` with `tasks/index.yml` as master
 
 When selecting tasks to work on:
 
-1. **EXCLUDE `requires: human`** - Tasks marked with `requires: human` need manual action (dashboard setup, external account creation, partnership agreements). Skip these for automatic selection.
-2. **Check dependencies** - Read the task's Dependencies section; complete prerequisites first
-3. **Respect priority** - Work on `high` priority epics before `medium` or `low`
-4. **Mark done when complete** - Update `done: true` in index.yml after completing a task
+1. **EXCLUDE `requires: human`** - Skip tasks needing manual action
+2. **Match `complexity` to agent** - Use appropriate agent for task difficulty
+3. **Check dependencies** - Complete prerequisites first (see task file)
+4. **Respect priority** - Work on `high` priority epics before `medium` or `low`
+5. **Mark done when complete** - Update `done: true` in index.yml
+
+### Complexity Levels
+
+| Level | Agent | Use For |
+|-------|-------|---------|
+| `low` | haiku (fast/cheap) | Static pages, loading states, simple patterns |
+| `medium` | sonnet (standard) | Dashboard views, CRUD, forms, list/detail |
+| `high` | opus (advanced) | Auth, payments, external APIs, architecture |
 
 ### Human-Required Tasks
 
-These tasks require real-world action and should be flagged to the user:
+Tasks marked `requires: human` need real-world action:
 
 - External dashboard setup (Clerk, CloudFlare, Stripe, Plaid)
 - Partnership agreements (Macquarie, Upgraded)
 - Account creation on third-party services
 - API key generation from external providers
 
-When encountering a `requires: human` task, inform the user what manual steps are needed.
+When encountering these, inform the user what manual steps are needed.
+
+### Escalation Protocol
+
+If an agent fails to complete a task:
+
+1. Document the failure reason clearly
+2. Report: `ESCALATION NEEDED: {task_id} - {reason}`
+3. Suggest complexity upgrade if task was harder than rated
+4. Do NOT mark the task as done
+5. Do NOT retry without escalation
 
 ### Key Documents
 
