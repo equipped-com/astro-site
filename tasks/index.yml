@@ -58,6 +58,60 @@
 #   - Security implications require senior review
 #   - Integration complexity exceeded expectations
 #
+# TEST EXECUTION PROTOCOL
+# -----------------------
+# ALL agents MUST run tests after completing any task. This is NOT optional.
+#
+# Test execution steps:
+#   1. Run `npm run check` (Biome linting)
+#   2. Run `npm run build` (TypeScript + Astro build)
+#   3. Run any task-specific tests mentioned in the task file
+#
+# If tests FAIL:
+#   1. Analyze the error - is it trivial (typo, import) or non-trivial?
+#   2. For TRIVIAL errors: Fix immediately and re-run tests
+#   3. For NON-TRIVIAL errors:
+#      a. Create a failure task file: `{epic}/{task-id}-failure.md`
+#      b. Document the error, stack trace, and attempted fixes
+#      c. Add the failure task to this index under the same epic:
+#         - id: {original-task-id}-failure
+#           name: "Fix: {Original Task Name}"
+#           file: {epic}/{task-id}-failure.md
+#           done: false
+#           complexity: high  # ALWAYS high - debugging is hard
+#           blocks: {original-task-id}  # Original task blocked until fixed
+#      d. Attempt to fix the error
+#      e. If fix succeeds: mark failure task done, re-run tests
+#      f. If fix fails: escalate with "ESCALATION NEEDED: {task-id}-failure"
+#
+# Failure task file format ({task-id}-failure.md):
+#   ---
+#   # Fix: {Original Task Name}
+#
+#   ## Original Task
+#   - ID: {original-task-id}
+#   - File: {epic}/{original-task}.md
+#
+#   ## Error Details
+#   - Command: {what command failed}
+#   - Exit Code: {code}
+#   - Error Type: {build/lint/runtime/type}
+#
+#   ## Stack Trace
+#   ```
+#   {full error output}
+#   ```
+#
+#   ## Analysis
+#   {root cause analysis}
+#
+#   ## Attempted Fixes
+#   1. {what was tried and why it failed}
+#
+#   ## Proposed Solution
+#   {next steps to resolve}
+#   ---
+#
 # TASK FILE FORMAT
 # ----------------
 # Each task file (tasks/{epic}/{task}.md) contains:
@@ -125,7 +179,7 @@ epics:
       - id: subdomain-routing
         name: Subdomain-Based Routing
         file: multi-tenancy/subdomain-routing.md
-        done: false
+        done: true
         complexity: high  # Architectural, routing logic
       - id: tenant-context
         name: Tenant Context Helper
@@ -173,7 +227,7 @@ epics:
       - id: auth-middleware
         name: Auth Middleware
         file: api/auth-middleware.md
-        done: false
+        done: true
         complexity: high  # Security-sensitive, RBAC
       - id: clerk-webhook
         name: Clerk Webhook Handler

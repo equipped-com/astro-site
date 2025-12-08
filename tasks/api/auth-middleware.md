@@ -6,13 +6,13 @@ Create Hono middleware to verify Clerk JWT tokens on protected API routes. This 
 
 ## Acceptance Criteria
 
-- [ ] `@hono/clerk-auth` installed
-- [ ] Auth middleware created for JWT verification
-- [ ] User ID available in route handlers via context
-- [ ] Account context resolved from subdomain or cookie
-- [ ] Role-based access control helpers
-- [ ] Unauthenticated requests return 401
-- [ ] Unauthorized requests return 403
+- [x] `@hono/clerk-auth` installed
+- [x] Auth middleware created for JWT verification
+- [x] User ID available in route handlers via context
+- [x] Account context resolved from subdomain or cookie
+- [x] Role-based access control helpers
+- [x] Unauthenticated requests return 401
+- [x] Unauthorized requests return 403
 
 ## Test Criteria
 

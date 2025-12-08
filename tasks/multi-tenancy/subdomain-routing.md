@@ -6,11 +6,11 @@ Implement subdomain-based tenant resolution for the Equipped platform. Each acco
 
 ## Acceptance Criteria
 
-- [ ] Worker extracts subdomain from Host header
-- [ ] Tenant lookup by `accounts.short_name`
-- [ ] Reserved subdomains handled specially (admin, www, webhooks)
-- [ ] Invalid/unknown subdomains return 404
-- [ ] Tenant context passed to all API routes
+- [x] Worker extracts subdomain from Host header
+- [x] Tenant lookup by `accounts.short_name`
+- [x] Reserved subdomains handled specially (admin, www, webhooks)
+- [x] Invalid/unknown subdomains return 404
+- [x] Tenant context passed to all API routes
 
 ## Test Criteria
 
