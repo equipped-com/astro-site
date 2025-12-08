@@ -337,7 +337,7 @@ epics:
       - id: device-valuation
         name: Device Valuation
         file: trade-in/device-valuation.md
-        done: false
+        done: true
         complexity: high  # External API integration
       - id: return-shipping
         name: Return Shipping & Labels

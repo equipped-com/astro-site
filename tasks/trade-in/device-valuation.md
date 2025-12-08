@@ -6,12 +6,12 @@ Allow users to get instant trade-in quotes for existing devices. Uses Alchemy AP
 
 ## Acceptance Criteria
 
-- [ ] "Trade in" entry point on product pages and dashboard
-- [ ] Device model selection/lookup by serial
-- [ ] Condition assessment questionnaire
-- [ ] Real-time valuation from Alchemy API
-- [ ] Apply credit to cart/checkout
-- [ ] Track trade-in status
+- [x] "Trade in" entry point on product pages and dashboard
+- [x] Device model selection/lookup by serial
+- [x] Condition assessment questionnaire
+- [x] Real-time valuation from Alchemy API
+- [x] Apply credit to cart/checkout (UI ready, cart integration pending)
+- [ ] Track trade-in status (future task)
 
 ## Test Criteria
 

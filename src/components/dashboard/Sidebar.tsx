@@ -1,15 +1,7 @@
 'use client'
 
+import { ArrowLeftRight, ChevronLeft, ChevronRight, Laptop, Settings, ShoppingCart, Store, Users } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import {
-	Laptop,
-	ShoppingCart,
-	Store,
-	Users,
-	Settings,
-	ChevronLeft,
-	ChevronRight,
-} from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface NavItem {
@@ -33,6 +25,11 @@ const navItems: NavItem[] = [
 		label: 'Store',
 		icon: <Store className="h-5 w-5" />,
 		path: '/dashboard/store',
+	},
+	{
+		label: 'Trade In',
+		icon: <ArrowLeftRight className="h-5 w-5" />,
+		path: '/dashboard/trade-in',
 	},
 	{
 		label: 'People',
@@ -80,24 +77,20 @@ export default function Sidebar() {
 				onMouseLeave={() => setIsHovering(false)}
 			>
 				<nav className="flex flex-1 flex-col gap-2 p-4">
-					{navItems.map((item) => (
+					{navItems.map(item => (
 						<a
 							key={item.path}
 							href={item.path}
 							className={cn(
 								'flex items-center gap-3 rounded-md px-3 py-2 transition-colors',
 								'hover:bg-muted',
-								isActive(item.path)
-									? 'bg-muted text-primary font-semibold'
-									: 'text-muted-foreground'
+								isActive(item.path) ? 'bg-muted text-primary font-semibold' : 'text-muted-foreground',
 							)}
 							tabIndex={0}
-							onKeyDown={(e) => handleKeyDown(e, item.path)}
+							onKeyDown={e => handleKeyDown(e, item.path)}
 						>
 							<div className="flex-shrink-0">{item.icon}</div>
-							{shouldBeExpanded && (
-								<span className="whitespace-nowrap text-sm">{item.label}</span>
-							)}
+							{shouldBeExpanded && <span className="whitespace-nowrap text-sm">{item.label}</span>}
 						</a>
 					))}
 				</nav>
@@ -109,11 +102,7 @@ export default function Sidebar() {
 						className="flex w-full items-center justify-center rounded-md p-2 hover:bg-muted"
 						aria-label={shouldBeExpanded ? 'Collapse sidebar' : 'Expand sidebar'}
 					>
-						{shouldBeExpanded ? (
-							<ChevronLeft className="h-5 w-5" />
-						) : (
-							<ChevronRight className="h-5 w-5" />
-						)}
+						{shouldBeExpanded ? <ChevronLeft className="h-5 w-5" /> : <ChevronRight className="h-5 w-5" />}
 					</button>
 				</div>
 			</aside>
