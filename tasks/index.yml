@@ -365,7 +365,8 @@ epics:
       - id: cart-management
         name: Cart Management
         file: commerce/cart-management.md
-        done: false
+        done: true
+        commit: cb0bb8d
         complexity: medium
         depends_on:
           - api/auth-middleware
@@ -380,7 +381,8 @@ epics:
       - id: checkout-shipping
         name: "Checkout Stage 2: Shipping"
         file: commerce/checkout-shipping.md
-        done: false
+        done: true
+        commit: ff83b6d
         complexity: medium
         depends_on:
           - commerce/checkout-assignment
