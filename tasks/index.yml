@@ -152,7 +152,7 @@ epics:
       - id: auth-pages
         name: Create Auth Pages
         file: auth/auth-pages.md
-        done: false
+        done: true
         complexity: medium
       - id: clerk-provider
         name: Setup ClerkProvider
