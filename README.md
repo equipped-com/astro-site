@@ -45,7 +45,52 @@ src/
 ├── pages/            # Routes
 ├── styles/           # Global CSS, Tailwind config
 └── types/            # TypeScript interfaces
+
+documentation/        # UX flows and platform documentation
+├── platform-*.md     # Feature documentation with Figma references
+└── figma/            # Exported Figma screens
+
+tasks/                # Development task tracking
+├── index.yml         # Master task index with status
+└── {epic}/           # Task files organized by epic
+    └── {task}.md     # Individual task with Gherkin tests
 ```
+
+## Documentation
+
+| Document | Purpose |
+|----------|---------|
+| `PRD.md` | Product Requirements - authoritative feature specs |
+| `EQUIPPED.md` | Product vision and capabilities overview |
+| `documentation/` | UX flows, Figma exports, integration details |
+| `tasks/index.yml` | Development task index with status tracking |
+
+## Task System
+
+Development tasks are tracked in `tasks/` with BDD test criteria. See `tasks/index.yml` for full documentation.
+
+### Task Selection
+
+```yaml
+# Each task has:
+done: false           # Completion status
+complexity: low|medium|high  # Agent capability matching
+requires: human       # Optional - needs manual action
+```
+
+### Complexity Levels
+
+| Level | Agent | Examples |
+|-------|-------|----------|
+| `low` | haiku | Static pages, loading states, simple patterns |
+| `medium` | sonnet | Dashboard views, CRUD, forms, API endpoints |
+| `high` | opus | Auth, payments, external APIs, architecture |
+
+### Escalation Protocol
+
+If a task fails, report: `ESCALATION NEEDED: {task_id} - {reason}`
+
+Tasks marked `requires: human` need manual action (dashboard setup, API keys, partnerships).
 
 ## Key Features
 
