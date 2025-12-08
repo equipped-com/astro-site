@@ -1,4 +1,4 @@
-import type { HTMLAttributes } from "astro/types"
+import type { HTMLAttributes } from 'astro/types'
 
 export interface Feature {
 	icon: astroHTML.JSX.Element
@@ -29,4 +29,23 @@ export interface Logo {
 	src: string
 	width: number
 	height: number
+}
+
+// Checkout types
+export interface TeamMember {
+	id: string
+	name: string
+	email: string
+	hasAddress?: boolean
+	hasPhone?: boolean
+}
+
+export interface AssignmentData {
+	assignedTo: TeamMember | null
+	isUnassigned: boolean
+}
+
+export interface OrderContext {
+	assignment: AssignmentData
+	// Future: shipping, delivery, payment, etc.
 }

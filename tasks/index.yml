@@ -204,7 +204,7 @@ epics:
       - id: checkout-assignment
         name: "Checkout Stage 1: Assignment"
         file: commerce/checkout-assignment.md
-        done: false
+        done: true
         complexity: medium
       - id: checkout-shipping
         name: "Checkout Stage 2: Shipping"

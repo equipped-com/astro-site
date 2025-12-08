@@ -1,0 +1,100 @@
+---
+import BaseLayout from '@/layouts/BaseLayout.astro'
+---
+
+<BaseLayout title="Checkout Assignment Demo">
+	<div class="min-h-screen bg-background py-12 px-4">
+		<div class="container mx-auto max-w-4xl">
+			<h1 class="text-3xl font-bold mb-8">Checkout Stage 1: Assignment Demo</h1>
+
+			<div id="assignment-demo-root"></div>
+		</div>
+	</div>
+
+	<script>
+		import { createRoot } from 'react-dom/client'
+		import { createElement } from 'react'
+		import AssignmentStage from '@/components/checkout/AssignmentStage'
+		import type { TeamMember, AssignmentData } from '@/types'
+
+		// Mock team members for testing
+		const mockTeamMembers: TeamMember[] = [
+			{
+				id: '1',
+				name: 'Alice Smith',
+				email: 'alice@company.com',
+				hasAddress: true,
+				hasPhone: true
+			},
+			{
+				id: '2',
+				name: 'Bob Jones',
+				email: 'bob@company.com',
+				hasAddress: true,
+				hasPhone: false
+			},
+			{
+				id: '3',
+				name: 'Nicole Haley',
+				email: 'nicole@company.com',
+				hasAddress: false,
+				hasPhone: true
+			},
+			{
+				id: '4',
+				name: 'Marcus Thompson',
+				email: 'marcus@company.com',
+				hasAddress: true,
+				hasPhone: true
+			},
+			{
+				id: '5',
+				name: 'Maria Garcia',
+				email: 'maria@company.com',
+				hasAddress: false,
+				hasPhone: false
+			}
+		]
+
+		// Add more team members for search testing
+		for (let i = 6; i <= 50; i++) {
+			mockTeamMembers.push({
+				id: `${i}`,
+				name: `Team Member ${i}`,
+				email: `member${i}@company.com`,
+				hasAddress: Math.random() > 0.5,
+				hasPhone: Math.random() > 0.5
+			})
+		}
+
+		function handleContinue(assignment: AssignmentData) {
+			console.log('Assignment completed:', assignment)
+			alert(`Assignment saved!\nAssigned to: ${assignment.assignedTo?.name || 'Unassigned'}\nIs unassigned: ${assignment.isUnassigned}`)
+		}
+
+		function handleAddPerson() {
+			alert('Add person modal would open here')
+		}
+
+		async function handleSendEmailRequest(personId: string) {
+			const person = mockTeamMembers.find(m => m.id === personId)
+			console.log('Sending email request to:', person?.email)
+			// Simulate API call
+			await new Promise(resolve => setTimeout(resolve, 1000))
+			alert(`Email sent to ${person?.email} with profile completion link`)
+		}
+
+		const rootElement = document.getElementById('assignment-demo-root')
+		if (rootElement) {
+			const root = createRoot(rootElement)
+			root.render(
+				createElement(AssignmentStage, {
+					teamMembers: mockTeamMembers,
+					onContinue: handleContinue,
+					onAddPerson: handleAddPerson,
+					onSendEmailRequest: handleSendEmailRequest
+				})
+			)
+		}
+	</script>
+</BaseLayout>
