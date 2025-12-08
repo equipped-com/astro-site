@@ -26,7 +26,7 @@ export function generateProposalToken(): string {
  * @returns Full proposal share URL
  */
 export function generateProposalShareUrl(token: string, baseDomain = 'tryequipped.com'): string {
-	return `https://proposals.${baseDomain}/${token}`
+	return `https://${baseDomain}/proposal?token=${token}`
 }
 
 /**
