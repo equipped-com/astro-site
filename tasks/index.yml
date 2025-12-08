@@ -579,7 +579,8 @@ epics:
       - id: error-tracking
         name: Sentry Error Tracking
         file: monitoring/error-tracking.md
-        done: false
+        done: true
+        commit: 187288f
         complexity: medium
         depends_on:
           - monitoring/health-check
