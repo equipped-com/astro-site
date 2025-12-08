@@ -442,7 +442,8 @@ epics:
       - id: onboarding-workflow
         name: Onboarding Workflow
         file: people/onboarding-workflow.md
-        done: false
+        done: true
+        commit: 9b83674
         complexity: medium
         depends_on:
           - people/directory-view
