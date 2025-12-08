@@ -41,6 +41,40 @@
 # When encountering these, inform the user what manual steps are needed.
 # Do NOT attempt to complete these tasks automatically.
 #
+# COMMIT & VERSION TRACKING
+# --------------------------
+# AGENTS MUST commit changes frequently with comprehensive commit messages.
+#
+# Commit frequency:
+#   - After EACH logical chunk of work (not just at task end)
+#   - At least once per task
+#   - Clear, descriptive message following conventional commits
+#
+# Commit message format (MANDATORY):
+#   feat(epic): short description (50 chars max)
+#
+#   Detailed explanation of what changed and WHY.
+#   Include acceptance criteria satisfied, files modified, testing done.
+#
+#   Examples:
+#   - feat(auth): install Clerk SDK packages and configure environment
+#   - feat(dashboard): add loading state components (Spinner, Skeleton, CardSkeleton)
+#   - fix(auth-pages): correct Clerk provider configuration for production
+#
+# Task completion tracking:
+#   When marking task as `done: true`, ALSO add `commit: {git-hash}`
+#   This creates an audit trail of exactly when/what was implemented.
+#
+#   Example:
+#     done: true
+#     commit: 70f4386  # git log --oneline hash from implementation commit
+#
+# Benefits:
+#   - Audit trail of all work (can revert individual tasks if needed)
+#   - Traceability: who implemented what and when
+#   - Debugging: link tests/issues to specific commits
+#   - Progress tracking: see what changed in each commit
+#
 # ESCALATION PROTOCOL
 # -------------------
 # If an agent fails to complete a task:
@@ -50,13 +84,42 @@
 #   3. Suggest complexity upgrade if task was harder than rated
 #   4. Do NOT mark the task as done
 #   5. Do NOT attempt repeated retries without escalation
+#   6. Update task with `escalation_reason: "{reason}"` field
 #
 # Escalation reasons include:
 #   - Task requires research not anticipated
 #   - Architectural decisions needed beyond task scope
-#   - Dependencies not met or discovered mid-task
+#   - Dependencies not met or discovered mid-task (see depends_on array)
 #   - Security implications require senior review
 #   - Integration complexity exceeded expectations
+#
+# TASK DEPENDENCIES
+# ------------------
+# Each task declares its hard dependencies via `depends_on` array.
+# This is NOT optional - it's critical for agent task selection.
+#
+# Format:
+#   depends_on:
+#     - {epic}/{task-id}    # Must be completed first
+#
+# Benefits:
+#   - Agents can see blockers at-a-glance in this file
+#   - Prevents work on tasks with incomplete prerequisites
+#   - Enables automatic task ordering (topological sort)
+#   - Quick validation that dependencies are satisfied
+#
+# Task selection logic:
+#   1. Check task is not done: true
+#   2. Check all tasks in depends_on are done: true
+#   3. If dependencies not satisfied, report them clearly
+#   4. If dependencies are missing/blocking, escalate with reason
+#
+# Example:
+#   Task: device-crud (BLOCKED without these):
+#     depends_on:
+#       - api/auth-middleware        # Requires auth verification
+#       - multi-tenancy/tenant-context  # Requires getTenantContext() helper
+#       - database/run-migrations     # Requires devices table schema
 #
 # TEST EXECUTION PROTOCOL
 # -----------------------
@@ -137,17 +200,26 @@ epics:
         name: Setup Hono Worker
         file: infrastructure/setup-hono-worker.md
         done: true
+        commit: 2b14d81
         complexity: medium
+        depends_on: []
       - id: configure-wrangler
         name: Configure Wrangler for API
         file: infrastructure/configure-wrangler.md
         done: true
+        commit: 2b14d81
         complexity: medium
+        depends_on:
+          - infrastructure/setup-hono-worker
       - id: deploy-pipeline
         name: Verify Deploy Pipeline
         file: infrastructure/deploy-pipeline.md
         done: true
+        commit: 2b14d81
         complexity: low
+        depends_on:
+          - infrastructure/setup-hono-worker
+          - infrastructure/configure-wrangler
 
   database:
     name: Database Setup
@@ -160,16 +232,22 @@ epics:
         done: false
         complexity: low
         requires: human  # CloudFlare dashboard action
+        depends_on: []
       - id: initial-schema
         name: Initial Database Schema (Multi-Tenant)
         file: database/initial-schema.md
         done: false
         complexity: high  # Architectural, multi-tenant design
+        depends_on:
+          - database/create-d1-database
       - id: run-migrations
         name: Run Database Migrations
         file: database/run-migrations.md
-        done: false
+        done: true
+        commit: 800b6d4
         complexity: low
+        depends_on:
+          - database/initial-schema
 
   multi-tenancy:
     name: Multi-Tenancy Architecture
@@ -180,12 +258,16 @@ epics:
         name: Subdomain-Based Routing
         file: multi-tenancy/subdomain-routing.md
         done: true
+        commit: 1fbba78
         complexity: high  # Architectural, routing logic
+        depends_on: []
       - id: tenant-context
         name: Tenant Context Helper
         file: multi-tenancy/tenant-context.md
         done: false
         complexity: medium
+        depends_on:
+          - multi-tenancy/subdomain-routing
 
   auth:
     name: Authentication
@@ -195,29 +277,41 @@ epics:
       - id: install-clerk
         name: Install Clerk SDK
         file: auth/install-clerk.md
-        done: false
+        done: true
+        commit: b004a6c
         complexity: low
+        depends_on: []
       - id: create-clerk-app
         name: Create Clerk Application
         file: auth/create-clerk-app.md
         done: false
         complexity: low
         requires: human  # Clerk dashboard setup
+        depends_on: []
       - id: auth-pages
         name: Create Auth Pages
         file: auth/auth-pages.md
         done: true
+        commit: 70f4386
         complexity: medium
+        depends_on:
+          - auth/install-clerk
       - id: clerk-provider
         name: Setup ClerkProvider
         file: auth/clerk-provider.md
         done: true
+        commit: 22a57f1
         complexity: medium
+        depends_on:
+          - auth/install-clerk
       - id: auth-navigation
         name: Update Navigation for Auth
         file: auth/auth-navigation.md
         done: false
         complexity: medium
+        depends_on:
+          - auth/auth-pages
+          - auth/clerk-provider
 
   api:
     name: API Layer
@@ -228,22 +322,36 @@ epics:
         name: Auth Middleware
         file: api/auth-middleware.md
         done: true
+        commit: 1fbba78
         complexity: high  # Security-sensitive, RBAC
+        depends_on:
+          - auth/install-clerk
+          - multi-tenancy/subdomain-routing
       - id: clerk-webhook
         name: Clerk Webhook Handler
         file: api/clerk-webhook.md
         done: false
         complexity: high  # Security, signature verification
+        depends_on:
+          - auth/install-clerk
+          - api/auth-middleware
       - id: device-crud
         name: Device CRUD Endpoints (Tenant-Scoped)
         file: api/device-crud.md
         done: false
         complexity: medium
+        escalation_reason: "Blocked: api/auth-middleware done, multi-tenancy/tenant-context incomplete, database/run-migrations done"
+        depends_on:
+          - api/auth-middleware
+          - multi-tenancy/tenant-context
+          - database/run-migrations
       - id: user-endpoints
         name: User Profile Endpoints
         file: api/user-endpoints.md
         done: false
         complexity: medium
+        depends_on:
+          - api/auth-middleware
 
   commerce:
     name: Commerce & Checkout
@@ -255,26 +363,38 @@ epics:
         file: commerce/cart-management.md
         done: false
         complexity: medium
+        depends_on:
+          - api/auth-middleware
       - id: checkout-assignment
         name: "Checkout Stage 1: Assignment"
         file: commerce/checkout-assignment.md
         done: true
+        commit: bb2c75d
         complexity: medium
+        depends_on:
+          - auth/auth-pages
       - id: checkout-shipping
         name: "Checkout Stage 2: Shipping"
         file: commerce/checkout-shipping.md
         done: false
         complexity: medium
+        depends_on:
+          - commerce/checkout-assignment
       - id: checkout-delivery
         name: "Checkout Stage 3: Delivery"
         file: commerce/checkout-delivery.md
         done: false
         complexity: medium
+        depends_on:
+          - commerce/checkout-shipping
       - id: checkout-payment
         name: "Checkout Stage 4: Payment/Leasing"
         file: commerce/checkout-payment.md
-        done: false
+        done: true
+        commit: 931385e
         complexity: high  # Payment processing, leasing integration
+        depends_on:
+          - commerce/checkout-delivery
 
   orders:
     name: Order Management
@@ -286,11 +406,16 @@ epics:
         file: orders/order-list.md
         done: false
         complexity: medium
+        depends_on:
+          - api/device-crud
       - id: order-details
         name: Order Details View
         file: orders/order-details.md
         done: false
         complexity: medium
+        depends_on:
+          - orders/order-list
+          - api/device-crud
 
   people:
     name: People & Teams
@@ -302,16 +427,23 @@ epics:
         file: people/directory-view.md
         done: false
         complexity: medium
+        depends_on:
+          - api/auth-middleware
+          - api/user-endpoints
       - id: onboarding-workflow
         name: Onboarding Workflow
         file: people/onboarding-workflow.md
         done: false
         complexity: medium
+        depends_on:
+          - people/directory-view
       - id: offboarding-workflow
         name: Offboarding Workflow
         file: people/offboarding-workflow.md
         done: false
         complexity: medium
+        depends_on:
+          - people/directory-view
 
   proposals:
     name: B2B Proposals
@@ -323,11 +455,15 @@ epics:
         file: proposals/create-proposal.md
         done: false
         complexity: medium
+        depends_on:
+          - api/auth-middleware
       - id: view-proposal
         name: Public Proposal View
         file: proposals/view-proposal.md
         done: false
         complexity: medium
+        depends_on:
+          - proposals/create-proposal
 
   trade-in:
     name: Device Trade-In
@@ -338,12 +474,18 @@ epics:
         name: Device Valuation
         file: trade-in/device-valuation.md
         done: true
+        commit: 43f633e
         complexity: high  # External API integration
+        depends_on:
+          - api/auth-middleware
+          - multi-tenancy/tenant-context
       - id: return-shipping
         name: Return Shipping & Labels
         file: trade-in/return-shipping.md
         done: false
         complexity: medium
+        depends_on:
+          - trade-in/device-valuation
 
   fleet:
     name: Fleet Management
@@ -355,11 +497,15 @@ epics:
         file: fleet/device-inventory.md
         done: false
         complexity: medium
+        depends_on:
+          - api/device-crud
       - id: device-assignment
         name: Device Assignment
         file: fleet/device-assignment.md
         done: false
         complexity: medium
+        depends_on:
+          - fleet/device-inventory
 
   settings:
     name: Organization Settings
@@ -371,11 +517,15 @@ epics:
         file: settings/organization-settings.md
         done: false
         complexity: medium
+        depends_on:
+          - api/auth-middleware
       - id: team-access
         name: Team Access Management
         file: settings/team-access.md
         done: false
         complexity: medium
+        depends_on:
+          - settings/organization-settings
 
   sysadmin:
     name: Sys Admin Tools
@@ -387,11 +537,16 @@ epics:
         file: sysadmin/admin-dashboard.md
         done: false
         complexity: medium
+        depends_on:
+          - api/auth-middleware
       - id: customer-impersonation
         name: Customer Impersonation
         file: sysadmin/customer-impersonation.md
         done: false
         complexity: high  # Security-sensitive, audit logging
+        depends_on:
+          - sysadmin/admin-dashboard
+          - api/auth-middleware
 
   monitoring:
     name: Monitoring & Observability
@@ -402,12 +557,17 @@ epics:
         name: Health Check Endpoint
         file: monitoring/health-check.md
         done: true
+        commit: 09f4fc3
         complexity: low
+        depends_on:
+          - infrastructure/setup-hono-worker
       - id: error-tracking
         name: Sentry Error Tracking
         file: monitoring/error-tracking.md
         done: false
         complexity: medium
+        depends_on:
+          - monitoring/health-check
 
   dashboard:
     name: Dashboard UI
@@ -418,27 +578,42 @@ epics:
         name: Dashboard Layout
         file: dashboard/dashboard-layout.md
         done: true
+        commit: 23d7bd4
         complexity: medium
+        depends_on:
+          - auth/clerk-provider
       - id: sidebar-navigation
         name: Sidebar Navigation
         file: dashboard/sidebar-navigation.md
         done: true
+        commit: 23d7bd4
         complexity: low
+        depends_on:
+          - dashboard/dashboard-layout
       - id: dashboard-home
         name: Dashboard Home Page
         file: dashboard/dashboard-home.md
         done: false
         complexity: medium
+        depends_on:
+          - dashboard/dashboard-layout
+          - api/device-crud
       - id: loading-states
         name: Loading States
         file: dashboard/loading-states.md
         done: true
+        commit: be55a8d
         complexity: low
+        depends_on:
+          - dashboard/dashboard-layout
       - id: empty-states
         name: Empty States
         file: dashboard/empty-states.md
         done: true
+        commit: 05bcde5
         complexity: low
+        depends_on:
+          - dashboard/dashboard-layout
 
   static-pages:
     name: Static Pages
@@ -448,18 +623,26 @@ epics:
       - id: privacy-page
         name: Privacy Policy Page
         file: static-pages/privacy-page.md
-        done: false
+        done: true
+        commit: 5735580
         complexity: low
+        depends_on: []
       - id: terms-page
         name: Terms of Service Page
         file: static-pages/terms-page.md
         done: true
+        commit: 23d7bd4
         complexity: low
+        depends_on: []
       - id: update-footer
         name: Update Footer Links
         file: static-pages/update-footer.md
-        done: false
+        done: true
+        commit: dfa5827
         complexity: low
+        depends_on:
+          - static-pages/privacy-page
+          - static-pages/terms-page
 
   integrations:
     name: External Integrations
@@ -472,42 +655,56 @@ epics:
         done: false
         complexity: high  # External API, financial
         requires: human  # Partnership setup
+        depends_on:
+          - commerce/checkout-payment
       - id: plaid-verification
         name: Plaid Bank Verification
         file: integrations/plaid-verification.md
         done: false
         complexity: high  # External API, financial
         requires: human  # Plaid account setup
+        depends_on:
+          - api/user-endpoints
       - id: upgraded-api
         name: Upgraded API (Fulfillment)
         file: integrations/upgraded-api.md
         done: false
         complexity: high  # External API, webhooks
         requires: human  # Partnership setup
+        depends_on:
+          - orders/order-list
       - id: posthog-analytics
         name: PostHog Analytics
         file: integrations/posthog-analytics.md
         done: false
         complexity: low
         requires: human  # PostHog project setup
+        depends_on: []
       - id: shopify-api
         name: Shopify Store API
         file: integrations/shopify-api.md
         done: false
         complexity: high  # External API, product sync
+        depends_on:
+          - api/device-crud
       - id: stripe-payments
         name: Stripe Payments
         file: integrations/stripe-payments.md
         done: false
         complexity: high  # Payment processing
         requires: human  # Stripe account setup
+        depends_on:
+          - commerce/checkout-payment
       - id: alchemy-api
         name: Alchemy Device API
         file: integrations/alchemy-api.md
         done: false
         complexity: medium
+        depends_on: []
       - id: spark-shipping
         name: Spark Shipping
         file: integrations/spark-shipping.md
         done: false
         complexity: medium
+        depends_on:
+          - trade-in/return-shipping
