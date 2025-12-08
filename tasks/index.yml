@@ -1,0 +1,209 @@
+# tasks/index.yml - Master task index for Equipped
+# Generated from EQUIPPED.md and PLAN.md
+# Docs: https://developers.cloudflare.com/workers/
+
+version: 1
+updated: 2024-12-08
+
+epics:
+  infrastructure:
+    name: Infrastructure Setup
+    description: Worker, deployment, wrangler config
+    priority: high
+    tasks:
+      - id: setup-hono-worker
+        name: Setup Hono Worker
+        file: infrastructure/setup-hono-worker.md
+        done: false
+      - id: configure-wrangler
+        name: Configure Wrangler for API
+        file: infrastructure/configure-wrangler.md
+        done: false
+      - id: deploy-pipeline
+        name: Verify Deploy Pipeline
+        file: infrastructure/deploy-pipeline.md
+        done: false
+
+  database:
+    name: Database Setup
+    description: Cloudflare D1 database
+    priority: high
+    tasks:
+      - id: create-d1-database
+        name: Create D1 Database
+        file: database/create-d1-database.md
+        done: false
+      - id: initial-schema
+        name: Initial Database Schema
+        file: database/initial-schema.md
+        done: false
+      - id: run-migrations
+        name: Run Database Migrations
+        file: database/run-migrations.md
+        done: false
+
+  auth:
+    name: Authentication
+    description: Clerk authentication setup
+    priority: high
+    tasks:
+      - id: install-clerk
+        name: Install Clerk SDK
+        file: auth/install-clerk.md
+        done: false
+      - id: create-clerk-app
+        name: Create Clerk Application
+        file: auth/create-clerk-app.md
+        done: false
+      - id: auth-pages
+        name: Create Auth Pages
+        file: auth/auth-pages.md
+        done: false
+      - id: clerk-provider
+        name: Setup ClerkProvider
+        file: auth/clerk-provider.md
+        done: false
+      - id: auth-navigation
+        name: Update Navigation
+        file: auth/auth-navigation.md
+        done: false
+
+  api:
+    name: API Layer
+    description: Hono API routes
+    priority: high
+    tasks:
+      - id: auth-middleware
+        name: Auth Middleware
+        file: api/auth-middleware.md
+        done: false
+      - id: clerk-webhook
+        name: Clerk Webhook Handler
+        file: api/clerk-webhook.md
+        done: false
+      - id: device-crud
+        name: Device CRUD Endpoints
+        file: api/device-crud.md
+        done: false
+      - id: user-endpoints
+        name: User Profile Endpoints
+        file: api/user-endpoints.md
+        done: false
+
+  dashboard:
+    name: Dashboard UI
+    description: Customer dashboard interface
+    priority: medium
+    tasks:
+      - id: dashboard-layout
+        name: Dashboard Layout
+        file: dashboard/dashboard-layout.md
+        done: false
+      - id: sidebar-navigation
+        name: Sidebar Navigation
+        file: dashboard/sidebar-navigation.md
+        done: false
+      - id: dashboard-home
+        name: Dashboard Home Page
+        file: dashboard/dashboard-home.md
+        done: false
+      - id: loading-states
+        name: Loading States
+        file: dashboard/loading-states.md
+        done: false
+      - id: empty-states
+        name: Empty States
+        file: dashboard/empty-states.md
+        done: false
+
+  devices:
+    name: Device Management
+    description: Core device management features
+    priority: medium
+    tasks:
+      - id: device-list
+        name: Device List View
+        file: devices/device-list.md
+        done: false
+      - id: device-form
+        name: Device Form
+        file: devices/device-form.md
+        done: false
+      - id: device-details
+        name: Device Details View
+        file: devices/device-details.md
+        done: false
+      - id: device-assignment
+        name: Device Assignment
+        file: devices/device-assignment.md
+        done: false
+
+  static-pages:
+    name: Static Pages
+    description: Legal and informational pages
+    priority: low
+    tasks:
+      - id: privacy-page
+        name: Privacy Policy Page
+        file: static-pages/privacy-page.md
+        done: false
+      - id: terms-page
+        name: Terms of Service Page
+        file: static-pages/terms-page.md
+        done: false
+      - id: update-footer
+        name: Update Footer Links
+        file: static-pages/update-footer.md
+        done: false
+
+  integrations:
+    name: External Integrations
+    description: Third-party service integrations
+    priority: medium
+    tasks:
+      - id: shopify-api
+        name: Shopify Store API
+        file: integrations/shopify-api.md
+        done: false
+      - id: stripe-payments
+        name: Stripe Payments
+        file: integrations/stripe-payments.md
+        done: false
+      - id: alchemy-api
+        name: Alchemy API
+        file: integrations/alchemy-api.md
+        done: false
+      - id: spark-shipping
+        name: Spark Shipping
+        file: integrations/spark-shipping.md
+        done: false
+
+  backlog:
+    name: Backlog
+    description: Future capabilities from EQUIPPED.md
+    priority: backlog
+    tasks:
+      - id: fleet-management
+        name: Fleet Management
+        file: backlog/fleet-management.md
+        done: false
+      - id: mdm-integration
+        name: MDM Integration
+        file: backlog/mdm-integration.md
+        done: false
+      - id: employee-groups
+        name: Employee Groups
+        file: backlog/employee-groups.md
+        done: false
+      - id: services-tracking
+        name: Services Tracking
+        file: backlog/services-tracking.md
+        done: false
+      - id: superadmin-panel
+        name: SuperAdmin Panel
+        file: backlog/superadmin-panel.md
+        done: false
+      - id: leasing-workflow
+        name: Leasing Workflow
+        file: backlog/leasing-workflow.md
+        done: false
