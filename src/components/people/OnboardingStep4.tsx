@@ -96,8 +96,8 @@ export default function OnboardingStep4({ data, onSubmit, onBack }: OnboardingSt
 									<div className="text-xs text-muted-foreground mt-0.5">{data.devicePackage.description}</div>
 								</div>
 								<div className="space-y-1.5 mb-3">
-									{data.devicePackage.devices.map((device, idx) => (
-										<div key={idx} className="flex items-center gap-2 text-sm">
+									{data.devicePackage.devices.map(device => (
+										<div key={device.name} className="flex items-center gap-2 text-sm">
 											<Check className="h-3 w-3 text-primary flex-shrink-0" />
 											<span>
 												{device.quantity > 1 ? `${device.quantity}x ` : ''}

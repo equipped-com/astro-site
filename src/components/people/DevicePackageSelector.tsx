@@ -10,11 +10,7 @@ interface DevicePackageSelectorProps {
 	onSelect: (pkg: DevicePackage) => void
 }
 
-export default function DevicePackageSelector({
-	packages,
-	selectedPackage,
-	onSelect,
-}: DevicePackageSelectorProps) {
+export default function DevicePackageSelector({ packages, selectedPackage, onSelect }: DevicePackageSelectorProps) {
 	function getPackageIcon(packageName: string) {
 		if (packageName.toLowerCase().includes('executive')) {
 			return <MonitorSmartphone className="h-8 w-8 text-primary" />
@@ -51,8 +47,8 @@ export default function DevicePackageSelector({
 
 									{/* Device list */}
 									<div className="space-y-1">
-										{pkg.devices.map((device, idx) => (
-											<div key={idx} className="flex items-center gap-2 text-sm">
+										{pkg.devices.map(device => (
+											<div key={device.name} className="flex items-center gap-2 text-sm">
 												<Check className="h-3 w-3 text-primary flex-shrink-0" />
 												<span>
 													{device.quantity > 1 ? `${device.quantity}x ` : ''}
@@ -67,9 +63,7 @@ export default function DevicePackageSelector({
 								<div className="text-right flex-shrink-0">
 									<div className="font-bold text-lg">${pkg.totalCost.toLocaleString()}</div>
 									{pkg.isLeasing && pkg.monthlyCost && (
-										<div className="text-xs text-muted-foreground mt-1">
-											or ${pkg.monthlyCost}/mo with leasing
-										</div>
+										<div className="text-xs text-muted-foreground mt-1">or ${pkg.monthlyCost}/mo with leasing</div>
 									)}
 								</div>
 							</div>

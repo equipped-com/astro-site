@@ -55,7 +55,7 @@ export default function GlobalDeviceView() {
 		if (searchQuery.trim()) {
 			const query = searchQuery.toLowerCase()
 			filtered = filtered.filter(
-				(device) =>
+				device =>
 					device.name.toLowerCase().includes(query) ||
 					device.serial_number?.toLowerCase().includes(query) ||
 					device.assigned_to_name?.toLowerCase().includes(query),
@@ -63,7 +63,7 @@ export default function GlobalDeviceView() {
 		}
 
 		if (customerFilter) {
-			filtered = filtered.filter((device) => device.account_short_name === customerFilter)
+			filtered = filtered.filter(device => device.account_short_name === customerFilter)
 		}
 
 		setFilteredDevices(filtered)
@@ -71,15 +71,8 @@ export default function GlobalDeviceView() {
 
 	function handleExport() {
 		// Generate CSV export
-		const headers = [
-			'Device Name',
-			'Type',
-			'Serial Number',
-			'Assigned To',
-			'Customer',
-			'Status',
-		]
-		const rows = filteredDevices.map((device) => [
+		const headers = ['Device Name', 'Type', 'Serial Number', 'Assigned To', 'Customer', 'Status']
+		const rows = filteredDevices.map(device => [
 			device.name,
 			device.type,
 			device.serial_number || '',
@@ -88,7 +81,7 @@ export default function GlobalDeviceView() {
 			device.status,
 		])
 
-		const csv = [headers, ...rows].map((row) => row.join(',')).join('\n')
+		const csv = [headers, ...rows].map(row => row.join(',')).join('\n')
 		const blob = new Blob([csv], { type: 'text/csv' })
 		const url = URL.createObjectURL(blob)
 		const a = document.createElement('a')
@@ -99,9 +92,7 @@ export default function GlobalDeviceView() {
 	}
 
 	// Get unique customer list for filter
-	const uniqueCustomers = Array.from(
-		new Set(devices.map((d) => d.account_short_name)),
-	).sort()
+	const uniqueCustomers = Array.from(new Set(devices.map(d => d.account_short_name))).sort()
 
 	if (loading) {
 		return <TableSkeleton />
@@ -126,17 +117,17 @@ export default function GlobalDeviceView() {
 						type="text"
 						placeholder="Search by device name, serial, or assignee..."
 						value={searchQuery}
-						onChange={(e) => setSearchQuery(e.target.value)}
+						onChange={e => setSearchQuery(e.target.value)}
 						className="w-full rounded-md border border-input bg-background py-2 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
 					/>
 				</div>
 				<select
 					value={customerFilter}
-					onChange={(e) => setCustomerFilter(e.target.value)}
+					onChange={e => setCustomerFilter(e.target.value)}
 					className="rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
 				>
 					<option value="">All Customers</option>
-					{uniqueCustomers.map((customer) => (
+					{uniqueCustomers.map(customer => (
 						<option key={customer} value={customer}>
 							{customer}
 						</option>
@@ -162,11 +153,7 @@ export default function GlobalDeviceView() {
 				<EmptyState
 					icon={Package}
 					title="No devices found"
-					description={
-						searchQuery || customerFilter
-							? 'Try adjusting your filters'
-							: 'No devices exist yet'
-					}
+					description={searchQuery || customerFilter ? 'Try adjusting your filters' : 'No devices exist yet'}
 				/>
 			) : (
 				<div className="overflow-hidden rounded-lg border border-border">
@@ -194,7 +181,7 @@ export default function GlobalDeviceView() {
 							</tr>
 						</thead>
 						<tbody className="divide-y divide-border bg-card">
-							{filteredDevices.map((device) => (
+							{filteredDevices.map(device => (
 								<tr key={device.id} className="hover:bg-muted/50">
 									<td className="px-6 py-4 text-sm font-medium">
 										<div className="flex items-center gap-2">
@@ -203,13 +190,9 @@ export default function GlobalDeviceView() {
 										</div>
 									</td>
 									<td className="px-6 py-4 text-sm capitalize">{device.type}</td>
-									<td className="px-6 py-4 text-sm font-mono text-muted-foreground">
-										{device.serial_number || 'N/A'}
-									</td>
+									<td className="px-6 py-4 text-sm font-mono text-muted-foreground">{device.serial_number || 'N/A'}</td>
 									<td className="px-6 py-4 text-sm">
-										{device.assigned_to_name || (
-											<span className="text-muted-foreground">Unassigned</span>
-										)}
+										{device.assigned_to_name || <span className="text-muted-foreground">Unassigned</span>}
 									</td>
 									<td className="px-6 py-4 text-sm">
 										<a

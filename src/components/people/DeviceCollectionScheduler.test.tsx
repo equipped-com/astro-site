@@ -1,5 +1,5 @@
+import { fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
-import { render, screen, fireEvent } from '@testing-library/react'
 import DeviceCollectionScheduler from './DeviceCollectionScheduler'
 
 const mockPerson = {
@@ -18,7 +18,7 @@ describe('DeviceCollectionScheduler', () => {
 				deviceCount={2}
 				onMethodSelected={mockOnMethodSelected}
 				selectedMethod={null}
-			/>
+			/>,
 		)
 
 		expect(screen.getByText('Schedule Device Collection')).toBeInTheDocument()
@@ -38,7 +38,7 @@ describe('DeviceCollectionScheduler', () => {
 				deviceCount={1}
 				onMethodSelected={mockOnMethodSelected}
 				selectedMethod={null}
-			/>
+			/>,
 		)
 
 		expect(screen.getByText(/Choose how Bob Jones will return 1 device/)).toBeInTheDocument()
@@ -51,7 +51,7 @@ describe('DeviceCollectionScheduler', () => {
 				deviceCount={2}
 				onMethodSelected={mockOnMethodSelected}
 				selectedMethod={null}
-			/>
+			/>,
 		)
 
 		const pickupButton = screen.getByText('Schedule pickup at address').closest('button')
@@ -69,7 +69,7 @@ describe('DeviceCollectionScheduler', () => {
 				deviceCount={2}
 				onMethodSelected={mockOnMethodSelected}
 				selectedMethod="return_label"
-			/>
+			/>,
 		)
 
 		// Should show selected state for return_label
@@ -88,7 +88,7 @@ describe('DeviceCollectionScheduler', () => {
 				deviceCount={2}
 				onMethodSelected={mockOnMethodSelected}
 				selectedMethod="in_person"
-			/>
+			/>,
 		)
 
 		expect(screen.getByText('Collection method selected')).toBeInTheDocument()
@@ -102,7 +102,7 @@ describe('DeviceCollectionScheduler', () => {
 				deviceCount={2}
 				onMethodSelected={mockOnMethodSelected}
 				selectedMethod="return_label"
-			/>
+			/>,
 		)
 
 		expect(screen.getByText('Prepaid shipping label sent to employee')).toBeInTheDocument()
@@ -118,7 +118,7 @@ describe('DeviceCollectionScheduler', () => {
 				deviceCount={2}
 				onMethodSelected={mockOnMethodSelected}
 				selectedMethod="pickup"
-			/>
+			/>,
 		)
 
 		expect(screen.getByText('Courier scheduled to employee address')).toBeInTheDocument()
@@ -134,7 +134,7 @@ describe('DeviceCollectionScheduler', () => {
 				deviceCount={2}
 				onMethodSelected={mockOnMethodSelected}
 				selectedMethod="in_person"
-			/>
+			/>,
 		)
 
 		expect(screen.getByText('Employee brings devices to office')).toBeInTheDocument()
@@ -156,7 +156,7 @@ describe('DeviceCollectionScheduler', () => {
 				deviceCount={1}
 				onMethodSelected={mockOnMethodSelected}
 				selectedMethod={null}
-			/>
+			/>,
 		)
 
 		const text = screen.getByText(/Choose how Alice Smith will return 1 device/)

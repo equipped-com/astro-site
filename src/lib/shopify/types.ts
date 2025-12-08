@@ -284,7 +284,16 @@ export interface ShopifyOrderListParams {
 	ids?: string
 	sinceId?: number
 	status?: 'open' | 'closed' | 'cancelled' | 'any'
-	financialStatus?: 'authorized' | 'pending' | 'paid' | 'partially_paid' | 'refunded' | 'voided' | 'partially_refunded' | 'any' | 'unpaid'
+	financialStatus?:
+		| 'authorized'
+		| 'pending'
+		| 'paid'
+		| 'partially_paid'
+		| 'refunded'
+		| 'voided'
+		| 'partially_refunded'
+		| 'any'
+		| 'unpaid'
 	fulfillmentStatus?: 'shipped' | 'partial' | 'unshipped' | 'any' | 'unfulfilled'
 	createdAtMin?: string
 	createdAtMax?: string

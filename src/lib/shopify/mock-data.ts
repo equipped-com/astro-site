@@ -4,12 +4,7 @@
  * Simulated Shopify products and orders for development and testing.
  */
 
-import type {
-	NormalizedOrder,
-	NormalizedProduct,
-	ShopifyOrder,
-	ShopifyProduct,
-} from './types'
+import type { NormalizedOrder, NormalizedProduct, ShopifyOrder, ShopifyProduct } from './types'
 
 // ============================================================================
 // MOCK PRODUCTS
@@ -19,7 +14,8 @@ export const mockShopifyProducts: ShopifyProduct[] = [
 	{
 		id: 8001234567890,
 		title: 'MacBook Pro 14" M3 Pro',
-		bodyHtml: '<p>Powerful MacBook Pro with M3 Pro chip, perfect for professionals who need exceptional performance.</p>',
+		bodyHtml:
+			'<p>Powerful MacBook Pro with M3 Pro chip, perfect for professionals who need exceptional performance.</p>',
 		vendor: 'Apple',
 		productType: 'Laptop',
 		handle: 'macbook-pro-14-m3-pro',

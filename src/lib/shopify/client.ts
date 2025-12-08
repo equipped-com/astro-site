@@ -67,10 +67,7 @@ export class ShopifyClient {
 	/**
 	 * Make authenticated request to Shopify API
 	 */
-	private async request<T>(
-		endpoint: string,
-		options: RequestInit = {},
-	): Promise<ShopifyApiResponse<T>> {
+	private async request<T>(endpoint: string, options: RequestInit = {}): Promise<ShopifyApiResponse<T>> {
 		const url = `${this.baseUrl}${endpoint}`
 
 		try {
@@ -319,12 +316,8 @@ export class ShopifyClient {
 				email: params.email,
 				phone: params.phone,
 				line_items: lineItems,
-				billing_address: params.billingAddress
-					? this.transformAddressToSnakeCase(params.billingAddress)
-					: undefined,
-				shipping_address: params.shippingAddress
-					? this.transformAddressToSnakeCase(params.shippingAddress)
-					: undefined,
+				billing_address: params.billingAddress ? this.transformAddressToSnakeCase(params.billingAddress) : undefined,
+				shipping_address: params.shippingAddress ? this.transformAddressToSnakeCase(params.shippingAddress) : undefined,
 				note: params.note,
 				tags: params.tags,
 				send_receipt: params.sendReceipt,

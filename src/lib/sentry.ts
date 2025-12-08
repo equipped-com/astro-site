@@ -107,6 +107,6 @@ export function startTransaction(name: string, op: string) {
 			name,
 			op,
 		},
-		(span) => span,
+		span => span,
 	)
 }

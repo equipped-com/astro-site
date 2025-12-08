@@ -18,9 +18,7 @@ export default function AdminHeader() {
 						<span>Admin Dashboard</span>
 					</a>
 					<div className="flex items-center gap-1 text-sm text-muted-foreground">
-						<span className="rounded-full bg-red-100 text-red-700 px-2 py-0.5 text-xs font-medium">
-							SYS_ADMIN
-						</span>
+						<span className="rounded-full bg-red-100 text-red-700 px-2 py-0.5 text-xs font-medium">SYS_ADMIN</span>
 					</div>
 				</div>
 
@@ -40,9 +38,7 @@ export default function AdminHeader() {
 							<div className="text-sm font-medium">
 								{user?.firstName} {user?.lastName}
 							</div>
-							<div className="text-xs text-muted-foreground">
-								{user?.primaryEmailAddress?.emailAddress}
-							</div>
+							<div className="text-xs text-muted-foreground">{user?.primaryEmailAddress?.emailAddress}</div>
 						</div>
 						<UserButton afterSignOutUrl="/" />
 					</div>

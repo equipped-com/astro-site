@@ -8,6 +8,7 @@ import deviceRoutes from './api/routes/devices'
 import organizationRoutes from './api/routes/organization'
 import peopleRoutes from './api/routes/people'
 import proposalRoutes from './api/routes/proposals'
+import storeRoutes from './api/routes/store'
 import teamRoutes from './api/routes/team'
 import userRoutes from './api/routes/user'
 import clerkWebhook from './api/routes/webhooks/clerk'
@@ -142,6 +143,7 @@ app.use('/api/devices/*', requireAccountAccess())
 app.use('/api/device-assignments/*', requireAccountAccess())
 app.use('/api/orders/*', requireAccountAccess())
 app.use('/api/people/*', requireAccountAccess())
+app.use('/api/store/*', requireAccountAccess())
 // Proposals require account access except public routes (handled in route handler)
 app.use('/api/proposals', (c, next) => {
 	// Skip auth for public proposal routes
@@ -168,6 +170,9 @@ app.route('/api/organization', organizationRoutes)
 
 // Mount team routes
 app.route('/api/team', teamRoutes)
+
+// Mount store routes (Shopify integration)
+app.route('/api/store', storeRoutes)
 
 // ============================================================================
 // ADMIN ROUTES - requires auth + account access + admin role

@@ -1,26 +1,25 @@
 ---
 import { ClerkProvider } from '@clerk/clerk-react'
-import AdminStats from '@/components/admin/AdminStats'
+import FeatureFlagManager from '@/components/admin/FeatureFlagManager'
 import AdminLayout from '@/layouts/AdminLayout.astro'
 
 const publishableKey = import.meta.env.PUBLIC_CLERK_PUBLISHABLE_KEY
 ---
 
-<AdminLayout title="Admin Dashboard - Equipped">
-	<div class="space-y-8">
+<AdminLayout title="Feature Flags - Admin Dashboard">
+	<div class="space-y-6">
 		<div>
-			<h1 class="text-3xl font-bold">System Dashboard</h1>
+			<h1 class="text-3xl font-bold">Feature Flag Management</h1>
 			<p class="text-muted-foreground mt-2">
-				Global overview and management for all Equipped customers
+				Enable or disable features per account
 			</p>
 		</div>
 
-		<!-- Global stats -->
 		<ClerkProvider
 			publishableKey={publishableKey}
 			client:only="react"
 		>
-			<AdminStats client:only="react" />
+			<FeatureFlagManager client:only="react" />
 		</ClerkProvider>
 	</div>
 </AdminLayout>

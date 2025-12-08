@@ -56,17 +56,29 @@ export default function OnboardingStep3({ startDate, initialDelivery, onContinue
 			return
 		}
 
+		// At this point validation passed, so all required fields are present
+		if (
+			!address.addressLine1 ||
+			!address.city ||
+			!address.state ||
+			!address.zipCode ||
+			!address.country ||
+			!address.phone
+		) {
+			return
+		}
+
 		const delivery: OnboardingDelivery = {
 			startDate,
 			deliveryDate,
 			shippingAddress: {
-				addressLine1: address.addressLine1!,
+				addressLine1: address.addressLine1,
 				addressLine2: address.addressLine2,
-				city: address.city!,
-				state: address.state!,
-				zipCode: address.zipCode!,
-				country: address.country!,
-				phone: address.phone!,
+				city: address.city,
+				state: address.state,
+				zipCode: address.zipCode,
+				country: address.country,
+				phone: address.phone,
 			},
 		}
 
@@ -86,12 +98,14 @@ export default function OnboardingStep3({ startDate, initialDelivery, onContinue
 					<Calendar className="h-5 w-5 mt-0.5 text-primary flex-shrink-0" />
 					<div className="flex-1">
 						<div className="font-medium text-sm mb-1">Employee Start Date</div>
-						<div className="text-sm text-muted-foreground">{startDate.toLocaleDateString('en-US', {
-							weekday: 'long',
-							year: 'numeric',
-							month: 'long',
-							day: 'numeric'
-						})}</div>
+						<div className="text-sm text-muted-foreground">
+							{startDate.toLocaleDateString('en-US', {
+								weekday: 'long',
+								year: 'numeric',
+								month: 'long',
+								day: 'numeric',
+							})}
+						</div>
 					</div>
 				</div>
 			</div>
@@ -120,8 +134,8 @@ export default function OnboardingStep3({ startDate, initialDelivery, onContinue
 						<div className="text-sm text-amber-800">
 							<div className="font-medium">Delivery after start date</div>
 							<div className="text-xs mt-0.5">
-								Equipment may not arrive in time for the employee's first day. Consider selecting an earlier
-								delivery date.
+								Equipment may not arrive in time for the employee's first day. Consider selecting an earlier delivery
+								date.
 							</div>
 						</div>
 					</div>

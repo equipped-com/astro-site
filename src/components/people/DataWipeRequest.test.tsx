@@ -1,18 +1,12 @@
+import { fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
-import { render, screen, fireEvent } from '@testing-library/react'
 import DataWipeRequest from './DataWipeRequest'
 
 describe('DataWipeRequest', () => {
 	const mockOnWipeOptionSelected = vi.fn()
 
 	it('should render wipe options', () => {
-		render(
-			<DataWipeRequest
-				deviceCount={2}
-				onWipeOptionSelected={mockOnWipeOptionSelected}
-				selectedOption={null}
-			/>
-		)
+		render(<DataWipeRequest deviceCount={2} onWipeOptionSelected={mockOnWipeOptionSelected} selectedOption={null} />)
 
 		expect(screen.getByText('Request Secure Data Wipe')).toBeInTheDocument()
 		expect(screen.getByText(/Choose the level of data security for wiping 2 devices/)).toBeInTheDocument()
@@ -27,25 +21,13 @@ describe('DataWipeRequest', () => {
 	})
 
 	it('should handle singular device count', () => {
-		render(
-			<DataWipeRequest
-				deviceCount={1}
-				onWipeOptionSelected={mockOnWipeOptionSelected}
-				selectedOption={null}
-			/>
-		)
+		render(<DataWipeRequest deviceCount={1} onWipeOptionSelected={mockOnWipeOptionSelected} selectedOption={null} />)
 
 		expect(screen.getByText(/Choose the level of data security for wiping 1 device/)).toBeInTheDocument()
 	})
 
 	it('should select wipe option', () => {
-		render(
-			<DataWipeRequest
-				deviceCount={2}
-				onWipeOptionSelected={mockOnWipeOptionSelected}
-				selectedOption={null}
-			/>
-		)
+		render(<DataWipeRequest deviceCount={2} onWipeOptionSelected={mockOnWipeOptionSelected} selectedOption={null} />)
 
 		const secureWipeButton = screen.getByText('Secure wipe').closest('button')
 		expect(secureWipeButton).toBeInTheDocument()
@@ -61,7 +43,7 @@ describe('DataWipeRequest', () => {
 				deviceCount={2}
 				onWipeOptionSelected={mockOnWipeOptionSelected}
 				selectedOption="certified_wipe"
-			/>
+			/>,
 		)
 
 		const certifiedWipeButton = screen.getByText('Certified wipe').closest('button')
@@ -73,13 +55,7 @@ describe('DataWipeRequest', () => {
 	})
 
 	it('should show recommended badge for secure wipe', () => {
-		render(
-			<DataWipeRequest
-				deviceCount={2}
-				onWipeOptionSelected={mockOnWipeOptionSelected}
-				selectedOption={null}
-			/>
-		)
+		render(<DataWipeRequest deviceCount={2} onWipeOptionSelected={mockOnWipeOptionSelected} selectedOption={null} />)
 
 		expect(screen.getByText('Recommended')).toBeInTheDocument()
 	})
@@ -90,7 +66,7 @@ describe('DataWipeRequest', () => {
 				deviceCount={2}
 				onWipeOptionSelected={mockOnWipeOptionSelected}
 				selectedOption="standard_wipe"
-			/>
+			/>,
 		)
 
 		expect(screen.getByText('Data wipe will be tracked')).toBeInTheDocument()
@@ -98,18 +74,10 @@ describe('DataWipeRequest', () => {
 	})
 
 	it('should always show security note', () => {
-		render(
-			<DataWipeRequest
-				deviceCount={2}
-				onWipeOptionSelected={mockOnWipeOptionSelected}
-				selectedOption={null}
-			/>
-		)
+		render(<DataWipeRequest deviceCount={2} onWipeOptionSelected={mockOnWipeOptionSelected} selectedOption={null} />)
 
 		expect(screen.getByText('Important Security Note')).toBeInTheDocument()
-		expect(
-			screen.getByText(/Data wipes will be performed after devices are returned/)
-		).toBeInTheDocument()
+		expect(screen.getByText(/Data wipes will be performed after devices are returned/)).toBeInTheDocument()
 	})
 
 	it('should show all details for standard wipe', () => {
@@ -118,7 +86,7 @@ describe('DataWipeRequest', () => {
 				deviceCount={2}
 				onWipeOptionSelected={mockOnWipeOptionSelected}
 				selectedOption="standard_wipe"
-			/>
+			/>,
 		)
 
 		expect(screen.getByText('Factory reset to default settings')).toBeInTheDocument()
@@ -129,11 +97,7 @@ describe('DataWipeRequest', () => {
 
 	it('should show all details for secure wipe', () => {
 		render(
-			<DataWipeRequest
-				deviceCount={2}
-				onWipeOptionSelected={mockOnWipeOptionSelected}
-				selectedOption="secure_wipe"
-			/>
+			<DataWipeRequest deviceCount={2} onWipeOptionSelected={mockOnWipeOptionSelected} selectedOption="secure_wipe" />,
 		)
 
 		expect(screen.getByText('DoD 5220.22-M standard compliant')).toBeInTheDocument()
@@ -148,7 +112,7 @@ describe('DataWipeRequest', () => {
 				deviceCount={2}
 				onWipeOptionSelected={mockOnWipeOptionSelected}
 				selectedOption="certified_wipe"
-			/>
+			/>,
 		)
 
 		expect(screen.getByText('DoD 5220.22-M secure wipe included')).toBeInTheDocument()

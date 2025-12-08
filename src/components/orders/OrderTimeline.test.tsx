@@ -3,10 +3,10 @@
  * Tests that order timeline correctly displays order status progression
  */
 
-import { describe, it, expect } from 'vitest'
 import { render, screen } from '@testing-library/react'
-import { OrderTimeline } from './OrderTimeline'
+import { describe, expect, it } from 'vitest'
 import type { OrderWithItems } from '@/lib/scoped-queries'
+import { OrderTimeline } from './OrderTimeline'
 
 describe('OrderTimeline', () => {
 	const baseOrder: OrderWithItems = {

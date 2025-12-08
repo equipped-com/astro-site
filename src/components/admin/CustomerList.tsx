@@ -54,7 +54,7 @@ export default function CustomerList() {
 
 		const query = searchQuery.toLowerCase()
 		const filtered = customers.filter(
-			(customer) =>
+			customer =>
 				customer.name.toLowerCase().includes(query) ||
 				customer.short_name.toLowerCase().includes(query) ||
 				customer.primary_contact_email?.toLowerCase().includes(query),
@@ -94,7 +94,7 @@ export default function CustomerList() {
 						type="text"
 						placeholder="Search by company name or email..."
 						value={searchQuery}
-						onChange={(e) => setSearchQuery(e.target.value)}
+						onChange={e => setSearchQuery(e.target.value)}
 						className="w-full rounded-md border border-input bg-background py-2 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
 					/>
 				</div>
@@ -116,11 +116,7 @@ export default function CustomerList() {
 				<EmptyState
 					icon={Building2}
 					title="No customers found"
-					description={
-						searchQuery
-							? 'Try adjusting your search query'
-							: 'No customer accounts exist yet'
-					}
+					description={searchQuery ? 'Try adjusting your search query' : 'No customer accounts exist yet'}
 				/>
 			) : (
 				<div className="overflow-hidden rounded-lg border border-border">
@@ -148,27 +144,21 @@ export default function CustomerList() {
 							</tr>
 						</thead>
 						<tbody className="divide-y divide-border bg-card">
-							{filteredCustomers.map((customer) => (
+							{filteredCustomers.map(customer => (
 								<tr key={customer.id} className="hover:bg-muted/50">
 									<td className="px-6 py-4 text-sm font-medium">
 										<div className="flex items-center gap-2">
 											<Building2 className="h-4 w-4 text-muted-foreground" />
 											{customer.name}
 										</div>
-										<div className="text-xs text-muted-foreground">
-											{customer.short_name}.tryequipped.com
-										</div>
+										<div className="text-xs text-muted-foreground">{customer.short_name}.tryequipped.com</div>
 									</td>
 									<td className="px-6 py-4 text-sm text-muted-foreground">
 										{customer.primary_contact_email || 'Not set'}
 									</td>
 									<td className="px-6 py-4 text-sm">{customer.device_count}</td>
-									<td className="px-6 py-4 text-sm text-muted-foreground">
-										{formatDate(customer.last_order_date)}
-									</td>
-									<td className="px-6 py-4 text-sm text-muted-foreground">
-										{formatDate(customer.created_at)}
-									</td>
+									<td className="px-6 py-4 text-sm text-muted-foreground">{formatDate(customer.last_order_date)}</td>
+									<td className="px-6 py-4 text-sm text-muted-foreground">{formatDate(customer.created_at)}</td>
 									<td className="px-6 py-4 text-right text-sm">
 										<a
 											href={`https://${customer.short_name}.tryequipped.com`}

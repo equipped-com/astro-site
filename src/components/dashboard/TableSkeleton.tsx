@@ -7,7 +7,7 @@ interface TableSkeletonProps {
 
 export function TableSkeleton({ rows = 5, columns = 5 }: TableSkeletonProps) {
 	return (
-		<div className="w-full overflow-hidden rounded-lg border border-border">
+		<div className="w-full overflow-hidden rounded-lg border border-border" data-testid="table-skeleton">
 			<table className="w-full">
 				<thead className="border-b border-border bg-muted/50">
 					<tr>

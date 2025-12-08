@@ -51,10 +51,12 @@ export function OrderList({ orders }: OrderListProps) {
 
 		// Date range filter
 		if (filters.dateFrom) {
-			filtered = filtered.filter(order => order.created_at >= filters.dateFrom!)
+			const dateFrom = filters.dateFrom
+			filtered = filtered.filter(order => order.created_at >= dateFrom)
 		}
 		if (filters.dateTo) {
-			filtered = filtered.filter(order => order.created_at <= filters.dateTo!)
+			const dateTo = filters.dateTo
+			filtered = filtered.filter(order => order.created_at <= dateTo)
 		}
 
 		// Sort
@@ -119,7 +121,14 @@ export function OrderList({ orders }: OrderListProps) {
 	function SortIcon({ field }: { field: SortField }) {
 		if (sortField !== field) {
 			return (
-				<svg className="w-4 h-4 ml-1 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+				<svg
+					className="w-4 h-4 ml-1 text-muted-foreground"
+					fill="none"
+					viewBox="0 0 24 24"
+					stroke="currentColor"
+					aria-label="Sort"
+				>
+					<title>Sort</title>
 					<path
 						strokeLinecap="round"
 						strokeLinejoin="round"
@@ -131,11 +140,25 @@ export function OrderList({ orders }: OrderListProps) {
 		}
 
 		return sortDirection === 'asc' ? (
-			<svg className="w-4 h-4 ml-1 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+			<svg
+				className="w-4 h-4 ml-1 text-primary"
+				fill="none"
+				viewBox="0 0 24 24"
+				stroke="currentColor"
+				aria-label="Sort ascending"
+			>
+				<title>Sort ascending</title>
 				<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
 			</svg>
 		) : (
-			<svg className="w-4 h-4 ml-1 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+			<svg
+				className="w-4 h-4 ml-1 text-primary"
+				fill="none"
+				viewBox="0 0 24 24"
+				stroke="currentColor"
+				aria-label="Sort descending"
+			>
+				<title>Sort descending</title>
 				<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
 			</svg>
 		)
@@ -207,44 +230,53 @@ export function OrderList({ orders }: OrderListProps) {
 								</tr>
 							</thead>
 							<tbody className="divide-y divide-border">
-								{filteredAndSortedOrders.map(order => (
-									<tr key={order.id} className="hover:bg-muted/30 transition-colors cursor-pointer" onClick={() => window.location.href = `/dashboard/orders/${order.id.slice(0, 8)}`}>
-										<td className="px-6 py-4">
-											<a href={`/dashboard/orders/${order.id.slice(0, 8)}`} className="text-sm font-mono text-foreground hover:text-primary">
-												{order.id.slice(0, 8)}
-											</a>
-										</td>
-										<td className="px-6 py-4">
-											<span className="text-sm text-foreground">{formatDate(order.created_at)}</span>
-										</td>
-										<td className="px-6 py-4">
-											<span className="text-sm text-foreground">{getOrderItems(order)}</span>
-										</td>
-										<td className="px-6 py-4">
-											<span className="text-sm font-medium text-foreground">{formatCurrency(order.total)}</span>
-										</td>
-										<td className="px-6 py-4">
-											<OrderStatusBadge status={order.status} />
-										</td>
-										<td className="px-6 py-4">
-											{order.tracking_number ? (
-												<a
-													href={`https://www.google.com/search?q=${order.carrier}+${order.tracking_number}`}
-													target="_blank"
-													rel="noopener noreferrer"
-													className="text-sm text-primary hover:underline"
-												>
-													{order.tracking_number}
+								{filteredAndSortedOrders.map(order => {
+									const orderPath = `/dashboard/orders/${order.id.slice(0, 8)}`
+									return (
+										<tr
+											key={order.id}
+											className="hover:bg-muted/30 transition-colors cursor-pointer"
+											onClick={() => {
+												window.location.href = orderPath
+											}}
+										>
+											<td className="px-6 py-4">
+												<a href={orderPath} className="text-sm font-mono text-foreground hover:text-primary">
+													{order.id.slice(0, 8)}
 												</a>
-											) : (
-												<span className="text-sm text-muted-foreground">--</span>
-											)}
-										</td>
-										<td className="px-6 py-4">
-											<span className="text-sm text-foreground">{order.creator_name || 'Unknown'}</span>
-										</td>
-									</tr>
-								))}
+											</td>
+											<td className="px-6 py-4">
+												<span className="text-sm text-foreground">{formatDate(order.created_at)}</span>
+											</td>
+											<td className="px-6 py-4">
+												<span className="text-sm text-foreground">{getOrderItems(order)}</span>
+											</td>
+											<td className="px-6 py-4">
+												<span className="text-sm font-medium text-foreground">{formatCurrency(order.total)}</span>
+											</td>
+											<td className="px-6 py-4">
+												<OrderStatusBadge status={order.status} />
+											</td>
+											<td className="px-6 py-4">
+												{order.tracking_number ? (
+													<a
+														href={`https://www.google.com/search?q=${order.carrier}+${order.tracking_number}`}
+														target="_blank"
+														rel="noopener noreferrer"
+														className="text-sm text-primary hover:underline"
+													>
+														{order.tracking_number}
+													</a>
+												) : (
+													<span className="text-sm text-muted-foreground">--</span>
+												)}
+											</td>
+											<td className="px-6 py-4">
+												<span className="text-sm text-foreground">{order.creator_name || 'Unknown'}</span>
+											</td>
+										</tr>
+									)
+								})}
 							</tbody>
 						</table>
 					</div>

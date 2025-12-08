@@ -1,5 +1,5 @@
-import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import OffboardingWizard from './OffboardingWizard'
 
 const mockPerson = {
@@ -58,14 +58,7 @@ describe('OffboardingWizard', () => {
 	 *   And I should see all devices assigned to Bob
 	 */
 	it('should initiate offboarding workflow and show overview', () => {
-		render(
-			<OffboardingWizard
-				person={mockPerson}
-				isOpen={true}
-				onClose={mockOnClose}
-				onComplete={mockOnComplete}
-			/>
-		)
+		render(<OffboardingWizard person={mockPerson} isOpen={true} onClose={mockOnClose} onComplete={mockOnComplete} />)
 
 		// Should show offboarding wizard
 		expect(screen.getByText('Offboard Employee')).toBeInTheDocument()
@@ -80,14 +73,7 @@ describe('OffboardingWizard', () => {
 	})
 
 	it('should require last day before proceeding', () => {
-		render(
-			<OffboardingWizard
-				person={mockPerson}
-				isOpen={true}
-				onClose={mockOnClose}
-				onComplete={mockOnComplete}
-			/>
-		)
+		render(<OffboardingWizard person={mockPerson} isOpen={true} onClose={mockOnClose} onComplete={mockOnComplete} />)
 
 		const continueButton = screen.getByText('Continue')
 		expect(continueButton).toBeDisabled()
@@ -116,14 +102,7 @@ describe('OffboardingWizard', () => {
 			json: async () => ({ devices: mockDevices }),
 		})
 
-		render(
-			<OffboardingWizard
-				person={mockPerson}
-				isOpen={true}
-				onClose={mockOnClose}
-				onComplete={mockOnComplete}
-			/>
-		)
+		render(<OffboardingWizard person={mockPerson} isOpen={true} onClose={mockOnClose} onComplete={mockOnComplete} />)
 
 		// Enter last day and proceed
 		const lastDayInput = screen.getByLabelText(/Last Day of Employment/)
@@ -151,14 +130,7 @@ describe('OffboardingWizard', () => {
 			json: async () => ({ devices: [] }),
 		})
 
-		render(
-			<OffboardingWizard
-				person={mockPerson}
-				isOpen={true}
-				onClose={mockOnClose}
-				onComplete={mockOnComplete}
-			/>
-		)
+		render(<OffboardingWizard person={mockPerson} isOpen={true} onClose={mockOnClose} onComplete={mockOnComplete} />)
 
 		// Proceed to devices step
 		const lastDayInput = screen.getByLabelText(/Last Day of Employment/)
@@ -189,14 +161,7 @@ describe('OffboardingWizard', () => {
 			json: async () => ({ devices: mockDevices }),
 		})
 
-		render(
-			<OffboardingWizard
-				person={mockPerson}
-				isOpen={true}
-				onClose={mockOnClose}
-				onComplete={mockOnComplete}
-			/>
-		)
+		render(<OffboardingWizard person={mockPerson} isOpen={true} onClose={mockOnClose} onComplete={mockOnComplete} />)
 
 		// Navigate to collection step
 		const lastDayInput = screen.getByLabelText(/Last Day of Employment/)
@@ -225,14 +190,7 @@ describe('OffboardingWizard', () => {
 			json: async () => ({ devices: mockDevices }),
 		})
 
-		render(
-			<OffboardingWizard
-				person={mockPerson}
-				isOpen={true}
-				onClose={mockOnClose}
-				onComplete={mockOnComplete}
-			/>
-		)
+		render(<OffboardingWizard person={mockPerson} isOpen={true} onClose={mockOnClose} onComplete={mockOnComplete} />)
 
 		// Navigate to collection step
 		const lastDayInput = screen.getByLabelText(/Last Day of Employment/)
@@ -276,14 +234,7 @@ describe('OffboardingWizard', () => {
 			json: async () => ({ devices: mockDevices }),
 		})
 
-		render(
-			<OffboardingWizard
-				person={mockPerson}
-				isOpen={true}
-				onClose={mockOnClose}
-				onComplete={mockOnComplete}
-			/>
-		)
+		render(<OffboardingWizard person={mockPerson} isOpen={true} onClose={mockOnClose} onComplete={mockOnComplete} />)
 
 		// Navigate to wipe step
 		const lastDayInput = screen.getByLabelText(/Last Day of Employment/)
@@ -323,14 +274,7 @@ describe('OffboardingWizard', () => {
 			json: async () => ({ devices: mockDevices }),
 		})
 
-		render(
-			<OffboardingWizard
-				person={mockPerson}
-				isOpen={true}
-				onClose={mockOnClose}
-				onComplete={mockOnComplete}
-			/>
-		)
+		render(<OffboardingWizard person={mockPerson} isOpen={true} onClose={mockOnClose} onComplete={mockOnComplete} />)
 
 		// Navigate to wipe step
 		const lastDayInput = screen.getByLabelText(/Last Day of Employment/)
@@ -389,14 +333,7 @@ describe('OffboardingWizard', () => {
 				}),
 			})
 
-		render(
-			<OffboardingWizard
-				person={mockPerson}
-				isOpen={true}
-				onClose={mockOnClose}
-				onComplete={mockOnComplete}
-			/>
-		)
+		render(<OffboardingWizard person={mockPerson} isOpen={true} onClose={mockOnClose} onComplete={mockOnComplete} />)
 
 		// Complete all steps
 		const lastDayInput = screen.getByLabelText(/Last Day of Employment/)
@@ -461,7 +398,7 @@ describe('OffboardingWizard', () => {
 					collection_method: 'pickup',
 					wipe_option: 'secure_wipe',
 				}),
-			})
+			}),
 		)
 	})
 
@@ -476,14 +413,7 @@ describe('OffboardingWizard', () => {
 				json: async () => ({ error: 'Failed to offboard employee' }),
 			})
 
-		render(
-			<OffboardingWizard
-				person={mockPerson}
-				isOpen={true}
-				onClose={mockOnClose}
-				onComplete={mockOnComplete}
-			/>
-		)
+		render(<OffboardingWizard person={mockPerson} isOpen={true} onClose={mockOnClose} onComplete={mockOnComplete} />)
 
 		// Navigate through all steps
 		const lastDayInput = screen.getByLabelText(/Last Day of Employment/)
@@ -527,14 +457,7 @@ describe('OffboardingWizard', () => {
 	})
 
 	it('should allow closing wizard', () => {
-		render(
-			<OffboardingWizard
-				person={mockPerson}
-				isOpen={true}
-				onClose={mockOnClose}
-				onComplete={mockOnComplete}
-			/>
-		)
+		render(<OffboardingWizard person={mockPerson} isOpen={true} onClose={mockOnClose} onComplete={mockOnComplete} />)
 
 		const closeButton = screen.getByRole('button', { name: '' }).parentElement?.querySelector('button')
 		fireEvent.click(closeButton!)
@@ -544,12 +467,7 @@ describe('OffboardingWizard', () => {
 
 	it('should not render when closed', () => {
 		const { container } = render(
-			<OffboardingWizard
-				person={mockPerson}
-				isOpen={false}
-				onClose={mockOnClose}
-				onComplete={mockOnComplete}
-			/>
+			<OffboardingWizard person={mockPerson} isOpen={false} onClose={mockOnClose} onComplete={mockOnComplete} />,
 		)
 
 		expect(container.firstChild).toBeNull()
@@ -561,14 +479,7 @@ describe('OffboardingWizard', () => {
 			json: async () => ({ devices: mockDevices }),
 		})
 
-		render(
-			<OffboardingWizard
-				person={mockPerson}
-				isOpen={true}
-				onClose={mockOnClose}
-				onComplete={mockOnComplete}
-			/>
-		)
+		render(<OffboardingWizard person={mockPerson} isOpen={true} onClose={mockOnClose} onComplete={mockOnComplete} />)
 
 		// Navigate forward
 		const lastDayInput = screen.getByLabelText(/Last Day of Employment/)

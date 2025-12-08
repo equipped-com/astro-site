@@ -3,6 +3,9 @@ import { OrderDetails } from '@/components/orders/OrderDetails'
 import DashboardLayout from '@/layouts/DashboardLayout.astro'
 import type { OrderWithItems } from '@/lib/scoped-queries'
 
+// Server-side rendering for dynamic order details
+export const prerender = false
+
 // Get the order ID from the URL
 const { id } = Astro.params
 
@@ -154,7 +157,7 @@ const mockOrders: OrderWithItems[] = [
 ]
 
 // Find the order by ID (match first 8 chars since we display shortened IDs)
-const order = mockOrders.find((o) => o.id.startsWith(id || ''))
+const order = mockOrders.find(o => o.id.startsWith(id || ''))
 
 // If order not found, return 404
 if (!order) {

@@ -103,9 +103,7 @@ export default function UnassignDeviceModal({ isOpen, device, onClose, onSuccess
 					{/* Header */}
 					<div className="flex items-center justify-between mb-6">
 						<div>
-							<h2 className="text-xl font-bold">
-								{step === 'confirm' ? 'Unassign Device' : 'Schedule Collection'}
-							</h2>
+							<h2 className="text-xl font-bold">{step === 'confirm' ? 'Unassign Device' : 'Schedule Collection'}</h2>
 							<p className="text-sm text-muted-foreground mt-1">
 								{device.name} - {device.model}
 							</p>
@@ -146,9 +144,7 @@ export default function UnassignDeviceModal({ isOpen, device, onClose, onSuccess
 										<Package className="h-5 w-5 mt-0.5 flex-shrink-0" />
 										<div className="flex-1 text-left">
 											<p className="font-medium">Ship return label to employee</p>
-											<p className="text-sm text-muted-foreground">
-												We'll send a prepaid shipping label via email
-											</p>
+											<p className="text-sm text-muted-foreground">We'll send a prepaid shipping label via email</p>
 										</div>
 									</button>
 

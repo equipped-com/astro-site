@@ -179,9 +179,7 @@ describe('Sentry Error Tracking', () => {
 	describe('@REQ-MON-007: Performance monitoring', () => {
 		it('should create performance transaction for API request', () => {
 			const mockSpan = { finish: vi.fn() }
-			vi.mocked(Sentry.startSpan).mockImplementation((options, callback) =>
-				callback(mockSpan as never),
-			)
+			vi.mocked(Sentry.startSpan).mockImplementation((options, callback) => callback(mockSpan as never))
 
 			const result = startTransaction('GET /api/devices', 'http.server')
 

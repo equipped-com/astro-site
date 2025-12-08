@@ -1,7 +1,7 @@
 import type { OrderWithItems } from '@/lib/scoped-queries'
+import { OrderActions } from './OrderActions'
 import { OrderStatusBadge } from './OrderStatusBadge'
 import { OrderTimeline } from './OrderTimeline'
-import { OrderActions } from './OrderActions'
 import { ShipmentTracker } from './ShipmentTracker'
 
 interface OrderDetailsProps {
@@ -12,13 +12,7 @@ interface OrderDetailsProps {
 	onDownloadInvoice?: (orderId: string) => Promise<void>
 }
 
-export function OrderDetails({
-	order,
-	onCancel,
-	onReturn,
-	onReorder,
-	onDownloadInvoice,
-}: OrderDetailsProps) {
+export function OrderDetails({ order, onCancel, onReturn, onReorder, onDownloadInvoice }: OrderDetailsProps) {
 	function formatDate(dateString: string): string {
 		const date = new Date(dateString)
 		return date.toLocaleDateString('en-US', {
@@ -70,9 +64,7 @@ export function OrderDetails({
 							<p className="text-2xl font-bold text-foreground">{formatCurrency(order.total)}</p>
 						</div>
 						{isLeasing && order.monthly_cost && (
-							<p className="text-sm text-muted-foreground">
-								{formatCurrency(order.monthly_cost)}/month
-							</p>
+							<p className="text-sm text-muted-foreground">{formatCurrency(order.monthly_cost)}/month</p>
 						)}
 					</div>
 				</div>
@@ -83,7 +75,7 @@ export function OrderDetails({
 				<h2 className="text-xl font-semibold text-foreground mb-4">Items</h2>
 				<div className="space-y-4">
 					{order.items && order.items.length > 0 ? (
-						order.items.map((item) => (
+						order.items.map(item => (
 							<div key={item.id} className="flex items-center gap-4 py-4 border-b border-border last:border-b-0">
 								{item.product_image_url ? (
 									<img
@@ -98,20 +90,14 @@ export function OrderDetails({
 								)}
 								<div className="flex-1">
 									<h3 className="font-medium text-foreground">{item.product_name}</h3>
-									{item.product_sku && (
-										<p className="text-sm text-muted-foreground mt-1">SKU: {item.product_sku}</p>
-									)}
-									{item.specs && (
-										<p className="text-sm text-muted-foreground mt-1">{item.specs}</p>
-									)}
+									{item.product_sku && <p className="text-sm text-muted-foreground mt-1">SKU: {item.product_sku}</p>}
+									{item.specs && <p className="text-sm text-muted-foreground mt-1">{item.specs}</p>}
 									<p className="text-sm text-muted-foreground mt-1">Quantity: {item.quantity}</p>
 								</div>
 								<div className="text-right">
 									<p className="font-medium text-foreground">{formatCurrency(item.total_price)}</p>
 									{isLeasing && item.monthly_price && (
-										<p className="text-sm text-muted-foreground mt-1">
-											{formatCurrency(item.monthly_price)}/month
-										</p>
+										<p className="text-sm text-muted-foreground mt-1">{formatCurrency(item.monthly_price)}/month</p>
 									)}
 								</div>
 							</div>
@@ -180,7 +166,11 @@ export function OrderDetails({
 					<div className="flex justify-between">
 						<span className="text-muted-foreground">Method</span>
 						<span className="text-foreground capitalize">
-							{order.payment_method === 'leasing' ? 'Leasing' : order.payment_method === 'card' ? 'Credit Card' : order.payment_method || 'Not specified'}
+							{order.payment_method === 'leasing'
+								? 'Leasing'
+								: order.payment_method === 'card'
+									? 'Credit Card'
+									: order.payment_method || 'Not specified'}
 						</span>
 					</div>
 					{isLeasing && order.monthly_cost && (

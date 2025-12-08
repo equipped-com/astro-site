@@ -29,11 +29,7 @@ export function OrderTimeline({ order }: OrderTimelineProps) {
 					label: 'Pending leasing approval',
 					status: 'current',
 				})
-			} else if (
-				order.status === 'processing' ||
-				order.status === 'shipped' ||
-				order.status === 'delivered'
-			) {
+			} else if (order.status === 'processing' || order.status === 'shipped' || order.status === 'delivered') {
 				steps.push({
 					label: 'Leasing approved',
 					status: 'completed',
@@ -161,11 +157,7 @@ export function OrderTimeline({ order }: OrderTimelineProps) {
 								)}
 							</div>
 							{index < steps.length - 1 && (
-								<div
-									className={`w-0.5 h-12 mt-2 ${
-										step.status === 'completed' ? 'bg-primary' : 'bg-muted'
-									}`}
-								/>
+								<div className={`w-0.5 h-12 mt-2 ${step.status === 'completed' ? 'bg-primary' : 'bg-muted'}`} />
 							)}
 						</div>
 
@@ -173,16 +165,12 @@ export function OrderTimeline({ order }: OrderTimelineProps) {
 						<div className="flex-1 pb-8">
 							<p
 								className={`font-medium ${
-									step.status === 'completed' || step.status === 'current'
-										? 'text-foreground'
-										: 'text-muted-foreground'
+									step.status === 'completed' || step.status === 'current' ? 'text-foreground' : 'text-muted-foreground'
 								}`}
 							>
 								{step.label}
 							</p>
-							{step.date && (
-								<p className="text-sm text-muted-foreground mt-1">{formatDate(step.date)}</p>
-							)}
+							{step.date && <p className="text-sm text-muted-foreground mt-1">{formatDate(step.date)}</p>}
 						</div>
 					</div>
 				))}

@@ -54,14 +54,12 @@ export default function GlobalOrderView() {
 		if (searchQuery.trim()) {
 			const query = searchQuery.toLowerCase()
 			filtered = filtered.filter(
-				(order) =>
-					order.order_number.toLowerCase().includes(query) ||
-					order.account_name.toLowerCase().includes(query),
+				order => order.order_number.toLowerCase().includes(query) || order.account_name.toLowerCase().includes(query),
 			)
 		}
 
 		if (statusFilter) {
-			filtered = filtered.filter((order) => order.status === statusFilter)
+			filtered = filtered.filter(order => order.status === statusFilter)
 		}
 
 		setFilteredOrders(filtered)
@@ -83,15 +81,8 @@ export default function GlobalOrderView() {
 	}
 
 	function handleExport() {
-		const headers = [
-			'Order Number',
-			'Customer',
-			'Amount',
-			'Status',
-			'Device Count',
-			'Created Date',
-		]
-		const rows = filteredOrders.map((order) => [
+		const headers = ['Order Number', 'Customer', 'Amount', 'Status', 'Device Count', 'Created Date']
+		const rows = filteredOrders.map(order => [
 			order.order_number,
 			order.account_name,
 			order.total_amount.toString(),
@@ -100,7 +91,7 @@ export default function GlobalOrderView() {
 			order.created_at,
 		])
 
-		const csv = [headers, ...rows].map((row) => row.join(',')).join('\n')
+		const csv = [headers, ...rows].map(row => row.join(',')).join('\n')
 		const blob = new Blob([csv], { type: 'text/csv' })
 		const url = URL.createObjectURL(blob)
 		const a = document.createElement('a')
@@ -135,17 +126,17 @@ export default function GlobalOrderView() {
 						type="text"
 						placeholder="Search by order number or customer..."
 						value={searchQuery}
-						onChange={(e) => setSearchQuery(e.target.value)}
+						onChange={e => setSearchQuery(e.target.value)}
 						className="w-full rounded-md border border-input bg-background py-2 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
 					/>
 				</div>
 				<select
 					value={statusFilter}
-					onChange={(e) => setStatusFilter(e.target.value)}
+					onChange={e => setStatusFilter(e.target.value)}
 					className="rounded-md border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
 				>
 					<option value="">All Statuses</option>
-					{statuses.map((status) => (
+					{statuses.map(status => (
 						<option key={status} value={status}>
 							{status.charAt(0).toUpperCase() + status.slice(1)}
 						</option>
@@ -171,9 +162,7 @@ export default function GlobalOrderView() {
 				<EmptyState
 					icon={ShoppingCart}
 					title="No orders found"
-					description={
-						searchQuery || statusFilter ? 'Try adjusting your filters' : 'No orders exist yet'
-					}
+					description={searchQuery || statusFilter ? 'Try adjusting your filters' : 'No orders exist yet'}
 				/>
 			) : (
 				<div className="overflow-hidden rounded-lg border border-border">
@@ -201,7 +190,7 @@ export default function GlobalOrderView() {
 							</tr>
 						</thead>
 						<tbody className="divide-y divide-border bg-card">
-							{filteredOrders.map((order) => (
+							{filteredOrders.map(order => (
 								<tr key={order.id} className="hover:bg-muted/50">
 									<td className="px-6 py-4 text-sm font-medium">
 										<div className="flex items-center gap-2">
@@ -219,9 +208,7 @@ export default function GlobalOrderView() {
 											{order.account_name}
 										</a>
 									</td>
-									<td className="px-6 py-4 text-sm font-medium">
-										{formatCurrency(order.total_amount)}
-									</td>
+									<td className="px-6 py-4 text-sm font-medium">{formatCurrency(order.total_amount)}</td>
 									<td className="px-6 py-4 text-sm">{order.device_count}</td>
 									<td className="px-6 py-4 text-sm">
 										<span
@@ -238,9 +225,7 @@ export default function GlobalOrderView() {
 											{order.status}
 										</span>
 									</td>
-									<td className="px-6 py-4 text-sm text-muted-foreground">
-										{formatDate(order.created_at)}
-									</td>
+									<td className="px-6 py-4 text-sm text-muted-foreground">{formatDate(order.created_at)}</td>
 								</tr>
 							))}
 						</tbody>

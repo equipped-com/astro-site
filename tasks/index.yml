@@ -449,7 +449,8 @@ epics:
       - id: offboarding-workflow
         name: Offboarding Workflow
         file: people/offboarding-workflow.md
-        done: false
+        done: true
+        commit: 187288f
         complexity: medium
         depends_on:
           - people/directory-view

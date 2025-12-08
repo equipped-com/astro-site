@@ -80,7 +80,11 @@ export default function OnboardingStep2({ initialPackage, onContinue, onBack }: 
 			<p className="text-sm text-muted-foreground mb-6">Choose a pre-configured package based on the employee's role</p>
 
 			{/* Package Selector */}
-			<DevicePackageSelector packages={DEVICE_PACKAGES} selectedPackage={selectedPackage} onSelect={setSelectedPackage} />
+			<DevicePackageSelector
+				packages={DEVICE_PACKAGES}
+				selectedPackage={selectedPackage}
+				onSelect={setSelectedPackage}
+			/>
 
 			{/* Cost Summary */}
 			{selectedPackage && (

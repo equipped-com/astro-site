@@ -1,8 +1,11 @@
 'use client'
 
-import { Edit, MoreVertical, Trash } from 'lucide-react'
+import { Clock, Edit, MoreVertical, Trash, UserCheck, UserX, X } from 'lucide-react'
 import { useState } from 'react'
 import type { Device } from '@/lib/scoped-queries'
+import AssignDeviceModal from './AssignDeviceModal'
+import AssignmentHistory from './AssignmentHistory'
+import UnassignDeviceModal from './UnassignDeviceModal'
 
 interface DeviceTableProps {
 	devices: Device[]
@@ -12,6 +15,9 @@ interface DeviceTableProps {
 
 export default function DeviceTable({ devices, onUpdate: _onUpdate, onDelete }: DeviceTableProps) {
 	const [actionMenuId, setActionMenuId] = useState<string | null>(null)
+	const [assignModalDevice, setAssignModalDevice] = useState<Device | null>(null)
+	const [unassignModalDevice, setUnassignModalDevice] = useState<Device | null>(null)
+	const [historyDeviceId, setHistoryDeviceId] = useState<string | null>(null)
 
 	function getStatusBadgeColor(status: Device['status']): string {
 		switch (status) {
@@ -56,6 +62,11 @@ export default function DeviceTable({ devices, onUpdate: _onUpdate, onDelete }: 
 		} catch (err) {
 			alert(err instanceof Error ? err.message : 'Failed to delete device')
 		}
+	}
+
+	function handleAssignmentSuccess() {
+		// Trigger parent refresh
+		window.location.reload()
 	}
 
 	return (
@@ -119,7 +130,43 @@ export default function DeviceTable({ devices, onUpdate: _onUpdate, onDelete }: 
 													tabIndex={-1}
 													aria-label="Close menu"
 												/>
-												<div className="absolute right-0 mt-2 w-40 rounded-md border border-border bg-card shadow-lg z-20">
+												<div className="absolute right-0 mt-2 w-48 rounded-md border border-border bg-card shadow-lg z-20">
+													{!device.assigned_to_person_id ? (
+														<button
+															type="button"
+															onClick={() => {
+																setActionMenuId(null)
+																setAssignModalDevice(device)
+															}}
+															className="flex w-full items-center gap-2 px-4 py-2 text-sm hover:bg-muted transition-colors"
+														>
+															<UserCheck className="h-4 w-4" />
+															Assign
+														</button>
+													) : (
+														<button
+															type="button"
+															onClick={() => {
+																setActionMenuId(null)
+																setUnassignModalDevice(device)
+															}}
+															className="flex w-full items-center gap-2 px-4 py-2 text-sm hover:bg-muted transition-colors"
+														>
+															<UserX className="h-4 w-4" />
+															Unassign
+														</button>
+													)}
+													<button
+														type="button"
+														onClick={() => {
+															setActionMenuId(null)
+															setHistoryDeviceId(device.id)
+														}}
+														className="flex w-full items-center gap-2 px-4 py-2 text-sm hover:bg-muted transition-colors border-t border-border"
+													>
+														<Clock className="h-4 w-4" />
+														View History
+													</button>
 													<button
 														type="button"
 														onClick={() => {
@@ -127,7 +174,7 @@ export default function DeviceTable({ devices, onUpdate: _onUpdate, onDelete }: 
 															// TODO: Implement edit modal
 															alert('Edit functionality coming soon')
 														}}
-														className="flex w-full items-center gap-2 px-4 py-2 text-sm hover:bg-muted transition-colors"
+														className="flex w-full items-center gap-2 px-4 py-2 text-sm hover:bg-muted transition-colors border-t border-border"
 													>
 														<Edit className="h-4 w-4" />
 														Edit
@@ -138,7 +185,7 @@ export default function DeviceTable({ devices, onUpdate: _onUpdate, onDelete }: 
 															setActionMenuId(null)
 															handleDelete(device.id)
 														}}
-														className="flex w-full items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+														className="flex w-full items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors border-t border-border"
 													>
 														<Trash className="h-4 w-4" />
 														Delete
@@ -153,6 +200,51 @@ export default function DeviceTable({ devices, onUpdate: _onUpdate, onDelete }: 
 					</tbody>
 				</table>
 			</div>
+
+			{/* Modals */}
+			<AssignDeviceModal
+				isOpen={!!assignModalDevice}
+				device={assignModalDevice}
+				onClose={() => setAssignModalDevice(null)}
+				onSuccess={handleAssignmentSuccess}
+			/>
+
+			<UnassignDeviceModal
+				isOpen={!!unassignModalDevice}
+				device={unassignModalDevice}
+				onClose={() => setUnassignModalDevice(null)}
+				onSuccess={handleAssignmentSuccess}
+			/>
+
+			{/* Assignment History Modal */}
+			{historyDeviceId && (
+				<>
+					<div
+						className="fixed inset-0 bg-black/50 z-40"
+						onClick={() => setHistoryDeviceId(null)}
+						onKeyDown={e => e.key === 'Escape' && setHistoryDeviceId(null)}
+						role="button"
+						tabIndex={-1}
+						aria-label="Close modal"
+					/>
+					<div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+						<div className="w-full max-w-2xl rounded-lg border border-border bg-card p-6 shadow-lg max-h-[80vh] overflow-y-auto">
+							<div className="flex items-center justify-between mb-6">
+								<h2 className="text-xl font-bold">Device Assignment History</h2>
+								<button
+									type="button"
+									onClick={() => setHistoryDeviceId(null)}
+									className="p-1 rounded hover:bg-muted transition-colors"
+									aria-label="Close"
+								>
+									<X className="h-5 w-5" />
+								</button>
+							</div>
+							<AssignmentHistory deviceId={historyDeviceId} />
+						</div>
+					</div>
+				</>
+			)}
 		</div>
 	)
 }

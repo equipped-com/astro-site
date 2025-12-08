@@ -16,7 +16,8 @@ export function OrderActions({ order, onCancel, onReturn, onReorder, onDownloadI
 	const [isLoading, setIsLoading] = useState(false)
 
 	// Determine which actions are available
-	const canCancel = order.status === 'pending' || order.status === 'processing' || order.status === 'pending_leasing_approval'
+	const canCancel =
+		order.status === 'pending' || order.status === 'processing' || order.status === 'pending_leasing_approval'
 	const canReturn = order.status === 'delivered' && isWithinReturnWindow()
 	const canReorder = true // Reorder is always available
 	const canDownloadInvoice = order.status !== 'cancelled'
@@ -145,12 +146,7 @@ export function OrderActions({ order, onCancel, onReturn, onReorder, onDownloadI
 						className="inline-flex items-center gap-2 px-4 py-2 bg-destructive text-destructive-foreground rounded-lg hover:bg-destructive/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
 					>
 						<svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-							<path
-								strokeLinecap="round"
-								strokeLinejoin="round"
-								strokeWidth={2}
-								d="M6 18L18 6M6 6l12 12"
-							/>
+							<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
 						</svg>
 						Cancel order
 					</button>
@@ -225,14 +221,14 @@ export function OrderActions({ order, onCancel, onReturn, onReorder, onDownloadI
 								'Item not as described',
 								'Changed my mind',
 								'Other',
-							].map((reason) => (
+							].map(reason => (
 								<label key={reason} className="flex items-center gap-3 cursor-pointer">
 									<input
 										type="radio"
 										name="return-reason"
 										value={reason}
 										checked={returnReason === reason}
-										onChange={(e) => setReturnReason(e.target.value)}
+										onChange={e => setReturnReason(e.target.value)}
 										className="w-4 h-4 text-primary focus:ring-primary"
 									/>
 									<span className="text-sm text-foreground">{reason}</span>

@@ -42,14 +42,16 @@ export default function CollectionScheduler({
 			{/* Info banner */}
 			<div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
 				<div className="flex items-start gap-3">
-					{isShipLabel ? <Mail className="h-5 w-5 text-blue-600 mt-0.5" /> : <MapPin className="h-5 w-5 text-blue-600 mt-0.5" />}
+					{isShipLabel ? (
+						<Mail className="h-5 w-5 text-blue-600 mt-0.5" />
+					) : (
+						<MapPin className="h-5 w-5 text-blue-600 mt-0.5" />
+					)}
 					<div className="flex-1">
-						<p className="font-medium text-blue-900">
-							{isShipLabel ? 'Shipping Label Details' : 'Pickup Scheduling'}
-						</p>
+						<p className="font-medium text-blue-900">{isShipLabel ? 'Shipping Label Details' : 'Pickup Scheduling'}</p>
 						<p className="text-sm text-blue-700 mt-1">
 							{isShipLabel
-								? 'We\'ll send a prepaid return label to the employee. They can print it and drop off the package at any carrier location.'
+								? "We'll send a prepaid return label to the employee. They can print it and drop off the package at any carrier location."
 								: 'Our courier partner will visit the address on the selected date to collect the device.'}
 						</p>
 					</div>

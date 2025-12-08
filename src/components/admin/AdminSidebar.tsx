@@ -14,9 +14,7 @@ interface NavItem {
 }
 
 export default function AdminSidebar() {
-	const [currentPath] = useState(
-		typeof window !== 'undefined' ? window.location.pathname : '',
-	)
+	const [currentPath] = useState(typeof window !== 'undefined' ? window.location.pathname : '')
 
 	const navItems: NavItem[] = [
 		{
@@ -60,7 +58,7 @@ export default function AdminSidebar() {
 	return (
 		<aside className="w-64 border-r border-border bg-card">
 			<nav className="space-y-1 p-4">
-				{navItems.map((item) => {
+				{navItems.map(item => {
 					const Icon = item.icon
 					return (
 						<a
@@ -82,9 +80,7 @@ export default function AdminSidebar() {
 			<div className="border-t border-border p-4">
 				<div className="rounded-md bg-amber-50 p-3 text-xs">
 					<p className="font-medium text-amber-900">Admin Access</p>
-					<p className="text-amber-700 mt-1">
-						You have full access to all customer data. All actions are logged.
-					</p>
+					<p className="text-amber-700 mt-1">You have full access to all customer data. All actions are logged.</p>
 				</div>
 			</div>
 		</aside>
