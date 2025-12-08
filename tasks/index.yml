@@ -552,7 +552,8 @@ epics:
       - id: admin-dashboard
         name: Admin Dashboard
         file: sysadmin/admin-dashboard.md
-        done: false
+        done: true
+        commit: 73e5463
         complexity: medium
         depends_on:
           - api/auth-middleware
