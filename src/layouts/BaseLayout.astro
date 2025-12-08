@@ -155,6 +155,12 @@ const softwareSchema = {
 		<script type="application/ld+json" set:html={JSON.stringify(organizationSchema)} />
 		<script type="application/ld+json" set:html={JSON.stringify(websiteSchema)} />
 		<script type="application/ld+json" set:html={JSON.stringify(softwareSchema)} />
+
+		<!-- Sentry Error Tracking -->
+		<script>
+			import { initSentry } from '@/lib/sentry'
+			initSentry()
+		</script>
 	</head>
 	<body class="min-h-screen bg-background text-foreground">
 		<slot />

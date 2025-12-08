@@ -75,3 +75,48 @@ export interface OrderContext {
 	delivery?: DeliveryData
 	// Future: payment, etc.
 }
+
+// Onboarding types
+export interface EmployeeInfo {
+	firstName: string
+	lastName: string
+	email: string
+	startDate: Date
+	role: string
+	department: string
+	title?: string
+	phone?: string
+}
+
+export interface DevicePackage {
+	id: string
+	name: string
+	description: string
+	devices: Array<{
+		name: string
+		quantity: number
+	}>
+	totalCost: number
+	monthlyCost?: number
+	isLeasing?: boolean
+}
+
+export interface OnboardingDelivery {
+	startDate: Date
+	deliveryDate: Date
+	shippingAddress: {
+		addressLine1: string
+		addressLine2?: string
+		city: string
+		state: string
+		zipCode: string
+		country: string
+		phone: string
+	}
+}
+
+export interface OnboardingData {
+	employee: EmployeeInfo
+	devicePackage?: DevicePackage
+	delivery?: OnboardingDelivery
+}

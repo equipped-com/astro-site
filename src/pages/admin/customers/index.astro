@@ -1,0 +1,25 @@
+---
+import { ClerkProvider } from '@clerk/clerk-react'
+import CustomerList from '@/components/admin/CustomerList'
+import AdminLayout from '@/layouts/AdminLayout.astro'
+
+const publishableKey = import.meta.env.PUBLIC_CLERK_PUBLISHABLE_KEY
+---
+
+<AdminLayout title="Customers - Admin Dashboard">
+	<div class="space-y-6">
+		<div>
+			<h1 class="text-3xl font-bold">Customer Accounts</h1>
+			<p class="text-muted-foreground mt-2">
+				Manage all customer organizations and accounts
+			</p>
+		</div>
+
+		<ClerkProvider
+			publishableKey={publishableKey}
+			client:only="react"
+		>
+			<CustomerList client:only="react" />
+		</ClerkProvider>
+	</div>
+</AdminLayout>

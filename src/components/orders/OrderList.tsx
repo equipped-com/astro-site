@@ -208,9 +208,11 @@ export function OrderList({ orders }: OrderListProps) {
 							</thead>
 							<tbody className="divide-y divide-border">
 								{filteredAndSortedOrders.map(order => (
-									<tr key={order.id} className="hover:bg-muted/30 transition-colors">
+									<tr key={order.id} className="hover:bg-muted/30 transition-colors cursor-pointer" onClick={() => window.location.href = `/dashboard/orders/${order.id.slice(0, 8)}`}>
 										<td className="px-6 py-4">
-											<span className="text-sm font-mono text-foreground">{order.id.slice(0, 8)}</span>
+											<a href={`/dashboard/orders/${order.id.slice(0, 8)}`} className="text-sm font-mono text-foreground hover:text-primary">
+												{order.id.slice(0, 8)}
+											</a>
 										</td>
 										<td className="px-6 py-4">
 											<span className="text-sm text-foreground">{formatDate(order.created_at)}</span>

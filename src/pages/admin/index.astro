@@ -1,0 +1,26 @@
+---
+import { ClerkProvider } from '@clerk/clerk-react'
+import AdminLayout from '@/layouts/AdminLayout.astro'
+import AdminStats from '@/components/admin/AdminStats'
+
+const publishableKey = import.meta.env.PUBLIC_CLERK_PUBLISHABLE_KEY
+---
+
+<AdminLayout title="Admin Dashboard - Equipped">
+	<div class="space-y-8">
+		<div>
+			<h1 class="text-3xl font-bold">System Dashboard</h1>
+			<p class="text-muted-foreground mt-2">
+				Global overview and management for all Equipped customers
+			</p>
+		</div>
+
+		<!-- Global stats -->
+		<ClerkProvider
+			publishableKey={publishableKey}
+			client:only="react"
+		>
+			<AdminStats client:only="react" />
+		</ClerkProvider>
+	</div>
+</AdminLayout>

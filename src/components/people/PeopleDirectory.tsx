@@ -1,10 +1,11 @@
 'use client'
 
-import { Filter, Plus, Search, UserCheck, Users as UsersIcon } from 'lucide-react'
+import { Filter, Plus, Search, UserCheck, UserPlus, Users as UsersIcon } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
 import { EmptyState } from '@/components/dashboard/EmptyState'
 import { Spinner } from '@/components/dashboard/Spinner'
 import AddPersonModal from './AddPersonModal'
+import OnboardingWizard from './OnboardingWizard'
 import PersonCard from './PersonCard'
 
 interface Person {
@@ -36,6 +37,7 @@ export default function PeopleDirectory() {
 	const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
 	const [departmentFilter, setDepartmentFilter] = useState<string>('all')
 	const [isAddModalOpen, setIsAddModalOpen] = useState(false)
+	const [isOnboardingOpen, setIsOnboardingOpen] = useState(false)
 
 	// Get unique departments from people
 	const departments = Array.from(new Set(people.map(p => p.department).filter(Boolean))) as string[]
@@ -107,6 +109,11 @@ export default function PeopleDirectory() {
 		setPeople(people.filter(p => p.id !== personId))
 	}
 
+	function handleOnboardingSuccess() {
+		fetchPeople()
+		setIsOnboardingOpen(false)
+	}
+
 	if (loading) {
 		return (
 			<div className="flex h-64 items-center justify-center">
@@ -132,14 +139,24 @@ export default function PeopleDirectory() {
 					<h1 className="text-2xl font-bold">People Directory</h1>
 					<p className="mt-1 text-sm text-muted-foreground">Manage your team members and their information</p>
 				</div>
-				<button
-					type="button"
-					onClick={() => setIsAddModalOpen(true)}
-					className="flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/90"
-				>
-					<Plus className="h-4 w-4" />
-					Add Person
-				</button>
+				<div className="flex items-center gap-3">
+					<button
+						type="button"
+						onClick={() => setIsAddModalOpen(true)}
+						className="flex items-center gap-2 rounded-md border border-border bg-background px-4 py-2 text-sm font-semibold hover:bg-accent"
+					>
+						<Plus className="h-4 w-4" />
+						Add Person
+					</button>
+					<button
+						type="button"
+						onClick={() => setIsOnboardingOpen(true)}
+						className="flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/90"
+					>
+						<UserPlus className="h-4 w-4" />
+						Onboard New Hire
+					</button>
+				</div>
 			</div>
 
 			{/* Filters */}
@@ -238,6 +255,13 @@ export default function PeopleDirectory() {
 
 			{/* Add Person Modal */}
 			<AddPersonModal isOpen={isAddModalOpen} onClose={() => setIsAddModalOpen(false)} onSuccess={handlePersonAdded} />
+
+			{/* Onboarding Wizard */}
+			<OnboardingWizard
+				isOpen={isOnboardingOpen}
+				onClose={() => setIsOnboardingOpen(false)}
+				onSuccess={handleOnboardingSuccess}
+			/>
 		</div>
 	)
 }

@@ -1,0 +1,25 @@
+---
+import { ClerkProvider } from '@clerk/clerk-react'
+import GlobalOrderView from '@/components/admin/GlobalOrderView'
+import AdminLayout from '@/layouts/AdminLayout.astro'
+
+const publishableKey = import.meta.env.PUBLIC_CLERK_PUBLISHABLE_KEY
+---
+
+<AdminLayout title="Global Orders - Admin Dashboard">
+	<div class="space-y-6">
+		<div>
+			<h1 class="text-3xl font-bold">Global Order Management</h1>
+			<p class="text-muted-foreground mt-2">
+				View and manage all orders across all customer accounts
+			</p>
+		</div>
+
+		<ClerkProvider
+			publishableKey={publishableKey}
+			client:only="react"
+		>
+			<GlobalOrderView client:only="react" />
+		</ClerkProvider>
+	</div>
+</AdminLayout>

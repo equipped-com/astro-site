@@ -3,6 +3,7 @@ import { cors } from 'hono/cors'
 import { logger } from 'hono/logger'
 import type { Role, User } from './api/middleware'
 import { authMiddleware, requireAccountAccess, requireAdmin, requireAuth, tenantMiddleware } from './api/middleware'
+import deviceAssignmentsRoutes from './api/routes/device-assignments'
 import deviceRoutes from './api/routes/devices'
 import organizationRoutes from './api/routes/organization'
 import peopleRoutes from './api/routes/people'
@@ -138,6 +139,7 @@ app.route('/api/user', userRoutes)
 
 // Routes requiring account access
 app.use('/api/devices/*', requireAccountAccess())
+app.use('/api/device-assignments/*', requireAccountAccess())
 app.use('/api/orders/*', requireAccountAccess())
 app.use('/api/people/*', requireAccountAccess())
 // Proposals require account access except public routes (handled in route handler)
@@ -151,6 +153,9 @@ app.use('/api/proposals', (c, next) => {
 
 // Mount device routes
 app.route('/api/devices', deviceRoutes)
+
+// Mount device assignment routes
+app.route('/api/device-assignments', deviceAssignmentsRoutes)
 
 // Mount people routes
 app.route('/api/people', peopleRoutes)

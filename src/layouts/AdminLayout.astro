@@ -1,0 +1,32 @@
+---
+import '@/styles/global.css'
+import AdminHeader from '@/components/admin/AdminHeader'
+import AdminSidebar from '@/components/admin/AdminSidebar'
+import BaseLayout from '@/layouts/BaseLayout.astro'
+
+interface Props {
+	title: string
+	description?: string
+}
+
+const { title, description } = Astro.props
+---
+
+<BaseLayout {title} description={description}>
+	<div class="flex h-screen flex-col bg-background text-foreground">
+		<!-- Admin Mode Banner -->
+		<div class="bg-red-600 text-white px-4 py-2 text-center text-sm font-medium">
+			Admin Mode - Equipped Staff Dashboard
+		</div>
+
+		<AdminHeader client:only="react" />
+		<div class="flex flex-1 overflow-hidden">
+			<AdminSidebar client:only="react" />
+			<main class="flex-1 overflow-auto">
+				<div class="p-8">
+					<slot />
+				</div>
+			</main>
+		</div>
+	</div>
+</BaseLayout>
