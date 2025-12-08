@@ -1,16 +1,16 @@
-"use client"
+'use client'
 
-import { cn } from "@/lib/utils"
-import { useMotionValue, animate, motion } from "framer-motion"
-import { useState, useEffect } from "react"
-import useMeasure from "react-use-measure"
+import { animate, motion, useMotionValue } from 'framer-motion'
+import { useEffect, useState } from 'react'
+import useMeasure from 'react-use-measure'
+import { cn } from '@/lib/utils'
 
 interface InfiniteSliderProps {
 	children: React.ReactNode
 	gap?: number
 	speed?: number
 	speedOnHover?: number
-	direction?: "horizontal" | "vertical"
+	direction?: 'horizontal' | 'vertical'
 	reverse?: boolean
 	className?: string
 }
@@ -20,7 +20,7 @@ export function InfiniteSlider({
 	gap = 16,
 	speed = 50,
 	speedOnHover,
-	direction = "horizontal",
+	direction = 'horizontal',
 	reverse = false,
 	className,
 }: InfiniteSliderProps) {
@@ -29,7 +29,7 @@ export function InfiniteSlider({
 	const [isHovering, setIsHovering] = useState(false)
 	const [isPaused, setIsPaused] = useState(false)
 
-	const size = direction === "horizontal" ? width : height
+	const size = direction === 'horizontal' ? width : height
 	const contentSize = size + gap
 
 	useEffect(() => {
@@ -41,10 +41,10 @@ export function InfiniteSlider({
 		const to = reverse ? 0 : -contentSize / 2
 
 		const controls = animate(translation, [from, to], {
-			ease: "linear",
+			ease: 'linear',
 			duration,
 			repeat: Infinity,
-			repeatType: "loop",
+			repeatType: 'loop',
 			repeatDelay: 0,
 			onRepeat: () => {
 				translation.set(from)
@@ -56,16 +56,16 @@ export function InfiniteSlider({
 
 	return (
 		<div
-			className={cn("overflow-hidden", className)}
+			className={cn('overflow-hidden', className)}
 			onMouseEnter={() => setIsHovering(true)}
 			onMouseLeave={() => setIsHovering(false)}
 		>
 			<motion.div
 				className="flex w-max"
 				style={{
-					...(direction === "horizontal"
+					...(direction === 'horizontal'
 						? { x: translation, gap: `${gap}px` }
-						: { y: translation, flexDirection: "column", gap: `${gap}px` }),
+						: { y: translation, flexDirection: 'column', gap: `${gap}px` }),
 				}}
 				ref={ref}
 			>

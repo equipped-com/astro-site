@@ -19,12 +19,8 @@ export function FullPageLoader({
 			<div className="flex flex-col items-center gap-4 text-center">
 				<Spinner size="lg" />
 				<div className="space-y-2">
-					<h2 className="text-lg font-semibold text-foreground">
-						{message}
-					</h2>
-					<p className="text-sm text-muted-foreground">
-						{subMessage}
-					</p>
+					<h2 className="text-lg font-semibold text-foreground">{message}</h2>
+					<p className="text-sm text-muted-foreground">{subMessage}</p>
 				</div>
 			</div>
 		</div>

@@ -1,66 +1,122 @@
 ---
-import BaseLayout from '@/layouts/BaseLayout.astro'
-import HeroSection from '@/components/hero/HeroSection.astro'
-import FeatureCard from '@/components/sections/FeatureCard.astro'
-import TestimonialCard from '@/components/sections/TestimonialCard.astro'
-import StatCard from '@/components/sections/StatCard.astro'
 import {
 	ArrowRight,
+	BarChart3,
+	ChevronRight,
+	Headphones,
 	Laptop,
+	Monitor,
 	RefreshCw,
 	Shield,
+	Smartphone,
 	Truck,
 	Users,
 	Zap,
-	BarChart3,
-	ChevronRight,
-	Monitor,
-	Smartphone,
-	Headphones,
 } from '@lucide/astro'
-
-import storkclubLogo from '@/assets/logos/storkclub.svg'
+import logoE from '@/assets/logo-e.svg'
 import haloLogo from '@/assets/logos/halo.svg'
-import upgradedLogo from '@/assets/logos/upgraded.svg'
 import jdiLogo from '@/assets/logos/jdi.svg'
 import pingboardLogo from '@/assets/logos/pingboard.svg'
+import storkclubLogo from '@/assets/logos/storkclub.svg'
+import upgradedLogo from '@/assets/logos/upgraded.svg'
 import heroImage from '@/assets/loops.jpg'
-import logoE from '@/assets/logo-e.svg'
+import HeroSection from '@/components/hero/HeroSection.astro'
+import FeatureCard from '@/components/sections/FeatureCard.astro'
+import StatCard from '@/components/sections/StatCard.astro'
+import TestimonialCard from '@/components/sections/TestimonialCard.astro'
+import BaseLayout from '@/layouts/BaseLayout.astro'
 
 const logos = [
-	{ name: "Stork Club", src: storkclubLogo.src, width: 160, height: 24 },
-	{ name: "Halo", src: haloLogo.src, width: 72, height: 24 },
-	{ name: "Upgraded", src: upgradedLogo.src, width: 108, height: 24 },
-	{ name: "JDI", src: jdiLogo.src, width: 31, height: 24 },
-	{ name: "Pingboard", src: pingboardLogo.src, width: 120, height: 24 },
+	{ name: 'Stork Club', src: storkclubLogo.src, width: 160, height: 24 },
+	{ name: 'Halo', src: haloLogo.src, width: 72, height: 24 },
+	{ name: 'Upgraded', src: upgradedLogo.src, width: 108, height: 24 },
+	{ name: 'JDI', src: jdiLogo.src, width: 31, height: 24 },
+	{ name: 'Pingboard', src: pingboardLogo.src, width: 120, height: 24 },
 ]
 
 const features = [
-	{ icon: Truck, title: "Global Device Delivery", description: "Ship pre-configured devices to employees anywhere in the world. Ready to work on arrival." },
-	{ icon: Zap, title: "Zero-Touch Setup", description: "Devices arrive configured with all software, settings, and security policies already in place." },
-	{ icon: BarChart3, title: "Asset Tracking", description: "Real-time visibility into your entire device inventory. Know who has what, always." },
-	{ icon: RefreshCw, title: "Device Lifecycle", description: "Manage upgrades, repairs, and replacements. Trade in old devices for credit." },
-	{ icon: Shield, title: "Security Built-In", description: "Enforce security policies, manage access, and ensure compliance from day one." },
-	{ icon: Users, title: "White-Glove Service", description: "Personalized support for you and your team. We're an extension of your IT department." },
+	{
+		icon: Truck,
+		title: 'Global Device Delivery',
+		description: 'Ship pre-configured devices to employees anywhere in the world. Ready to work on arrival.',
+	},
+	{
+		icon: Zap,
+		title: 'Zero-Touch Setup',
+		description: 'Devices arrive configured with all software, settings, and security policies already in place.',
+	},
+	{
+		icon: BarChart3,
+		title: 'Asset Tracking',
+		description: 'Real-time visibility into your entire device inventory. Know who has what, always.',
+	},
+	{
+		icon: RefreshCw,
+		title: 'Device Lifecycle',
+		description: 'Manage upgrades, repairs, and replacements. Trade in old devices for credit.',
+	},
+	{
+		icon: Shield,
+		title: 'Security Built-In',
+		description: 'Enforce security policies, manage access, and ensure compliance from day one.',
+	},
+	{
+		icon: Users,
+		title: 'White-Glove Service',
+		description: "Personalized support for you and your team. We're an extension of your IT department.",
+	},
 ]
 
 const stats = [
-	{ value: "3 days", label: "Average onboarding time" },
-	{ value: "100+", label: "Companies trust us" },
-	{ value: "50+", label: "Countries shipped to" },
-	{ value: "24/7", label: "Support available" },
+	{ value: '3 days', label: 'Average onboarding time' },
+	{ value: '100+', label: 'Companies trust us' },
+	{ value: '50+', label: 'Countries shipped to' },
+	{ value: '24/7', label: 'Support available' },
 ]
 
 const testimonials = [
-	{ quote: "Equipped reduced our onboarding time from 3 weeks to 3 days. The global deployment capabilities are game-changing for our distributed team.", author: "Sarah Johnson", role: "IT Director, TechCorp", initials: "SJ" },
-	{ quote: "Finally, a service that understands remote work. Our new hires in 15 countries all had the same great first-day experience.", author: "Michael Rodriguez", role: "Head of People, StartupXYZ", initials: "MR" },
-	{ quote: "The asset tracking dashboard alone is worth it. We finally have visibility into our entire fleet and IT spend.", author: "Amanda Lee", role: "CFO, GrowthCo", initials: "AL" },
+	{
+		quote:
+			'Equipped reduced our onboarding time from 3 weeks to 3 days. The global deployment capabilities are game-changing for our distributed team.',
+		author: 'Sarah Johnson',
+		role: 'IT Director, TechCorp',
+		initials: 'SJ',
+	},
+	{
+		quote:
+			'Finally, a service that understands remote work. Our new hires in 15 countries all had the same great first-day experience.',
+		author: 'Michael Rodriguez',
+		role: 'Head of People, StartupXYZ',
+		initials: 'MR',
+	},
+	{
+		quote:
+			'The asset tracking dashboard alone is worth it. We finally have visibility into our entire fleet and IT spend.',
+		author: 'Amanda Lee',
+		role: 'CFO, GrowthCo',
+		initials: 'AL',
+	},
 ]
 
 const steps = [
-	{ number: 1, title: "Add your new hire", description: "Enter employee details and select the device package. Choose from MacBooks, Windows laptops, monitors, and accessories." },
-	{ number: 2, title: "We configure & ship", description: "We set up the device with your software, security policies, and branding. Then ship it directly to your employee." },
-	{ number: 3, title: "They're ready to work", description: "Your employee opens the box, powers on, and starts working immediately. No IT tickets, no delays, no frustration." },
+	{
+		number: 1,
+		title: 'Add your new hire',
+		description:
+			'Enter employee details and select the device package. Choose from MacBooks, Windows laptops, monitors, and accessories.',
+	},
+	{
+		number: 2,
+		title: 'We configure & ship',
+		description:
+			'We set up the device with your software, security policies, and branding. Then ship it directly to your employee.',
+	},
+	{
+		number: 3,
+		title: "They're ready to work",
+		description:
+			'Your employee opens the box, powers on, and starts working immediately. No IT tickets, no delays, no frustration.',
+	},
 ]
 ---
 

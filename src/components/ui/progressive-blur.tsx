@@ -1,28 +1,24 @@
-"use client"
+'use client'
 
-import { cn } from "@/lib/utils"
+import { cn } from '@/lib/utils'
 
 interface ProgressiveBlurProps {
 	className?: string
-	direction?: "left" | "right" | "top" | "bottom"
+	direction?: 'left' | 'right' | 'top' | 'bottom'
 	blurIntensity?: number
 }
 
-export function ProgressiveBlur({
-	className,
-	direction = "left",
-	blurIntensity = 1,
-}: ProgressiveBlurProps) {
+export function ProgressiveBlur({ className, direction = 'left', blurIntensity = 1 }: ProgressiveBlurProps) {
 	const gradientDirection = {
-		left: "to right",
-		right: "to left",
-		top: "to bottom",
-		bottom: "to top",
+		left: 'to right',
+		right: 'to left',
+		top: 'to bottom',
+		bottom: 'to top',
 	}
 
 	return (
 		<div
-			className={cn("pointer-events-none", className)}
+			className={cn('pointer-events-none', className)}
 			style={{
 				background: `linear-gradient(${gradientDirection[direction]},
 					var(--background) 0%,

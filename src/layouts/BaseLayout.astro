@@ -24,55 +24,52 @@ const ogImageUrl = new URL(image, siteUrl).href
 
 // Structured Data - Organization
 const organizationSchema = {
-	"@context": "https://schema.org",
-	"@type": "Organization",
-	"name": siteName,
-	"url": siteUrl,
-	"logo": `${siteUrl}/favicon.svg`,
-	"description": "IT asset management and device provisioning platform for modern businesses.",
-	"sameAs": [
-		"https://twitter.com/tryequipped",
-		"https://linkedin.com/company/equipped"
-	],
-	"contactPoint": {
-		"@type": "ContactPoint",
-		"email": "hello@tryequipped.com",
-		"contactType": "customer service",
-		"availableLanguage": "English"
-	}
+	'@context': 'https://schema.org',
+	'@type': 'Organization',
+	name: siteName,
+	url: siteUrl,
+	logo: `${siteUrl}/favicon.svg`,
+	description: 'IT asset management and device provisioning platform for modern businesses.',
+	sameAs: ['https://twitter.com/tryequipped', 'https://linkedin.com/company/equipped'],
+	contactPoint: {
+		'@type': 'ContactPoint',
+		email: 'hello@tryequipped.com',
+		contactType: 'customer service',
+		availableLanguage: 'English',
+	},
 }
 
 // Structured Data - WebSite with SearchAction
 const websiteSchema = {
-	"@context": "https://schema.org",
-	"@type": "WebSite",
-	"name": siteName,
-	"url": siteUrl,
-	"description": description,
-	"publisher": {
-		"@type": "Organization",
-		"name": siteName
-	}
+	'@context': 'https://schema.org',
+	'@type': 'WebSite',
+	name: siteName,
+	url: siteUrl,
+	description: description,
+	publisher: {
+		'@type': 'Organization',
+		name: siteName,
+	},
 }
 
 // Structured Data - SoftwareApplication
 const softwareSchema = {
-	"@context": "https://schema.org",
-	"@type": "SoftwareApplication",
-	"name": siteName,
-	"applicationCategory": "BusinessApplication",
-	"operatingSystem": "Web",
-	"offers": {
-		"@type": "Offer",
-		"price": "0",
-		"priceCurrency": "USD",
-		"description": "Free to get started"
+	'@context': 'https://schema.org',
+	'@type': 'SoftwareApplication',
+	name: siteName,
+	applicationCategory: 'BusinessApplication',
+	operatingSystem: 'Web',
+	offers: {
+		'@type': 'Offer',
+		price: '0',
+		priceCurrency: 'USD',
+		description: 'Free to get started',
 	},
-	"aggregateRating": {
-		"@type": "AggregateRating",
-		"ratingValue": "5",
-		"ratingCount": "100"
-	}
+	aggregateRating: {
+		'@type': 'AggregateRating',
+		ratingValue: '5',
+		ratingCount: '100',
+	},
 }
 ---
 
