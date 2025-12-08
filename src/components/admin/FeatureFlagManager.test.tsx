@@ -66,9 +66,10 @@ describe('FeatureFlagManager Component', () => {
 		render(<FeatureFlagManager />)
 
 		await waitFor(() => {
-			expect(screen.getByText('Trade-In Program')).toBeInTheDocument()
+			// Use getAllByText since flags appear in both list and table header
+			expect(screen.getAllByText('Trade-In Program').length).toBeGreaterThan(0)
 			expect(screen.getByText('Allow customers to trade in old devices')).toBeInTheDocument()
-			expect(screen.getByText('Plaid Integration')).toBeInTheDocument()
+			expect(screen.getAllByText('Plaid Integration').length).toBeGreaterThan(0)
 			expect(screen.getByText('Enable bank account verification via Plaid')).toBeInTheDocument()
 		})
 	})

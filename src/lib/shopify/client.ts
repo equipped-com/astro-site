@@ -106,37 +106,6 @@ export class ShopifyClient {
 		}
 	}
 
-	/**
-	 * Parse Link header for pagination
-	 */
-	private parsePaginationHeader(linkHeader: string | null): ShopifyPaginationInfo {
-		const pagination: ShopifyPaginationInfo = {
-			hasNextPage: false,
-			hasPreviousPage: false,
-		}
-
-		if (!linkHeader) return pagination
-
-		const links = linkHeader.split(',')
-		for (const link of links) {
-			const match = link.match(/<([^>]+)>;\s*rel="([^"]+)"/)
-			if (match) {
-				const [, url, rel] = match
-				const pageInfoMatch = url.match(/page_info=([^&]+)/)
-
-				if (rel === 'next' && pageInfoMatch) {
-					pagination.hasNextPage = true
-					pagination.nextPageInfo = pageInfoMatch[1]
-				} else if (rel === 'previous' && pageInfoMatch) {
-					pagination.hasPreviousPage = true
-					pagination.previousPageInfo = pageInfoMatch[1]
-				}
-			}
-		}
-
-		return pagination
-	}
-
 	// ============================================================================
 	// PRODUCTS
 	// ============================================================================

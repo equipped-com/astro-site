@@ -26,7 +26,7 @@ interface TestEnv {
 }
 
 // Helper to create test app with context
-function createTestApp(env: TestEnv = {}, accountId: string | null = 'acc_123') {
+function createTestApp(envOverrides: Partial<TestEnv> = {}, accountId: string | null = 'acc_123') {
 	const app = new Hono<{ Bindings: TestEnv; Variables: { accountId?: string } }>()
 
 	// Error handler
@@ -36,13 +36,14 @@ function createTestApp(env: TestEnv = {}, accountId: string | null = 'acc_123') 
 	})
 
 	app.use('*', async (c, next) => {
-		// Set environment
-		Object.assign(c.env, {
+		// Type assertion to set env (same pattern as device tests)
+		// @ts-expect-error - we're mocking env for tests
+		c.env = {
 			SHOPIFY_STORE_DOMAIN: 'test-store.myshopify.com',
 			SHOPIFY_ACCESS_TOKEN: '', // Empty = use mock
 			ENVIRONMENT: 'development',
-			...env,
-		})
+			...envOverrides,
+		}
 
 		// Set account context
 		if (accountId) {

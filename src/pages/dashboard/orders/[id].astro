@@ -3,8 +3,20 @@ import { OrderDetails } from '@/components/orders/OrderDetails'
 import DashboardLayout from '@/layouts/DashboardLayout.astro'
 import type { OrderWithItems } from '@/lib/scoped-queries'
 
-// Server-side rendering for dynamic order details
-export const prerender = false
+// Generate static paths for all mock orders
+export function getStaticPaths() {
+	// Mock data - in production this would come from the database
+	const mockOrders = [
+		{ id: 'ord_1234567890abcdef' },
+		{ id: 'ord_2345678901bcdefg' },
+		{ id: 'ord_3456789012cdefgh' },
+		{ id: 'ord_4567890123defghi' },
+	]
+
+	return mockOrders.map((order) => ({
+		params: { id: order.id.slice(0, 8) },
+	}))
+}
 
 // Get the order ID from the URL
 const { id } = Astro.params
