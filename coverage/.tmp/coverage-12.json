@@ -1,0 +1,705 @@
+{
+	"result": [
+		{
+			"scriptId": "742",
+			"url": "file:///Users/jonas/projects/ziad/tryequipped/src/test/setup.ts",
+			"functions": [
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 0, "endOffset": 2234, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 13, "endOffset": 2234, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 514, "endOffset": 523, "count": 0 }],
+					"isBlockCoverage": false
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 593, "endOffset": 602, "count": 0 }],
+					"isBlockCoverage": false
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 673, "endOffset": 682, "count": 0 }],
+					"isBlockCoverage": false
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 696, "endOffset": 749, "count": 11 }],
+					"isBlockCoverage": true
+				}
+			],
+			"startOffset": 209
+		},
+		{
+			"scriptId": "916",
+			"url": "file:///Users/jonas/projects/ziad/tryequipped/src/lib/cart-context.test.tsx",
+			"functions": [
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 0, "endOffset": 25473, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 13, "endOffset": 25473, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 849, "endOffset": 9496, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 896, "endOffset": 933, "count": 11 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "wrapper",
+					"ranges": [{ "startOffset": 938, "endOffset": 1299, "count": 10 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 1362, "endOffset": 1708, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "wrapper.wrapper",
+					"ranges": [{ "startOffset": 1430, "endOffset": 1471, "count": 2 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 1791, "endOffset": 1996, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 1836, "endOffset": 1936, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 1887, "endOffset": 1928, "count": 2 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 2057, "endOffset": 2933, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "wrapper.wrapper",
+					"ranges": [{ "startOffset": 2131, "endOffset": 2172, "count": 3 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 2232, "endOffset": 2323, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 2360, "endOffset": 2607, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 2999, "endOffset": 3817, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "wrapper.wrapper",
+					"ranges": [{ "startOffset": 3073, "endOffset": 3114, "count": 4 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 3174, "endOffset": 3265, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 3302, "endOffset": 3514, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 3603, "endOffset": 3657, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 3882, "endOffset": 4710, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "wrapper.wrapper",
+					"ranges": [{ "startOffset": 3956, "endOffset": 3997, "count": 4 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 4057, "endOffset": 4148, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 4185, "endOffset": 4397, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 4486, "endOffset": 4547, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 4776, "endOffset": 5239, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "wrapper.wrapper",
+					"ranges": [{ "startOffset": 4850, "endOffset": 4891, "count": 3 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 4951, "endOffset": 5042, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 5079, "endOffset": 5143, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 5300, "endOffset": 5837, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "wrapper.wrapper",
+					"ranges": [{ "startOffset": 5374, "endOffset": 5415, "count": 3 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 5475, "endOffset": 5566, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 5603, "endOffset": 5664, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 5899, "endOffset": 6529, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "wrapper.wrapper",
+					"ranges": [{ "startOffset": 5973, "endOffset": 6014, "count": 4 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 6074, "endOffset": 6165, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 6202, "endOffset": 6263, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 6300, "endOffset": 6349, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 6584, "endOffset": 7424, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "wrapper.wrapper",
+					"ranges": [{ "startOffset": 6658, "endOffset": 6699, "count": 4 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 6759, "endOffset": 6850, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 6887, "endOffset": 7099, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 7217, "endOffset": 7264, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 7497, "endOffset": 8310, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "wrapper.wrapper",
+					"ranges": [{ "startOffset": 7571, "endOffset": 7612, "count": 3 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 7672, "endOffset": 7763, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 7800, "endOffset": 8012, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 8059, "endOffset": 8304, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 8391, "endOffset": 9492, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "wrapper.wrapper",
+					"ranges": [{ "startOffset": 9048, "endOffset": 9089, "count": 2 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 9149, "endOffset": 9240, "count": 1 }],
+					"isBlockCoverage": true
+				}
+			],
+			"startOffset": 209
+		},
+		{
+			"scriptId": "1213",
+			"url": "file:///Users/jonas/projects/ziad/tryequipped/src/lib/cart-context.tsx",
+			"functions": [
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 0, "endOffset": 10448, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 13, "endOffset": 10448, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [
+						{ "startOffset": 249, "endOffset": 295, "count": 10 },
+						{ "startOffset": 285, "endOffset": 293, "count": 0 }
+					],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [
+						{ "startOffset": 333, "endOffset": 374, "count": 34 },
+						{ "startOffset": 364, "endOffset": 372, "count": 0 }
+					],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "CartProvider",
+					"ranges": [{ "startOffset": 1073, "endOffset": 3462, "count": 32 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [
+						{ "startOffset": 1380, "endOffset": 1634, "count": 10 },
+						{ "startOffset": 1480, "endOffset": 1514, "count": 1 },
+						{ "startOffset": 1514, "endOffset": 1604, "count": 9 }
+					],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [
+						{ "startOffset": 1696, "endOffset": 1792, "count": 32 },
+						{ "startOffset": 1724, "endOffset": 1788, "count": 22 }
+					],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "handleAddItem",
+					"ranges": [{ "startOffset": 1816, "endOffset": 1934, "count": 5 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 1859, "endOffset": 1928, "count": 5 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "handleRemoveItem",
+					"ranges": [{ "startOffset": 1937, "endOffset": 2067, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 1985, "endOffset": 2061, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "handleUpdateQuantity",
+					"ranges": [{ "startOffset": 2070, "endOffset": 2224, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 2132, "endOffset": 2218, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "handleSetPaymentMethod",
+					"ranges": [{ "startOffset": 2227, "endOffset": 2364, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 2281, "endOffset": 2358, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "handleApplyPromo",
+					"ranges": [{ "startOffset": 2367, "endOffset": 2509, "count": 2 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 2423, "endOffset": 2503, "count": 2 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "handleRemovePromo",
+					"ranges": [{ "startOffset": 2512, "endOffset": 2626, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 2555, "endOffset": 2620, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "handleClearCart",
+					"ranges": [{ "startOffset": 2629, "endOffset": 2786, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "useCart",
+					"ranges": [
+						{ "startOffset": 3464, "endOffset": 3673, "count": 34 },
+						{ "startOffset": 3580, "endOffset": 3652, "count": 2 },
+						{ "startOffset": 3652, "endOffset": 3672, "count": 32 }
+					],
+					"isBlockCoverage": true
+				}
+			],
+			"startOffset": 209
+		},
+		{
+			"scriptId": "1216",
+			"url": "file:///Users/jonas/projects/ziad/tryequipped/src/lib/cart-storage.ts",
+			"functions": [
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 0, "endOffset": 18056, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 13, "endOffset": 18056, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 255, "endOffset": 307, "count": 0 }],
+					"isBlockCoverage": false
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 352, "endOffset": 400, "count": 0 }],
+					"isBlockCoverage": false
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 452, "endOffset": 507, "count": 0 }],
+					"isBlockCoverage": false
+				},
+				{
+					"functionName": "",
+					"ranges": [
+						{ "startOffset": 553, "endOffset": 602, "count": 42 },
+						{ "startOffset": 592, "endOffset": 600, "count": 0 }
+					],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 652, "endOffset": 705, "count": 0 }],
+					"isBlockCoverage": false
+				},
+				{
+					"functionName": "",
+					"ranges": [
+						{ "startOffset": 755, "endOffset": 808, "count": 10 },
+						{ "startOffset": 798, "endOffset": 806, "count": 0 }
+					],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [
+						{ "startOffset": 856, "endOffset": 907, "count": 22 },
+						{ "startOffset": 897, "endOffset": 905, "count": 0 }
+					],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [
+						{ "startOffset": 954, "endOffset": 1004, "count": 1 },
+						{ "startOffset": 994, "endOffset": 1002, "count": 0 }
+					],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [
+						{ "startOffset": 1048, "endOffset": 1095, "count": 5 },
+						{ "startOffset": 1085, "endOffset": 1093, "count": 0 }
+					],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [
+						{ "startOffset": 1144, "endOffset": 1196, "count": 1 },
+						{ "startOffset": 1186, "endOffset": 1194, "count": 0 }
+					],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [
+						{ "startOffset": 1245, "endOffset": 1297, "count": 1 },
+						{ "startOffset": 1287, "endOffset": 1295, "count": 0 }
+					],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [
+						{ "startOffset": 1347, "endOffset": 1400, "count": 1 },
+						{ "startOffset": 1390, "endOffset": 1398, "count": 0 }
+					],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [
+						{ "startOffset": 1445, "endOffset": 1493, "count": 2 },
+						{ "startOffset": 1483, "endOffset": 1491, "count": 0 }
+					],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [
+						{ "startOffset": 1539, "endOffset": 1588, "count": 1 },
+						{ "startOffset": 1578, "endOffset": 1586, "count": 0 }
+					],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [
+						{ "startOffset": 1635, "endOffset": 1685, "count": 32 },
+						{ "startOffset": 1675, "endOffset": 1683, "count": 0 }
+					],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [
+						{ "startOffset": 1727, "endOffset": 1772, "count": 32 },
+						{ "startOffset": 1762, "endOffset": 1770, "count": 0 }
+					],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "generateCartItemId",
+					"ranges": [{ "startOffset": 1817, "endOffset": 1932, "count": 5 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "generateCartId",
+					"ranges": [{ "startOffset": 1934, "endOffset": 2040, "count": 42 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "calculateMonthlyPrice",
+					"ranges": [{ "startOffset": 2042, "endOffset": 2145, "count": 0 }],
+					"isBlockCoverage": false
+				},
+				{
+					"functionName": "createEmptyCart",
+					"ranges": [{ "startOffset": 2147, "endOffset": 2416, "count": 42 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "calculateCartTotals",
+					"ranges": [
+						{ "startOffset": 2418, "endOffset": 3264, "count": 11 },
+						{ "startOffset": 2609, "endOffset": 2645, "count": 10 },
+						{ "startOffset": 2647, "endOffset": 3037, "count": 1 },
+						{ "startOffset": 2707, "endOffset": 2711, "count": 0 },
+						{ "startOffset": 3082, "endOffset": 3113, "count": 2 },
+						{ "startOffset": 3114, "endOffset": 3124, "count": 9 }
+					],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 2492, "endOffset": 2543, "count": 6 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 2750, "endOffset": 2976, "count": 0 }],
+					"isBlockCoverage": false
+				},
+				{
+					"functionName": "loadCartFromStorage",
+					"ranges": [
+						{ "startOffset": 3266, "endOffset": 3699, "count": 10 },
+						{ "startOffset": 3336, "endOffset": 3348, "count": 0 },
+						{ "startOffset": 3433, "endOffset": 3445, "count": 9 },
+						{ "startOffset": 3445, "endOffset": 3598, "count": 1 },
+						{ "startOffset": 3598, "endOffset": 3697, "count": 0 }
+					],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "saveCartToStorage",
+					"ranges": [
+						{ "startOffset": 3701, "endOffset": 3941, "count": 22 },
+						{ "startOffset": 3773, "endOffset": 3780, "count": 0 },
+						{ "startOffset": 3859, "endOffset": 3939, "count": 0 }
+					],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "clearCartStorage",
+					"ranges": [
+						{ "startOffset": 3943, "endOffset": 4157, "count": 1 },
+						{ "startOffset": 4010, "endOffset": 4017, "count": 0 },
+						{ "startOffset": 4077, "endOffset": 4155, "count": 0 }
+					],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "addItemToCart",
+					"ranges": [
+						{ "startOffset": 4159, "endOffset": 4713, "count": 5 },
+						{ "startOffset": 4349, "endOffset": 4512, "count": 0 }
+					],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 4248, "endOffset": 4296, "count": 0 }],
+					"isBlockCoverage": false
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 4392, "endOffset": 4501, "count": 0 }],
+					"isBlockCoverage": false
+				},
+				{
+					"functionName": "removeItemFromCart",
+					"ranges": [{ "startOffset": 4715, "endOffset": 4904, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 4825, "endOffset": 4853, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "updateItemQuantity",
+					"ranges": [
+						{ "startOffset": 4906, "endOffset": 5206, "count": 1 },
+						{ "startOffset": 4981, "endOffset": 5031, "count": 0 }
+					],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [
+						{ "startOffset": 5096, "endOffset": 5155, "count": 1 },
+						{ "startOffset": 5149, "endOffset": 5155, "count": 0 }
+					],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "updatePaymentMethod",
+					"ranges": [{ "startOffset": 5208, "endOffset": 5364, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "applyPromoCode",
+					"ranges": [{ "startOffset": 5366, "endOffset": 5549, "count": 2 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "removePromoCode",
+					"ranges": [{ "startOffset": 5551, "endOffset": 5719, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "getCartItemCount",
+					"ranges": [{ "startOffset": 5721, "endOffset": 5827, "count": 32 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 5782, "endOffset": 5820, "count": 7 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "isCartEmpty",
+					"ranges": [{ "startOffset": 5829, "endOffset": 5893, "count": 32 }],
+					"isBlockCoverage": true
+				}
+			],
+			"startOffset": 209
+		}
+	]
+}

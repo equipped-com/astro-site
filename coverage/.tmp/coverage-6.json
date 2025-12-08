@@ -1,0 +1,131 @@
+{
+	"result": [
+		{
+			"scriptId": "742",
+			"url": "file:///Users/jonas/projects/ziad/tryequipped/src/test/setup.ts",
+			"functions": [
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 0, "endOffset": 2234, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 13, "endOffset": 2234, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 514, "endOffset": 523, "count": 0 }],
+					"isBlockCoverage": false
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 593, "endOffset": 602, "count": 0 }],
+					"isBlockCoverage": false
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 673, "endOffset": 682, "count": 0 }],
+					"isBlockCoverage": false
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 696, "endOffset": 749, "count": 7 }],
+					"isBlockCoverage": true
+				}
+			],
+			"startOffset": 209
+		},
+		{
+			"scriptId": "916",
+			"url": "file:///Users/jonas/projects/ziad/tryequipped/src/lib/utils.test.ts",
+			"functions": [
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 0, "endOffset": 6751, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 13, "endOffset": 6751, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 505, "endOffset": 2690, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 582, "endOffset": 816, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 887, "endOffset": 1158, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [
+						{ "startOffset": 1240, "endOffset": 1516, "count": 1 },
+						{ "startOffset": 1347, "endOffset": 1364, "count": 0 }
+					],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 1605, "endOffset": 1737, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 1810, "endOffset": 2046, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 2110, "endOffset": 2227, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 2301, "endOffset": 2686, "count": 1 }],
+					"isBlockCoverage": true
+				}
+			],
+			"startOffset": 209
+		},
+		{
+			"scriptId": "917",
+			"url": "file:///Users/jonas/projects/ziad/tryequipped/src/lib/utils.ts",
+			"functions": [
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 0, "endOffset": 1498, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 13, "endOffset": 1498, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [
+						{ "startOffset": 239, "endOffset": 275, "count": 7 },
+						{ "startOffset": 265, "endOffset": 273, "count": 0 }
+					],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "cn",
+					"ranges": [{ "startOffset": 541, "endOffset": 651, "count": 7 }],
+					"isBlockCoverage": true
+				}
+			],
+			"startOffset": 209
+		}
+	]
+}

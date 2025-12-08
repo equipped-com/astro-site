@@ -1,0 +1,217 @@
+{
+	"result": [
+		{
+			"scriptId": "742",
+			"url": "file:///Users/jonas/projects/ziad/tryequipped/src/test/setup.ts",
+			"functions": [
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 0, "endOffset": 2234, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 13, "endOffset": 2234, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 514, "endOffset": 523, "count": 0 }],
+					"isBlockCoverage": false
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 593, "endOffset": 602, "count": 0 }],
+					"isBlockCoverage": false
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 673, "endOffset": 682, "count": 0 }],
+					"isBlockCoverage": false
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 696, "endOffset": 749, "count": 5 }],
+					"isBlockCoverage": true
+				}
+			],
+			"startOffset": 209
+		},
+		{
+			"scriptId": "916",
+			"url": "file:///Users/jonas/projects/ziad/tryequipped/src/components/navigation/AccountSwitcher.test.tsx",
+			"functions": [
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 0, "endOffset": 18327, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 13, "endOffset": 18327, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 420, "endOffset": 462, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "useUser",
+					"ranges": [{ "startOffset": 440, "endOffset": 459, "count": 9 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 1054, "endOffset": 6890, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 1101, "endOffset": 1188, "count": 5 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 1274, "endOffset": 2118, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "json",
+					"ranges": [{ "startOffset": 1465, "endOffset": 1577, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 1931, "endOffset": 2041, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 2218, "endOffset": 3461, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "json",
+					"ranges": [{ "startOffset": 2608, "endOffset": 2648, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 2980, "endOffset": 3099, "count": 2 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 3553, "endOffset": 5053, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "json",
+					"ranges": [{ "startOffset": 3947, "endOffset": 3987, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 4534, "endOffset": 4653, "count": 2 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 4834, "endOffset": 4978, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 5134, "endOffset": 5559, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 5643, "endOffset": 6886, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "json",
+					"ranges": [{ "startOffset": 6033, "endOffset": 6073, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 6406, "endOffset": 6525, "count": 2 }],
+					"isBlockCoverage": true
+				}
+			],
+			"startOffset": 209
+		},
+		{
+			"scriptId": "1213",
+			"url": "file:///Users/jonas/projects/ziad/tryequipped/src/components/navigation/AccountSwitcher.tsx",
+			"functions": [
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 0, "endOffset": 5753, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 13, "endOffset": 5753, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [
+						{ "startOffset": 252, "endOffset": 301, "count": 5 },
+						{ "startOffset": 291, "endOffset": 299, "count": 0 }
+					],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "AccountSwitcher",
+					"ranges": [
+						{ "startOffset": 708, "endOffset": 2406, "count": 9 },
+						{ "startOffset": 1326, "endOffset": 1338, "count": 6 },
+						{ "startOffset": 1338, "endOffset": 1536, "count": 3 },
+						{ "startOffset": 1536, "endOffset": 1540, "count": 0 },
+						{ "startOffset": 1541, "endOffset": 1546, "count": 3 }
+					],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [
+						{ "startOffset": 993, "endOffset": 1130, "count": 5 },
+						{ "startOffset": 1015, "endOffset": 1126, "count": 4 }
+					],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 1056, "endOffset": 1075, "count": 4 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 1082, "endOffset": 1118, "count": 4 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "switchAccount",
+					"ranges": [{ "startOffset": 1143, "endOffset": 1297, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "onChange",
+					"ranges": [{ "startOffset": 1564, "endOffset": 1600, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 1717, "endOffset": 2025, "count": 6 }],
+					"isBlockCoverage": true
+				}
+			],
+			"startOffset": 209
+		}
+	]
+}

@@ -1,0 +1,184 @@
+{
+	"result": [
+		{
+			"scriptId": "742",
+			"url": "file:///Users/jonas/projects/ziad/tryequipped/src/test/setup.ts",
+			"functions": [
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 0, "endOffset": 2234, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 13, "endOffset": 2234, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 514, "endOffset": 523, "count": 0 }],
+					"isBlockCoverage": false
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 593, "endOffset": 602, "count": 0 }],
+					"isBlockCoverage": false
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 673, "endOffset": 682, "count": 0 }],
+					"isBlockCoverage": false
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 696, "endOffset": 749, "count": 8 }],
+					"isBlockCoverage": true
+				}
+			],
+			"startOffset": 209
+		},
+		{
+			"scriptId": "916",
+			"url": "file:///Users/jonas/projects/ziad/tryequipped/src/components/navigation/AuthButtons.test.tsx",
+			"functions": [
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 0, "endOffset": 20370, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [
+						{ "startOffset": 13, "endOffset": 20370, "count": 1 },
+						{ "startOffset": 2378, "endOffset": 2409, "count": 0 }
+					],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 567, "endOffset": 1837, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "SignedIn",
+					"ranges": [{ "startOffset": 588, "endOffset": 865, "count": 8 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "SignedOut",
+					"ranges": [{ "startOffset": 880, "endOffset": 1158, "count": 8 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "UserButton",
+					"ranges": [{ "startOffset": 1174, "endOffset": 1533, "count": 8 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "ClerkProvider",
+					"ranges": [{ "startOffset": 1552, "endOffset": 1834, "count": 8 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 2492, "endOffset": 9237, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [
+						{ "startOffset": 2539, "endOffset": 2778, "count": 8 },
+						{ "startOffset": 2689, "endOffset": 2720, "count": 0 }
+					],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [
+						{ "startOffset": 2819, "endOffset": 3008, "count": 8 },
+						{ "startOffset": 2923, "endOffset": 2954, "count": 0 }
+					],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 3103, "endOffset": 4000, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 4097, "endOffset": 5006, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 5083, "endOffset": 5528, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 5600, "endOffset": 6106, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 6195, "endOffset": 6712, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 6800, "endOffset": 7579, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 7668, "endOffset": 8105, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [
+						{ "startOffset": 8219, "endOffset": 9233, "count": 1 },
+						{ "startOffset": 8323, "endOffset": 8354, "count": 0 }
+					],
+					"isBlockCoverage": true
+				}
+			],
+			"startOffset": 209
+		},
+		{
+			"scriptId": "1213",
+			"url": "file:///Users/jonas/projects/ziad/tryequipped/src/components/navigation/AuthButtons.tsx",
+			"functions": [
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 0, "endOffset": 10723, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [{ "startOffset": 13, "endOffset": 10723, "count": 1 }],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "",
+					"ranges": [
+						{ "startOffset": 248, "endOffset": 293, "count": 8 },
+						{ "startOffset": 283, "endOffset": 291, "count": 0 }
+					],
+					"isBlockCoverage": true
+				},
+				{
+					"functionName": "AuthButtons",
+					"ranges": [
+						{ "startOffset": 754, "endOffset": 5776, "count": 8 },
+						{ "startOffset": 892, "endOffset": 923, "count": 0 },
+						{ "startOffset": 981, "endOffset": 2339, "count": 0 }
+					],
+					"isBlockCoverage": true
+				}
+			],
+			"startOffset": 209
+		}
+	]
+}

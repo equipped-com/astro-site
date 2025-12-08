@@ -30,6 +30,32 @@ npm run dev
 | `npm run deploy` | Deploy to CloudFlare Workers |
 | `npm run check` | Lint with Biome |
 
+## Testing
+
+### Unit & Integration Tests (Vitest)
+
+```bash
+bun run test                 # Run all tests once
+bun run test:watch           # Watch mode (recommended for dev)
+bun run test:coverage        # Generate coverage report
+bun run test:ui              # Visual UI dashboard
+```
+
+### E2E Tests (Playwright)
+
+```bash
+bun run test:e2e             # Run all E2E tests (headless)
+bun run test:e2e:ui          # Visual test runner with debugging
+bun run test:e2e:headed      # Run with visible browser
+bun run test:e2e:debug       # Debug mode with Playwright Inspector
+bun run test:e2e:chromium    # Run only in Chromium
+```
+
+**Before running E2E tests:**
+1. Create test user in Clerk (e2e-test@equipped.test)
+2. Set `E2E_TEST_PASSWORD` in `.env.local`
+3. Make sure dev server is running (Playwright will auto-start it)
+
 ## Project Structure
 
 ```
