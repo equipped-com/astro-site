@@ -138,11 +138,51 @@ If an agent fails to complete a task:
 4. Do NOT mark the task as done
 5. Do NOT retry without escalation
 
+### Task Dependency Tracking
+
+**NEW:** Each task declares hard dependencies via `depends_on` array in `tasks/index.yml`.
+
+**Before starting a task:**
+```bash
+node scripts/validate-task-dependencies.js
+```
+
+This shows:
+- **Ready tasks** - All dependencies satisfied, safe to assign
+- **Blocked tasks** - Waiting for prerequisites
+- **12 ready tasks** grouped by complexity (low/medium/high)
+
+**Check specific task:**
+```bash
+node scripts/validate-task-dependencies.js api/device-crud
+```
+
+Shows exactly which dependencies are blocking the task.
+
+### Commit Tracking
+
+**MANDATORY:** When marking a task `done: true`, also add `commit: {hash}`
+
+Example:
+```yaml
+- id: auth-pages
+  done: true
+  commit: 70f4386  # Git commit hash
+  depends_on:
+    - auth/install-clerk
+```
+
+This creates an audit trail:
+- Task ↔ Commit hash ↔ Code changes
+- Traceability for debugging and rollbacks
+- Progress tracking by commit
+
 ### Key Documents
 
 - `PRD.md` - Product requirements (authoritative for features)
 - `documentation/*.md` - UX flows and integrations
-- `tasks/index.yml` - Task index with status tracking
+- `tasks/index.yml` - Task index with status tracking + dependencies + commit hashes
+- `scripts/validate-task-dependencies.js` - Validation tool for task readiness
 
 ### Test Criteria Format
 
