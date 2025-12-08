@@ -5,8 +5,7 @@ export default function SignUpComponent() {
 	return (
 		<ClerkProvider>
 			<SignUp
-				routing="path"
-				path="/sign-up"
+				routing="hash"
 				afterSignUpUrl="/dashboard"
 				appearance={{
 					elements: {
