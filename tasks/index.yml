@@ -1,14 +1,19 @@
 # tasks/index.yml - Master task index for Equipped
-# Generated from EQUIPPED.md and PLAN.md
-# Docs: https://developers.cloudflare.com/workers/
+# Generated from PRD.md and documentation/
+#
+# Task Selection Rules:
+# - Tasks with `requires: human` need manual action (dashboard setup, external config)
+# - Tasks with `done: true` are completed
+# - Select tasks in dependency order (check Dependencies section in each task)
+# - Prioritize by epic priority: high > medium > low
 
-version: 1
+version: 2
 updated: 2024-12-08
 
 epics:
   infrastructure:
     name: Infrastructure Setup
-    description: Worker, deployment, wrangler config
+    description: Hono worker, wrangler config, deployment pipeline
     priority: high
     tasks:
       - id: setup-hono-worker
@@ -26,15 +31,16 @@ epics:
 
   database:
     name: Database Setup
-    description: Cloudflare D1 database
+    description: Cloudflare D1 multi-tenant schema
     priority: high
     tasks:
       - id: create-d1-database
         name: Create D1 Database
         file: database/create-d1-database.md
         done: false
+        requires: human  # Requires CloudFlare dashboard action
       - id: initial-schema
-        name: Initial Database Schema
+        name: Initial Database Schema (Multi-Tenant)
         file: database/initial-schema.md
         done: false
       - id: run-migrations
@@ -42,9 +48,23 @@ epics:
         file: database/run-migrations.md
         done: false
 
+  multi-tenancy:
+    name: Multi-Tenancy Architecture
+    description: Subdomain routing and tenant isolation
+    priority: high
+    tasks:
+      - id: subdomain-routing
+        name: Subdomain-Based Routing
+        file: multi-tenancy/subdomain-routing.md
+        done: false
+      - id: tenant-context
+        name: Tenant Context Helper
+        file: multi-tenancy/tenant-context.md
+        done: false
+
   auth:
     name: Authentication
-    description: Clerk authentication setup
+    description: Clerk authentication with multi-account support
     priority: high
     tasks:
       - id: install-clerk
@@ -55,6 +75,7 @@ epics:
         name: Create Clerk Application
         file: auth/create-clerk-app.md
         done: false
+        requires: human  # Requires Clerk dashboard setup
       - id: auth-pages
         name: Create Auth Pages
         file: auth/auth-pages.md
@@ -64,13 +85,13 @@ epics:
         file: auth/clerk-provider.md
         done: false
       - id: auth-navigation
-        name: Update Navigation
+        name: Update Navigation for Auth
         file: auth/auth-navigation.md
         done: false
 
   api:
     name: API Layer
-    description: Hono API routes
+    description: Hono API routes with tenant scoping
     priority: high
     tasks:
       - id: auth-middleware
@@ -82,12 +103,154 @@ epics:
         file: api/clerk-webhook.md
         done: false
       - id: device-crud
-        name: Device CRUD Endpoints
+        name: Device CRUD Endpoints (Tenant-Scoped)
         file: api/device-crud.md
         done: false
       - id: user-endpoints
         name: User Profile Endpoints
         file: api/user-endpoints.md
+        done: false
+
+  commerce:
+    name: Commerce & Checkout
+    description: 4-stage checkout flow with leasing
+    priority: high
+    tasks:
+      - id: cart-management
+        name: Cart Management
+        file: commerce/cart-management.md
+        done: false
+      - id: checkout-assignment
+        name: "Checkout Stage 1: Assignment"
+        file: commerce/checkout-assignment.md
+        done: false
+      - id: checkout-shipping
+        name: "Checkout Stage 2: Shipping"
+        file: commerce/checkout-shipping.md
+        done: false
+      - id: checkout-delivery
+        name: "Checkout Stage 3: Delivery"
+        file: commerce/checkout-delivery.md
+        done: false
+      - id: checkout-payment
+        name: "Checkout Stage 4: Payment/Leasing"
+        file: commerce/checkout-payment.md
+        done: false
+
+  orders:
+    name: Order Management
+    description: Order tracking and history
+    priority: medium
+    tasks:
+      - id: order-list
+        name: Order List View
+        file: orders/order-list.md
+        done: false
+      - id: order-details
+        name: Order Details View
+        file: orders/order-details.md
+        done: false
+
+  people:
+    name: People & Teams
+    description: Employee directory and lifecycle workflows
+    priority: medium
+    tasks:
+      - id: directory-view
+        name: People Directory
+        file: people/directory-view.md
+        done: false
+      - id: onboarding-workflow
+        name: Onboarding Workflow
+        file: people/onboarding-workflow.md
+        done: false
+      - id: offboarding-workflow
+        name: Offboarding Workflow
+        file: people/offboarding-workflow.md
+        done: false
+
+  proposals:
+    name: B2B Proposals
+    description: Quote creation and approval workflow
+    priority: medium
+    tasks:
+      - id: create-proposal
+        name: Create Proposal
+        file: proposals/create-proposal.md
+        done: false
+      - id: view-proposal
+        name: Public Proposal View
+        file: proposals/view-proposal.md
+        done: false
+
+  trade-in:
+    name: Device Trade-In
+    description: Valuation, shipping, and credit processing
+    priority: medium
+    tasks:
+      - id: device-valuation
+        name: Device Valuation
+        file: trade-in/device-valuation.md
+        done: false
+      - id: return-shipping
+        name: Return Shipping & Labels
+        file: trade-in/return-shipping.md
+        done: false
+
+  fleet:
+    name: Fleet Management
+    description: Device inventory and assignment tracking
+    priority: medium
+    tasks:
+      - id: device-inventory
+        name: Device Inventory View
+        file: fleet/device-inventory.md
+        done: false
+      - id: device-assignment
+        name: Device Assignment
+        file: fleet/device-assignment.md
+        done: false
+
+  settings:
+    name: Organization Settings
+    description: Account configuration and team management
+    priority: medium
+    tasks:
+      - id: organization-settings
+        name: Organization Settings
+        file: settings/organization-settings.md
+        done: false
+      - id: team-access
+        name: Team Access Management
+        file: settings/team-access.md
+        done: false
+
+  sysadmin:
+    name: Sys Admin Tools
+    description: Equipped staff admin panel
+    priority: low
+    tasks:
+      - id: admin-dashboard
+        name: Admin Dashboard
+        file: sysadmin/admin-dashboard.md
+        done: false
+      - id: customer-impersonation
+        name: Customer Impersonation
+        file: sysadmin/customer-impersonation.md
+        done: false
+
+  monitoring:
+    name: Monitoring & Observability
+    description: Health checks, error tracking, analytics
+    priority: medium
+    tasks:
+      - id: health-check
+        name: Health Check Endpoint
+        file: monitoring/health-check.md
+        done: false
+      - id: error-tracking
+        name: Sentry Error Tracking
+        file: monitoring/error-tracking.md
         done: false
 
   dashboard:
@@ -116,28 +279,6 @@ epics:
         file: dashboard/empty-states.md
         done: false
 
-  devices:
-    name: Device Management
-    description: Core device management features
-    priority: medium
-    tasks:
-      - id: device-list
-        name: Device List View
-        file: devices/device-list.md
-        done: false
-      - id: device-form
-        name: Device Form
-        file: devices/device-form.md
-        done: false
-      - id: device-details
-        name: Device Details View
-        file: devices/device-details.md
-        done: false
-      - id: device-assignment
-        name: Device Assignment
-        file: devices/device-assignment.md
-        done: false
-
   static-pages:
     name: Static Pages
     description: Legal and informational pages
@@ -161,6 +302,26 @@ epics:
     description: Third-party service integrations
     priority: medium
     tasks:
+      - id: macquarie-leasing
+        name: Macquarie Leasing API
+        file: integrations/macquarie-leasing.md
+        done: false
+        requires: human  # Requires Macquarie partnership setup
+      - id: plaid-verification
+        name: Plaid Bank Verification
+        file: integrations/plaid-verification.md
+        done: false
+        requires: human  # Requires Plaid account setup
+      - id: upgraded-api
+        name: Upgraded API (Fulfillment)
+        file: integrations/upgraded-api.md
+        done: false
+        requires: human  # Requires Upgraded partnership
+      - id: posthog-analytics
+        name: PostHog Analytics
+        file: integrations/posthog-analytics.md
+        done: false
+        requires: human  # Requires PostHog project setup
       - id: shopify-api
         name: Shopify Store API
         file: integrations/shopify-api.md
@@ -169,41 +330,12 @@ epics:
         name: Stripe Payments
         file: integrations/stripe-payments.md
         done: false
+        requires: human  # Requires Stripe account setup
       - id: alchemy-api
-        name: Alchemy API
+        name: Alchemy Device API
         file: integrations/alchemy-api.md
         done: false
       - id: spark-shipping
         name: Spark Shipping
         file: integrations/spark-shipping.md
-        done: false
-
-  backlog:
-    name: Backlog
-    description: Future capabilities from EQUIPPED.md
-    priority: backlog
-    tasks:
-      - id: fleet-management
-        name: Fleet Management
-        file: backlog/fleet-management.md
-        done: false
-      - id: mdm-integration
-        name: MDM Integration
-        file: backlog/mdm-integration.md
-        done: false
-      - id: employee-groups
-        name: Employee Groups
-        file: backlog/employee-groups.md
-        done: false
-      - id: services-tracking
-        name: Services Tracking
-        file: backlog/services-tracking.md
-        done: false
-      - id: superadmin-panel
-        name: SuperAdmin Panel
-        file: backlog/superadmin-panel.md
-        done: false
-      - id: leasing-workflow
-        name: Leasing Workflow
-        file: backlog/leasing-workflow.md
         done: false

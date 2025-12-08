@@ -94,3 +94,45 @@ import { cn } from '@/lib/utils'
 - Worker handles cache headers (`run_worker_first = true`)
 - `/lib/*` assets: immutable, 1 year cache
 - Security headers: X-Content-Type-Options, X-Frame-Options
+
+## Task System
+
+Tasks are organized in `tasks/{epic}/{task}.md` with `tasks/index.yml` as master index.
+
+### Task Selection Rules
+
+When selecting tasks to work on:
+
+1. **EXCLUDE `requires: human`** - Tasks marked with `requires: human` need manual action (dashboard setup, external account creation, partnership agreements). Skip these for automatic selection.
+2. **Check dependencies** - Read the task's Dependencies section; complete prerequisites first
+3. **Respect priority** - Work on `high` priority epics before `medium` or `low`
+4. **Mark done when complete** - Update `done: true` in index.yml after completing a task
+
+### Human-Required Tasks
+
+These tasks require real-world action and should be flagged to the user:
+
+- External dashboard setup (Clerk, CloudFlare, Stripe, Plaid)
+- Partnership agreements (Macquarie, Upgraded)
+- Account creation on third-party services
+- API key generation from external providers
+
+When encountering a `requires: human` task, inform the user what manual steps are needed.
+
+### Key Documents
+
+- `PRD.md` - Product requirements (authoritative for features)
+- `documentation/*.md` - UX flows and integrations
+- `tasks/index.yml` - Task index with status tracking
+
+### Test Criteria Format
+
+All tasks use Gherkin BDD format for test criteria:
+
+```gherkin
+Feature: Feature Name
+  Scenario: Specific behavior
+    Given precondition
+    When action
+    Then expected result
+```
