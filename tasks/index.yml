@@ -383,7 +383,7 @@ epics:
       - id: empty-states
         name: Empty States
         file: dashboard/empty-states.md
-        done: false
+        done: true
         complexity: low
 
   static-pages:
