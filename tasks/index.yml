@@ -461,7 +461,8 @@ epics:
       - id: create-proposal
         name: Create Proposal
         file: proposals/create-proposal.md
-        done: false
+        done: true
+        commit: 8e19c91
         complexity: medium
         depends_on:
           - api/auth-middleware
