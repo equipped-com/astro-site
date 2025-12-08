@@ -348,7 +348,8 @@ epics:
       - id: user-endpoints
         name: User Profile Endpoints
         file: api/user-endpoints.md
-        done: false
+        done: true
+        commit: 337a2b5
         complexity: medium
         depends_on:
           - api/auth-middleware
