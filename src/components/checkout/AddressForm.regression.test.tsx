@@ -9,7 +9,7 @@
 
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { AddressForm } from './AddressForm'
+import AddressForm from './AddressForm'
 
 vi.mock('sonner', () => ({
 	toast: {
