@@ -1,6 +1,6 @@
 import { act, render, renderHook, waitFor } from '@testing-library/react'
-import { describe, it, expect, beforeEach } from 'vitest'
 import type { ReactNode } from 'react'
+import { beforeEach, describe, expect, it } from 'vitest'
 import { CartProvider, useCart } from './cart-context'
 
 describe('cart-context', () => {

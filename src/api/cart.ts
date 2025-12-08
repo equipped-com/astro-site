@@ -44,10 +44,7 @@ export async function saveCart(cart: Cart): Promise<boolean> {
 /**
  * Add item to cart via API
  */
-export async function addCartItem(
-	accountId: string,
-	item: Omit<CartItem, 'id'>
-): Promise<Cart | null> {
+export async function addCartItem(accountId: string, item: Omit<CartItem, 'id'>): Promise<Cart | null> {
 	try {
 		const response = await fetch(`${API_BASE}/${accountId}/items`, {
 			method: 'POST',
@@ -84,7 +81,7 @@ export async function removeCartItem(accountId: string, itemId: string): Promise
 export async function updateCartItemQuantity(
 	accountId: string,
 	itemId: string,
-	quantity: number
+	quantity: number,
 ): Promise<Cart | null> {
 	try {
 		const response = await fetch(`${API_BASE}/${accountId}/items/${itemId}`, {
@@ -103,10 +100,7 @@ export async function updateCartItemQuantity(
 /**
  * Update payment method via API
  */
-export async function updateCartPaymentMethod(
-	accountId: string,
-	paymentMethod: PaymentMethod
-): Promise<Cart | null> {
+export async function updateCartPaymentMethod(accountId: string, paymentMethod: PaymentMethod): Promise<Cart | null> {
 	try {
 		const response = await fetch(`${API_BASE}/${accountId}/payment-method`, {
 			method: 'PATCH',
@@ -126,7 +120,7 @@ export async function updateCartPaymentMethod(
  */
 export async function validatePromoCode(
 	accountId: string,
-	code: string
+	code: string,
 ): Promise<{ valid: boolean; discount?: number; error?: string }> {
 	try {
 		const response = await fetch(`${API_BASE}/${accountId}/promo`, {
@@ -167,10 +161,7 @@ export async function createShareableCartLink(accountId: string): Promise<string
 /**
  * Share cart as proposal
  */
-export async function shareCartAsProposal(
-	accountId: string,
-	recipientEmail: string
-): Promise<boolean> {
+export async function shareCartAsProposal(accountId: string, recipientEmail: string): Promise<boolean> {
 	try {
 		const response = await fetch(`${API_BASE}/${accountId}/proposal`, {
 			method: 'POST',
