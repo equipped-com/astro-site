@@ -110,7 +110,7 @@ describe('Proposal Tokens', () => {
 
 		it('should accept valid URL-safe base64 characters', () => {
 			// Exactly 32 characters with valid characters
-		expect(isValidProposalToken('abcABC123-_xyz789QWERTY098765432')).toBe(true)
+			expect(isValidProposalToken('abcABC123-_xyz789QWERTY098765432')).toBe(true)
 		})
 	})
 })

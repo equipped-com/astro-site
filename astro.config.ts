@@ -2,6 +2,7 @@ import react from '@astrojs/react'
 import sitemap from '@astrojs/sitemap'
 import tailwindcss from '@tailwindcss/vite'
 import { defineConfig } from 'astro/config'
+import type { PluginOption } from 'vite'
 
 const assetPrefix = 'lib'
 
@@ -39,7 +40,7 @@ export default defineConfig({
 	},
 
 	vite: {
-		plugins: [tailwindcss()] as any,
+		plugins: [tailwindcss() as PluginOption],
 		resolve: {
 			alias: {
 				'@': new URL('./src', import.meta.url).pathname,

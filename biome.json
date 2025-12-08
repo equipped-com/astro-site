@@ -61,6 +61,51 @@
 					}
 				}
 			}
+		},
+		{
+			"includes": ["**/*.test.ts", "**/*.test.tsx"],
+			"linter": {
+				"rules": {
+					"suspicious": {
+						"noExplicitAny": "off",
+						"noArrayIndexKey": "off"
+					},
+					"style": {
+						"noNonNullAssertion": "off"
+					},
+					"a11y": {
+						"useValidAriaRole": "off"
+					}
+				}
+			}
+		},
+		{
+			"includes": ["src/components/**/*.tsx", "src/components/**/*.ts"],
+			"linter": {
+				"rules": {
+					"a11y": {
+						"useButtonType": "warn",
+						"useSemanticElements": "warn",
+						"noLabelWithoutControl": "warn",
+						"noStaticElementInteractions": "warn",
+						"useKeyWithClickEvents": "warn",
+						"noSvgWithoutTitle": "warn"
+					},
+					"suspicious": {
+						"noArrayIndexKey": "warn"
+					}
+				}
+			}
+		},
+		{
+			"includes": ["src/types/**/*.ts"],
+			"linter": {
+				"rules": {
+					"suspicious": {
+						"noExplicitAny": "off"
+					}
+				}
+			}
 		}
 	]
 }

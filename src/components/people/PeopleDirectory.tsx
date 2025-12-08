@@ -1,7 +1,7 @@
 'use client'
 
 import { Filter, Plus, Search, UserCheck, Users as UsersIcon } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { EmptyState } from '@/components/dashboard/EmptyState'
 import { Spinner } from '@/components/dashboard/Spinner'
 import AddPersonModal from './AddPersonModal'
@@ -41,7 +41,7 @@ export default function PeopleDirectory() {
 	const departments = Array.from(new Set(people.map(p => p.department).filter(Boolean))) as string[]
 
 	// Fetch people from API
-	async function fetchPeople() {
+	const fetchPeople = useCallback(async () => {
 		try {
 			setLoading(true)
 			const response = await fetch('/api/people', {
@@ -60,7 +60,7 @@ export default function PeopleDirectory() {
 		} finally {
 			setLoading(false)
 		}
-	}
+	}, [])
 
 	useEffect(() => {
 		fetchPeople()
