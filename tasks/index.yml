@@ -157,7 +157,7 @@ epics:
       - id: clerk-provider
         name: Setup ClerkProvider
         file: auth/clerk-provider.md
-        done: false
+        done: true
         complexity: medium
       - id: auth-navigation
         name: Update Navigation for Auth
