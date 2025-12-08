@@ -13,22 +13,34 @@ Landing page for Equipped - an IT asset management and device provisioning platf
 - **Sharp** - Image optimization
 - **CloudFlare Workers** - Edge deployment
 
+## Prerequisites
+
+This project uses [Bun](https://bun.sh) as the package manager and runtime.
+
+```bash
+# macOS (Homebrew)
+brew install oven-sh/bun/bun
+
+# Or using curl (macOS, Linux, WSL)
+curl -fsSL https://bun.sh/install | bash
+```
+
 ## Quick Start
 
 ```bash
-npm install
-npm run dev
+bun install
+bun run dev
 ```
 
 ## Commands
 
 | Command | Description |
 |---------|-------------|
-| `npm run dev` | Start dev server at localhost:4321 |
-| `npm run build` | Production build to dist/ |
-| `npm run preview` | Preview production build |
-| `npm run deploy` | Deploy to CloudFlare Workers |
-| `npm run check` | Lint with Biome |
+| `bun run dev` | Start dev server at localhost:4321 |
+| `bun run build` | Production build to dist/ |
+| `bun run preview` | Preview production build |
+| `bun run deploy` | Deploy to CloudFlare Workers |
+| `bun run check` | Lint with Biome |
 
 ## Testing
 
@@ -86,9 +98,10 @@ tasks/                # Development task tracking
 
 | Document | Purpose |
 |----------|---------|
-| `PRD.md` | Product Requirements - authoritative feature specs |
-| `EQUIPPED.md` | Product vision and capabilities overview |
-| `documentation/` | UX flows, Figma exports, integration details |
+| `documentation/PRD.md` | Product Requirements - authoritative feature specs |
+| `documentation/EQUIPPED.md` | Product vision and capabilities overview |
+| `documentation/PLAN.md` | Development phases and implementation plan |
+| `documentation/platform-*.md` | UX flows with Figma references |
 | `tasks/index.yml` | Development task index with status tracking |
 
 ## Task System
@@ -130,7 +143,7 @@ Tasks marked `requires: human` need manual action (dashboard setup, API keys, pa
 CloudFlare Workers with static assets. Domain: tryequipped.com
 
 ```bash
-npm run deploy
+bun run deploy
 ```
 
 ## License

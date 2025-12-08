@@ -126,8 +126,8 @@
 # ALL agents MUST run tests after completing any task. This is NOT optional.
 #
 # Test execution steps:
-#   1. Run `npm run check` (Biome linting)
-#   2. Run `npm run build` (TypeScript + Astro build)
+#   1. Run `bun run check` (Biome linting)
+#   2. Run `bun run build` (TypeScript + Astro build)
 #   3. Run any task-specific tests mentioned in the task file
 #
 # If tests FAIL:
