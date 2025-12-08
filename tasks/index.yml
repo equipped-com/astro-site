@@ -753,7 +753,8 @@ epics:
       - id: shopify-api
         name: Shopify Store API
         file: integrations/shopify-api.md
-        done: false
+        done: true
+        commit: 9b83674
         complexity: high  # External API, product sync
         depends_on:
           - api/device-crud
