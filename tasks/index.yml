@@ -686,6 +686,15 @@ epics:
         complexity: medium
         depends_on:
           - testing/setup-vitest
+      - id: setup-playwright
+        name: Setup Playwright E2E Testing
+        file: testing/setup-playwright.md
+        done: false
+        complexity: medium
+        depends_on:
+          - testing/setup-vitest
+          - auth/auth-pages
+          - commerce/checkout-assignment
 
   integrations:
     name: External Integrations
