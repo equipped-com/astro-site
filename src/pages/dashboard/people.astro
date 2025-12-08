@@ -1,10 +1,8 @@
 ---
+import PeopleDirectory from '@/components/people/PeopleDirectory'
 import DashboardLayout from '@/layouts/DashboardLayout.astro'
 ---
 
 <DashboardLayout title="People">
-	<div>
-		<h2>People Management</h2>
-		<p>Manage your team members and their information.</p>
-	</div>
+	<PeopleDirectory client:load />
 </DashboardLayout>
