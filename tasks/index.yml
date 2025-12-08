@@ -347,7 +347,7 @@ epics:
       - id: health-check
         name: Health Check Endpoint
         file: monitoring/health-check.md
-        done: false
+        done: true
         complexity: low
       - id: error-tracking
         name: Sentry Error Tracking
