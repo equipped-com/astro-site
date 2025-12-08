@@ -469,7 +469,8 @@ epics:
       - id: view-proposal
         name: Public Proposal View
         file: proposals/view-proposal.md
-        done: false
+        done: true
+        commit: 1abfc48
         complexity: medium
         depends_on:
           - proposals/create-proposal
