@@ -1,0 +1,118 @@
+---
+import { AlertTriangle, Blocks, Building2, CreditCard, Shield } from 'lucide-react'
+import DashboardLayout from '@/layouts/DashboardLayout.astro'
+---
+
+<DashboardLayout title="Settings">
+	<div class="max-w-5xl mx-auto space-y-8">
+		<div>
+			<h1 class="text-3xl font-bold">Settings</h1>
+			<p class="text-muted-foreground mt-2">
+				Manage your organization settings, security, and integrations
+			</p>
+		</div>
+
+		<div class="grid gap-4 md:grid-cols-2">
+			<!-- Organization -->
+			<a
+				href="/dashboard/settings/organization"
+				class="group block p-6 border rounded-lg hover:border-primary transition-colors"
+			>
+				<div class="flex items-start gap-4">
+					<div class="p-2 rounded-lg bg-primary/10 text-primary">
+						<Building2 size={24} />
+					</div>
+					<div class="flex-1">
+						<h3 class="font-semibold text-lg group-hover:text-primary transition-colors">
+							Organization
+						</h3>
+						<p class="text-sm text-muted-foreground mt-1">
+							Company profile, billing email, and address
+						</p>
+					</div>
+				</div>
+			</a>
+
+			<!-- Security -->
+			<a
+				href="/dashboard/settings/security"
+				class="group block p-6 border rounded-lg hover:border-primary transition-colors"
+			>
+				<div class="flex items-start gap-4">
+					<div class="p-2 rounded-lg bg-primary/10 text-primary">
+						<Shield size={24} />
+					</div>
+					<div class="flex-1">
+						<h3 class="font-semibold text-lg group-hover:text-primary transition-colors">
+							Security
+						</h3>
+						<p class="text-sm text-muted-foreground mt-1">
+							SSO configuration and authentication settings
+						</p>
+					</div>
+				</div>
+			</a>
+
+			<!-- Integrations -->
+			<a
+				href="/dashboard/settings/integrations"
+				class="group block p-6 border rounded-lg hover:border-primary transition-colors"
+			>
+				<div class="flex items-start gap-4">
+					<div class="p-2 rounded-lg bg-primary/10 text-primary">
+						<Blocks size={24} />
+					</div>
+					<div class="flex-1">
+						<h3 class="font-semibold text-lg group-hover:text-primary transition-colors">
+							Integrations
+						</h3>
+						<p class="text-sm text-muted-foreground mt-1">
+							Connect Google Workspace, MDM, and other services
+						</p>
+					</div>
+				</div>
+			</a>
+
+			<!-- Billing -->
+			<a
+				href="/dashboard/settings/billing"
+				class="group block p-6 border rounded-lg hover:border-primary transition-colors"
+			>
+				<div class="flex items-start gap-4">
+					<div class="p-2 rounded-lg bg-primary/10 text-primary">
+						<CreditCard size={24} />
+					</div>
+					<div class="flex-1">
+						<h3 class="font-semibold text-lg group-hover:text-primary transition-colors">
+							Billing
+						</h3>
+						<p class="text-sm text-muted-foreground mt-1">
+							Subscription, payment methods, and invoices
+						</p>
+					</div>
+				</div>
+			</a>
+		</div>
+
+		<!-- Danger Zone -->
+		<div class="border border-destructive/50 rounded-lg p-6 bg-destructive/5">
+			<div class="flex items-start gap-4">
+				<div class="p-2 rounded-lg bg-destructive/10 text-destructive">
+					<AlertTriangle size={24} />
+				</div>
+				<div class="flex-1">
+					<h3 class="font-semibold text-lg text-destructive">Danger Zone</h3>
+					<p class="text-sm text-muted-foreground mt-1">
+						Irreversible actions like deleting your organization
+					</p>
+					<a
+						href="/dashboard/settings/organization#danger-zone"
+						class="inline-block mt-3 text-sm font-medium text-destructive hover:underline"
+					>
+						View danger zone
+					</a>
+				</div>
+			</div>
+		</div>
+	</div>
+</DashboardLayout>

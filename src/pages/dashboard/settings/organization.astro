@@ -1,0 +1,25 @@
+---
+import { ChevronLeft } from 'lucide-react'
+import OrganizationForm from '@/components/settings/OrganizationForm'
+import DashboardLayout from '@/layouts/DashboardLayout.astro'
+
+// Mock account context for now (will be replaced with real auth)
+const accountId = 'acct-123'
+const role = 'owner' as const
+---
+
+<DashboardLayout title="Organization Settings">
+	<div class="max-w-4xl mx-auto">
+		<div class="mb-6">
+			<a
+				href="/dashboard/settings"
+				class="inline-flex items-center text-sm text-muted-foreground hover:text-foreground"
+			>
+				<ChevronLeft size={16} class="mr-1" />
+				Back to Settings
+			</a>
+		</div>
+
+		<OrganizationForm client:only="react" accountId={accountId} role={role} />
+	</div>
+</DashboardLayout>
