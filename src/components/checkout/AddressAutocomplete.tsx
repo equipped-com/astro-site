@@ -179,7 +179,16 @@ export default function AddressAutocomplete({
 			{showSuggestions && suggestions.length > 0 && (
 				<>
 					{/* Backdrop */}
-					<div className="fixed inset-0 z-10" onClick={() => setShowSuggestions(false)} />
+					<div
+						className="fixed inset-0 z-10"
+						onClick={() => setShowSuggestions(false)}
+						onKeyDown={e => {
+							if (e.key === 'Escape') setShowSuggestions(false)
+						}}
+						role="button"
+						tabIndex={-1}
+						aria-label="Close suggestions"
+					/>
 
 					{/* Results */}
 					<div className="absolute z-20 mt-2 w-full rounded-lg border border-border bg-background shadow-lg">

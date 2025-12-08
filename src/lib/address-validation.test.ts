@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest'
 import {
+	type AddressData,
 	formatPhoneNumber,
 	isAddressComplete,
 	validateAddress,
 	validateEmail,
 	validatePhone,
 	validateZipCode,
-	type AddressData,
 } from './address-validation'
 
 describe('address-validation', () => {

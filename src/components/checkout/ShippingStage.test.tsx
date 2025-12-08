@@ -22,23 +22,13 @@ describe('ShippingStage', () => {
 
 	describe('@REQ-COM-SHIP-001: Use assignee existing address', () => {
 		it('should show assignee address option when assignee has address', () => {
-			render(
-				<ShippingStage
-					assignedPerson={mockTeamMember}
-					onContinue={vi.fn()}
-				/>
-			)
+			render(<ShippingStage assignedPerson={mockTeamMember} onContinue={vi.fn()} />)
 
 			expect(screen.getByText(/To Nicole's address/i)).toBeInTheDocument()
 		})
 
 		it('should enable Continue button when assignee address is selected', () => {
-			render(
-				<ShippingStage
-					assignedPerson={mockTeamMember}
-					onContinue={vi.fn()}
-				/>
-			)
+			render(<ShippingStage assignedPerson={mockTeamMember} onContinue={vi.fn()} />)
 
 			const assigneeButton = screen.getByText(/To Nicole's address/i).closest('button')
 			fireEvent.click(assigneeButton!)
@@ -49,12 +39,7 @@ describe('ShippingStage', () => {
 
 		it('should call onContinue with useAssigneeAddress=true', () => {
 			const onContinue = vi.fn()
-			render(
-				<ShippingStage
-					assignedPerson={mockTeamMember}
-					onContinue={onContinue}
-				/>
-			)
+			render(<ShippingStage assignedPerson={mockTeamMember} onContinue={onContinue} />)
 
 			const assigneeButton = screen.getByText(/To Nicole's address/i).closest('button')
 			fireEvent.click(assigneeButton!)
@@ -71,12 +56,7 @@ describe('ShippingStage', () => {
 
 	describe('@REQ-COM-SHIP-002: Enter different shipping address', () => {
 		it('should show address form fields when "To another address" is selected', () => {
-			render(
-				<ShippingStage
-					assignedPerson={mockTeamMember}
-					onContinue={vi.fn()}
-				/>
-			)
+			render(<ShippingStage assignedPerson={mockTeamMember} onContinue={vi.fn()} />)
 
 			const otherButton = screen.getByText(/To another address/i).closest('button')
 			fireEvent.click(otherButton!)
@@ -86,12 +66,7 @@ describe('ShippingStage', () => {
 		})
 
 		it('should show manual entry link', () => {
-			render(
-				<ShippingStage
-					assignedPerson={mockTeamMember}
-					onContinue={vi.fn()}
-				/>
-			)
+			render(<ShippingStage assignedPerson={mockTeamMember} onContinue={vi.fn()} />)
 
 			const otherButton = screen.getByText(/To another address/i).closest('button')
 			fireEvent.click(otherButton!)
@@ -100,12 +75,7 @@ describe('ShippingStage', () => {
 		})
 
 		it('should display all required form fields after clicking manual entry', () => {
-			render(
-				<ShippingStage
-					assignedPerson={mockTeamMember}
-					onContinue={vi.fn()}
-				/>
-			)
+			render(<ShippingStage assignedPerson={mockTeamMember} onContinue={vi.fn()} />)
 
 			const otherButton = screen.getByText(/To another address/i).closest('button')
 			fireEvent.click(otherButton!)
@@ -128,12 +98,7 @@ describe('ShippingStage', () => {
 
 	describe('@REQ-COM-SHIP-004: Manual address entry fallback', () => {
 		it('should allow toggling between autocomplete and manual entry', () => {
-			render(
-				<ShippingStage
-					assignedPerson={mockTeamMember}
-					onContinue={vi.fn()}
-				/>
-			)
+			render(<ShippingStage assignedPerson={mockTeamMember} onContinue={vi.fn()} />)
 
 			const otherButton = screen.getByText(/To another address/i).closest('button')
 			fireEvent.click(otherButton!)
@@ -160,7 +125,7 @@ describe('ShippingStage', () => {
 					assignedPerson={mockTeamMemberNoAddress}
 					onContinue={vi.fn()}
 					onSendEmailRequest={onSendEmail}
-				/>
+				/>,
 			)
 
 			// Click on assignee option (should be disabled but clickable)
@@ -172,12 +137,7 @@ describe('ShippingStage', () => {
 		})
 
 		it('should disable assignee option when address info is missing', () => {
-			render(
-				<ShippingStage
-					assignedPerson={mockTeamMemberNoAddress}
-					onContinue={vi.fn()}
-				/>
-			)
+			render(<ShippingStage assignedPerson={mockTeamMemberNoAddress} onContinue={vi.fn()} />)
 
 			const assigneeButton = screen.getByText(/To Leon's address/i).closest('button')
 			expect(assigneeButton).toBeDisabled()
@@ -186,13 +146,7 @@ describe('ShippingStage', () => {
 
 	describe('@REQ-COM-SHIP-006: Dual email notification', () => {
 		it('should show dual email notice when shipping to different email', () => {
-			render(
-				<ShippingStage
-					assignedPerson={mockTeamMember}
-					onContinue={vi.fn()}
-					buyerEmail="buyer@company.com"
-				/>
-			)
+			render(<ShippingStage assignedPerson={mockTeamMember} onContinue={vi.fn()} buyerEmail="buyer@company.com" />)
 
 			const otherButton = screen.getByText(/To another address/i).closest('button')
 			fireEvent.click(otherButton!)
@@ -213,13 +167,7 @@ describe('ShippingStage', () => {
 		})
 
 		it('should not show dual email notice when emails match', () => {
-			render(
-				<ShippingStage
-					assignedPerson={mockTeamMember}
-					onContinue={vi.fn()}
-					buyerEmail="buyer@company.com"
-				/>
-			)
+			render(<ShippingStage assignedPerson={mockTeamMember} onContinue={vi.fn()} buyerEmail="buyer@company.com" />)
 
 			const otherButton = screen.getByText(/To another address/i).closest('button')
 			fireEvent.click(otherButton!)
@@ -239,12 +187,7 @@ describe('ShippingStage', () => {
 
 	describe('@REQ-COM-SHIP-007: Validate address before continuing', () => {
 		it('should disable Continue button when no address mode selected', () => {
-			render(
-				<ShippingStage
-					assignedPerson={mockTeamMember}
-					onContinue={vi.fn()}
-				/>
-			)
+			render(<ShippingStage assignedPerson={mockTeamMember} onContinue={vi.fn()} />)
 
 			const continueButton = screen.getByRole('button', { name: /Continue/i })
 			expect(continueButton).toBeDisabled()
@@ -252,12 +195,7 @@ describe('ShippingStage', () => {
 
 		it('should not proceed with incomplete address', () => {
 			const onContinue = vi.fn()
-			render(
-				<ShippingStage
-					assignedPerson={mockTeamMember}
-					onContinue={onContinue}
-				/>
-			)
+			render(<ShippingStage assignedPerson={mockTeamMember} onContinue={onContinue} />)
 
 			const otherButton = screen.getByText(/To another address/i).closest('button')
 			fireEvent.click(otherButton!)
@@ -279,12 +217,7 @@ describe('ShippingStage', () => {
 		})
 
 		it('should show validation errors when Continue clicked with incomplete data', () => {
-			render(
-				<ShippingStage
-					assignedPerson={mockTeamMember}
-					onContinue={vi.fn()}
-				/>
-			)
+			render(<ShippingStage assignedPerson={mockTeamMember} onContinue={vi.fn()} />)
 
 			const otherButton = screen.getByText(/To another address/i).closest('button')
 			fireEvent.click(otherButton!)
@@ -303,12 +236,7 @@ describe('ShippingStage', () => {
 		})
 
 		it('should enable Continue button when address is complete', () => {
-			render(
-				<ShippingStage
-					assignedPerson={mockTeamMember}
-					onContinue={vi.fn()}
-				/>
-			)
+			render(<ShippingStage assignedPerson={mockTeamMember} onContinue={vi.fn()} />)
 
 			const otherButton = screen.getByText(/To another address/i).closest('button')
 			fireEvent.click(otherButton!)
@@ -338,12 +266,7 @@ describe('ShippingStage', () => {
 
 	describe('Stage Header', () => {
 		it('should display stage number and title', () => {
-			render(
-				<ShippingStage
-					assignedPerson={mockTeamMember}
-					onContinue={vi.fn()}
-				/>
-			)
+			render(<ShippingStage assignedPerson={mockTeamMember} onContinue={vi.fn()} />)
 
 			expect(screen.getByText('2')).toBeInTheDocument()
 			expect(screen.getByText('Shipping Details')).toBeInTheDocument()

@@ -48,9 +48,7 @@ describe('AddressForm', () => {
 
 			// Check for destructive colored asterisks (required indicators)
 			const requiredLabels = container.querySelectorAll('label')
-			const requiredCount = Array.from(requiredLabels).filter(label =>
-				label.querySelector('.text-destructive'),
-			).length
+			const requiredCount = Array.from(requiredLabels).filter(label => label.querySelector('.text-destructive')).length
 
 			expect(requiredCount).toBeGreaterThanOrEqual(8) // 8 required fields
 		})
@@ -218,12 +216,7 @@ describe('AddressForm', () => {
 		})
 
 		it('should display checked business address checkbox', () => {
-			render(
-				<AddressForm
-					address={{ ...validAddress, isBusinessAddress: true }}
-					onChange={vi.fn()}
-				/>
-			)
+			render(<AddressForm address={{ ...validAddress, isBusinessAddress: true }} onChange={vi.fn()} />)
 
 			const checkbox = screen.getByLabelText(/This is a business address/i) as HTMLInputElement
 			expect(checkbox.checked).toBe(true)

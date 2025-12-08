@@ -106,6 +106,7 @@ export default function ShippingStage({
 				{/* To Assignee's Address */}
 				{assignedPerson && (
 					<button
+						type="button"
 						onClick={() => handleModeChange('assignee')}
 						disabled={!hasAssigneeAddress}
 						className={cn(
@@ -125,6 +126,7 @@ export default function ShippingStage({
 
 				{/* To Another Address */}
 				<button
+					type="button"
 					onClick={() => handleModeChange('other')}
 					className={cn(
 						'flex flex-col items-center gap-3 rounded-lg border-2 p-6 transition-all',
@@ -226,6 +228,7 @@ export default function ShippingStage({
 			{/* Continue Button */}
 			<div className="flex justify-end">
 				<button
+					type="button"
 					onClick={handleContinue}
 					disabled={!canContinue}
 					className={cn(
