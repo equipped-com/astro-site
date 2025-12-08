@@ -82,17 +82,17 @@ epics:
       - id: setup-hono-worker
         name: Setup Hono Worker
         file: infrastructure/setup-hono-worker.md
-        done: false
+        done: true
         complexity: medium
       - id: configure-wrangler
         name: Configure Wrangler for API
         file: infrastructure/configure-wrangler.md
-        done: false
+        done: true
         complexity: medium
       - id: deploy-pipeline
         name: Verify Deploy Pipeline
         file: infrastructure/deploy-pipeline.md
-        done: false
+        done: true
         complexity: low
 
   database:
