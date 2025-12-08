@@ -685,7 +685,8 @@ epics:
       - id: integration-tests
         name: Write Integration Tests for API & Components
         file: testing/integration-tests.md
-        done: false
+        done: true
+        commit: a98a481
         complexity: high
         depends_on:
           - testing/setup-vitest
