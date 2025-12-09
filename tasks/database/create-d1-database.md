@@ -29,7 +29,7 @@ Create a Cloudflare D1 database named `equipped-db` for storing users, devices, 
 
 ```bash
 # Create the database
-npx wrangler d1 create equipped-db
+bunx wrangler d1 create equipped-db
 
 # Add to wrangler.toml:
 # [[d1_databases]]
