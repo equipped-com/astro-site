@@ -2,6 +2,16 @@
 
 ## Priority: HIGH
 
+## Prerequisites
+
+**READ FIRST:** `documentation/dynamic-routing-decision.md`
+
+This task depends on:
+1. `bugs/dynamic-routing-poc` - Establishes the correct pattern
+2. `bugs/order-details-static-routes` - First implementation of the pattern
+
+Use the orders fix as the reference implementation for all other routes.
+
 ## Problem
 
 Multiple pages in the dashboard may be using Astro's static `[param].astro` routes for dynamic, runtime data. This is architecturally incorrect.

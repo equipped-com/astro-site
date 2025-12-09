@@ -787,12 +787,19 @@ epics:
     description: Critical fixes for architectural problems and bugs
     priority: high
     tasks:
+      - id: dynamic-routing-poc
+        name: POC - Dynamic Routing Strategy
+        file: bugs/dynamic-routing-poc.md
+        done: false
+        complexity: high
+        depends_on: []
       - id: order-details-static-routes
         name: Fix Order Details Static Routes
         file: bugs/order-details-static-routes.md
         done: false
         complexity: high
-        depends_on: []
+        depends_on:
+          - bugs/dynamic-routing-poc
       - id: audit-dynamic-astro-routes
         name: Audit All Dynamic Astro Routes
         file: bugs/audit-dynamic-astro-routes.md

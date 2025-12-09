@@ -2,6 +2,12 @@
 
 ## Priority: HIGH
 
+## Prerequisites
+
+**READ FIRST:** `documentation/dynamic-routing-decision.md`
+
+This task depends on the POC (`bugs/dynamic-routing-poc`) which establishes the correct pattern for dynamic routing. Follow the approach documented there.
+
 ## Problem
 
 The order details page at `src/pages/dashboard/orders/[id].astro` incorrectly uses Astro's static site generation (`getStaticPaths`) for order data that is inherently dynamic.
