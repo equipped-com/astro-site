@@ -800,7 +800,8 @@ epics:
       - id: order-details-static-routes
         name: Fix Order Details Static Routes
         file: bugs/order-details-static-routes.md
-        done: false
+        done: true
+        commit: 8e0d145
         complexity: high
         depends_on:
           - bugs/dynamic-routing-poc
