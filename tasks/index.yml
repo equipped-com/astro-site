@@ -777,7 +777,8 @@ epics:
       - id: spark-shipping
         name: Spark Shipping
         file: integrations/spark-shipping.md
-        done: false
+        done: true
+        commit: a20c247
         complexity: medium
         depends_on:
           - trade-in/return-shipping
