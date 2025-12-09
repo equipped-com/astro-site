@@ -229,9 +229,9 @@ epics:
       - id: create-d1-database
         name: Create D1 Database
         file: database/create-d1-database.md
-        done: false
+        done: true
+        commit: 800b6d4
         complexity: low
-        requires: human  # CloudFlare dashboard action
         depends_on: []
       - id: initial-schema
         name: Initial Database Schema (Multi-Tenant)
