@@ -1,101 +1,161 @@
-# Bug: Audit All Dynamic Astro Routes
+# Audit: Dynamic Astro Routes
 
 ## Priority: HIGH
 
 ## Prerequisites
 
-**READ FIRST:** `documentation/dynamic-routing-decision.md`
+**READ FIRST:**
+- `documentation/dynamic-routing-decision.md` - The chosen approach and rationale
+- `bugs/order-details-static-routes` - Reference implementation
 
 This task depends on:
 1. `bugs/dynamic-routing-poc` - Establishes the correct pattern
 2. `bugs/order-details-static-routes` - First implementation of the pattern
 
-Use the orders fix as the reference implementation for all other routes.
+## Purpose
+
+This is an **AUDIT task**, not an implementation task. The goal is to:
+1. Find all dynamic routes that need fixing
+2. Create individual fix tasks for each one
+3. NOT fix them directly in this task
+
+## The Rule
+
+**Astro routes (`[param].astro`) are for STATIC content only:**
+- Landing pages, blog posts, documentation, legal pages
+- Content that exists at build time and rarely changes
+
+**React components are for DYNAMIC content:**
+- Orders, people, devices, proposals
+- Any data created at runtime after deployment
+
+## Audit Process
+
+### Step 1: Find All Dynamic Route Files
+
+```bash
+# Find all [param].astro files in dashboard
+find src/pages/dashboard -name "\\[*\\].astro"
+
+# Check which ones use getStaticPaths with mock data
+find src/pages/dashboard -name "\\[*\\].astro" -exec grep -l "getStaticPaths" {} \\;
+```
+
+### Step 2: Classify Each Route
+
+For each file found, determine:
+- **Route path**: e.g., `/dashboard/orders/[id]`
+- **Data type**: What dynamic data does it display?
+- **Severity**: How broken is it? (404s on new records = HIGH)
+- **Complexity**: How much work to fix? (LOW/MEDIUM/HIGH)
+
+### Step 3: Create Fix Tasks
+
+For EACH route that needs fixing, create a new task file:
+
+**File:** `tasks/bugs/fix-{route-name}-dynamic-route.md`
+
+**Template:**
+```markdown
+# Fix: {Route Name} Dynamic Route
+
+## Priority: {HIGH/MEDIUM/LOW}
+
+## Prerequisites
+
+**READ FIRST:** `documentation/dynamic-routing-decision.md`
+
+**Reference Implementation:** See `bugs/order-details-static-routes` for the pattern.
 
 ## Problem
 
-Multiple pages in the dashboard may be using Astro's static `[param].astro` routes for dynamic, runtime data. This is architecturally incorrect.
+The {route} page at `src/pages/dashboard/{path}/[id].astro` uses static
+`getStaticPaths` for dynamic data.
 
-### The Rule
+## Current File
 
-**Astro routes are for STATIC content only:**
-- Landing pages
-- Blog posts (if pre-rendered)
-- Documentation
-- Legal pages (privacy, terms)
+`src/pages/dashboard/{path}/[id].astro`
 
-**React components are for DYNAMIC content:**
-- Orders (created at runtime)
-- People/employees (added dynamically)
-- Devices (assigned/unassigned)
-- Proposals (generated per customer)
-- Any data that changes after build
+## Solution
 
-## Audit Required
+Follow the pattern established in `documentation/dynamic-routing-decision.md`:
 
-Check these directories for `[param].astro` files that should be React-based:
+1. {Step 1 based on chosen approach}
+2. {Step 2}
+3. {Step 3}
 
-```
-src/pages/dashboard/orders/[id].astro      # KNOWN BAD - orders are dynamic
-src/pages/dashboard/people/[id].astro      # CHECK - people are dynamic
-src/pages/dashboard/devices/[id].astro     # CHECK - devices are dynamic
-src/pages/dashboard/proposals/[id].astro   # CHECK - proposals are dynamic
-src/pages/admin/**/*.astro                 # CHECK - admin views
+## Acceptance Criteria
+
+{Copy from decision doc, adapted for this route}
+
+## Dependencies
+
+- bugs/order-details-static-routes (reference implementation)
 ```
 
-## Solution Pattern
+### Step 4: Update tasks/index.yml
 
-For each dynamic route found:
+Add each new task to the `bugs` epic with proper dependencies:
 
-1. **Delete** the `[id].astro` file
-2. **Modify** the parent `index.astro` to host a React app
-3. **Use query params or React state** for detail views: `/dashboard/orders?id=xxx`
-4. **Fetch from API** at runtime, not build time
-
-### Example Conversion
-
-**Before (Wrong):**
-```
-src/pages/dashboard/orders/
-  index.astro       # List page
-  [id].astro        # Detail page (STATIC - BAD)
-```
-
-**After (Correct):**
-```
-src/pages/dashboard/orders/
-  index.astro       # Hosts <OrdersApp client:only="react" />
-                    # React app handles list AND detail views internally
+```yaml
+- id: fix-{route-name}-dynamic-route
+  name: Fix {Route Name} Dynamic Route
+  file: bugs/fix-{route-name}-dynamic-route.md
+  done: false
+  complexity: {low/medium/high}
+  depends_on:
+    - bugs/order-details-static-routes
 ```
 
 ## Acceptance Criteria
 
 ```gherkin
-Feature: Dynamic Dashboard Routes
+Feature: Audit Dynamic Routes
 
-  Scenario: No static routes for dynamic data
-    Given I search for [param].astro files in src/pages/dashboard/
-    Then none of them should use getStaticPaths with mock data
-    And all dynamic data should be fetched from APIs at runtime
+  Scenario: Complete audit of all dynamic routes
+    Given I run the audit commands
+    When I find all [param].astro files with getStaticPaths
+    Then I document each one that needs fixing
 
-  Scenario: All detail views work for new records
-    Given I create a new order/person/device/proposal
-    When I navigate to view its details
-    Then the page should load correctly
-    And I should see the data from the API
+  Scenario: Create fix tasks for each route
+    Given I have identified routes that need fixing
+    When I create task files for each one
+    Then each task file follows the template above
+    And each task references the decision document
+    And each task references the order-details fix as pattern
+
+  Scenario: Update task index
+    Given I have created fix task files
+    When I update tasks/index.yml
+    Then each new task is added to the bugs epic
+    And each new task depends on order-details-static-routes
+    And complexity is set appropriately
 ```
 
-## Files to Audit
+## Output Checklist
 
-Run this command to find potential issues:
-```bash
-find src/pages/dashboard -name "\\[*\\].astro" -exec grep -l "getStaticPaths" {} \\;
-```
+This task is complete when:
 
-## Dependencies
+- [ ] Ran audit commands and documented all findings
+- [ ] Created individual task files for each route needing fix
+- [ ] Updated `tasks/index.yml` with all new tasks
+- [ ] Each task references `documentation/dynamic-routing-decision.md`
+- [ ] Each task references `bugs/order-details-static-routes` as pattern
+- [ ] Committed all new task files
 
-- `bugs/order-details-static-routes` (fix this first as the pattern)
+## Known Routes to Check
+
+| Route | File | Status |
+|-------|------|--------|
+| `/dashboard/orders/[id]` | `src/pages/dashboard/orders/[id].astro` | KNOWN BAD - separate task exists |
+| `/dashboard/people/[id]` | Check if exists | TBD |
+| `/dashboard/devices/[id]` | Check if exists | TBD |
+| `/dashboard/proposals/[id]` | Check if exists | TBD |
+| `/admin/**` | Check for dynamic routes | TBD |
 
 ## Notes
 
-This is a follow-up audit task after fixing the orders route. The fix for orders establishes the correct pattern that should be applied to all other dynamic routes.
+- Do NOT fix routes in this task - only audit and create tasks
+- Keep task scope small - one task per route
+- All fix tasks should have consistent structure
+- The order-details fix is the reference - other fixes should follow the same pattern
