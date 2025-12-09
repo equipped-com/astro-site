@@ -808,7 +808,8 @@ epics:
       - id: audit-dynamic-astro-routes
         name: Audit All Dynamic Astro Routes
         file: bugs/audit-dynamic-astro-routes.md
-        done: false
+        done: true
+        commit: 250eaed
         complexity: medium
         depends_on:
           - bugs/order-details-static-routes
