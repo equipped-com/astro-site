@@ -771,7 +771,8 @@ epics:
       - id: alchemy-api
         name: Alchemy Device API
         file: integrations/alchemy-api.md
-        done: false
+        done: true
+        commit: 5df7c32
         complexity: medium
         depends_on: []
       - id: spark-shipping
