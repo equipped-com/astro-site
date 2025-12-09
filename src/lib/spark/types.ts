@@ -111,13 +111,7 @@ export interface SparkFulfillmentResponse {
 	error?: string
 }
 
-export type SparkFulfillmentStatus =
-	| 'pending'
-	| 'processing'
-	| 'shipped'
-	| 'delivered'
-	| 'cancelled'
-	| 'failed'
+export type SparkFulfillmentStatus = 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled' | 'failed'
 
 // ============================================================================
 // SHIPMENT TRACKING TYPES

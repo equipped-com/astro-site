@@ -3,11 +3,12 @@
  *
  * Test suite for device valuation, lookup, and FindMy status endpoints.
  */
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+
 import { Hono } from 'hono'
-import alchemyRoutes from './alchemy'
-import * as alchemyClient from '@/lib/alchemy'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import type { ConditionAssessment, DeviceLookupResponse, FindMyStatusResponse, ValuationResponse } from '@/lib/alchemy'
+import * as alchemyClient from '@/lib/alchemy'
+import alchemyRoutes from './alchemy'
 
 // Create test app
 function createTestApp() {

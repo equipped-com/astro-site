@@ -46,7 +46,7 @@ export default function AssignDeviceModal({ isOpen, device, onClose, onSuccess }
 			setNotes('')
 			setError(null)
 		}
-	}, [isOpen])
+	}, [isOpen, fetchPeople])
 
 	// Filter people based on search
 	useEffect(() => {

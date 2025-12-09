@@ -8,7 +8,12 @@
  * For development, uses mock data to simulate the API behavior.
  */
 
-import { generateTrackingEvents, mapShipmentToFulfillmentStatus, mockInventoryItems, mockTrackingData } from './mock-data'
+import {
+	generateTrackingEvents,
+	mapShipmentToFulfillmentStatus,
+	mockInventoryItems,
+	mockTrackingData,
+} from './mock-data'
 import type {
 	SparkApiResponse,
 	SparkFulfillmentRequest,

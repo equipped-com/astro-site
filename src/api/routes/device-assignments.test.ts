@@ -47,11 +47,17 @@ function createMockEnv() {
 						if (sql.includes('FROM device_assignments') && sql.includes('WHERE id')) {
 							return Array.from(mockAssignments.values()).find((a: { id: string }) => a.id === params[0])
 						}
-						if (sql.includes('FROM device_assignments') && sql.includes('WHERE device_id') && sql.includes('returned_at IS NULL')) {
+						if (
+							sql.includes('FROM device_assignments') &&
+							sql.includes('WHERE device_id') &&
+							sql.includes('returned_at IS NULL')
+						) {
 							const deviceId = params[0] as string
-							return Array.from(mockAssignments.values()).find((a: { device_id: string; returned_at: string | null }) =>
-								a.device_id === deviceId && !a.returned_at
-							) || null
+							return (
+								Array.from(mockAssignments.values()).find(
+									(a: { device_id: string; returned_at: string | null }) => a.device_id === deviceId && !a.returned_at,
+								) || null
+							)
 						}
 						if (sql.includes('FROM audit_log')) {
 							return mockAuditLogs[mockAuditLogs.length - 1] || null
@@ -65,8 +71,9 @@ function createMockEnv() {
 								return {
 									results: Array.from(mockAssignments.values())
 										.filter((a: { device_id: string }) => a.device_id === deviceId)
-										.sort((a: { assigned_at: string }, b: { assigned_at: string }) =>
-											new Date(b.assigned_at).getTime() - new Date(a.assigned_at).getTime()
+										.sort(
+											(a: { assigned_at: string }, b: { assigned_at: string }) =>
+												new Date(b.assigned_at).getTime() - new Date(a.assigned_at).getTime(),
 										),
 								}
 							}
@@ -75,8 +82,9 @@ function createMockEnv() {
 								return {
 									results: Array.from(mockAssignments.values())
 										.filter((a: { person_id: string }) => a.person_id === personId)
-										.sort((a: { assigned_at: string }, b: { assigned_at: string }) =>
-											new Date(b.assigned_at).getTime() - new Date(a.assigned_at).getTime()
+										.sort(
+											(a: { assigned_at: string }, b: { assigned_at: string }) =>
+												new Date(b.assigned_at).getTime() - new Date(a.assigned_at).getTime(),
 										),
 								}
 							}
@@ -84,8 +92,9 @@ function createMockEnv() {
 								return {
 									results: Array.from(mockAssignments.values())
 										.filter((a: { returned_at: string | null }) => !a.returned_at)
-										.sort((a: { assigned_at: string }, b: { assigned_at: string }) =>
-											new Date(b.assigned_at).getTime() - new Date(a.assigned_at).getTime()
+										.sort(
+											(a: { assigned_at: string }, b: { assigned_at: string }) =>
+												new Date(b.assigned_at).getTime() - new Date(a.assigned_at).getTime(),
 										),
 								}
 							}

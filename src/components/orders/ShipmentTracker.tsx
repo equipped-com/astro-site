@@ -28,7 +28,7 @@ export function ShipmentTracker({ trackingNumber, carrier, estimatedDelivery, st
 				return `https://www.dhl.com/en/express/tracking.html?AWB=${trackingNumber}`
 			default:
 				// Fallback to Google search
-				return `https://www.google.com/search?q=${encodeURIComponent(getCarrierName() + ' ' + trackingNumber)}`
+				return `https://www.google.com/search?q=${encodeURIComponent(`${getCarrierName()} ${trackingNumber}`)}`
 		}
 	}
 

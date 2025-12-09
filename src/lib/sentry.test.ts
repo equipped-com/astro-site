@@ -18,7 +18,7 @@ vi.mock('@sentry/browser', () => ({
 	captureException: vi.fn(),
 	captureMessage: vi.fn(),
 	addBreadcrumb: vi.fn(),
-	startSpan: vi.fn((options, callback) => callback({})),
+	startSpan: vi.fn((_options, callback) => callback({})),
 	browserTracingIntegration: vi.fn(() => 'browserTracingIntegration'),
 }))
 
@@ -179,7 +179,7 @@ describe('Sentry Error Tracking', () => {
 	describe('@REQ-MON-007: Performance monitoring', () => {
 		it('should create performance transaction for API request', () => {
 			const mockSpan = { finish: vi.fn() }
-			vi.mocked(Sentry.startSpan).mockImplementation((options, callback) => callback(mockSpan as never))
+			vi.mocked(Sentry.startSpan).mockImplementation((_options, callback) => callback(mockSpan as never))
 
 			const result = startTransaction('GET /api/devices', 'http.server')
 

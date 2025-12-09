@@ -29,7 +29,7 @@ export default function AssignmentHistory({ deviceId }: AssignmentHistoryProps) 
 
 	useEffect(() => {
 		fetchAssignmentHistory()
-	}, [deviceId])
+	}, [fetchAssignmentHistory])
 
 	async function fetchAssignmentHistory() {
 		setLoading(true)

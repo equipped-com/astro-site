@@ -48,7 +48,7 @@ function TeamAccessManager({ accountId, role }: TeamAccessManagerProps) {
 
 	useEffect(() => {
 		fetchTeamData()
-	}, [])
+	}, [fetchTeamData])
 
 	async function fetchTeamData() {
 		setLoading(true)
@@ -105,7 +105,7 @@ function TeamAccessManager({ accountId, role }: TeamAccessManagerProps) {
 		setMembers(prev => prev.map(member => (member.id === accessId ? { ...member, role: newRole } : member)))
 	}
 
-	async function handleRemoveMember(accessId: string, memberEmail: string) {
+	async function handleRemoveMember(accessId: string, _memberEmail: string) {
 		const response = await fetch(`/api/team/${accessId}`, {
 			method: 'DELETE',
 		})

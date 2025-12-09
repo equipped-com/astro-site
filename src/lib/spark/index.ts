@@ -5,7 +5,12 @@
  * Exports client, types, and utilities.
  */
 
-export { SparkClient, createSparkClient } from './client'
 export type { SparkClientConfig } from './client'
+export { createSparkClient, SparkClient } from './client'
+export {
+	generateTrackingEvents,
+	mapShipmentToFulfillmentStatus,
+	mockInventoryItems,
+	mockTrackingData,
+} from './mock-data'
 export * from './types'
-export { mockInventoryItems, mockTrackingData, generateTrackingEvents, mapShipmentToFulfillmentStatus } from './mock-data'
