@@ -562,7 +562,8 @@ epics:
       - id: customer-impersonation
         name: Customer Impersonation
         file: sysadmin/customer-impersonation.md
-        done: false
+        done: true
+        commit: cc49b6c
         complexity: high  # Security-sensitive, audit logging
         depends_on:
           - sysadmin/admin-dashboard
