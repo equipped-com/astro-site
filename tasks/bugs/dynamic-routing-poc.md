@@ -40,20 +40,30 @@ We need to establish the correct pattern for handling dynamic data (orders, peop
 
 ## POC Requirements
 
-### Option A: Static + Client-Side Routing
+### PREFERRED: Static + Client-Side Routing
+
+**This is the preferred approach** - keep Astro static, handle dynamics in React.
+
+Why:
+- Simpler deployment (static assets + API worker)
+- No SSR complexity or cold starts
+- Dashboard doesn't need SEO anyway
+- Keeps current architecture intact
 
 Test this approach:
 1. Single Astro page: `src/pages/dashboard/orders.astro`
 2. React app with internal routing: `<OrdersApp client:only="react" />`
 3. Use URL search params: `/dashboard/orders?view=detail&id=xxx`
-4. CloudFlare Worker rule to handle `/dashboard/orders/*` -> `/dashboard/orders`
+4. CloudFlare Worker rule to handle `/dashboard/orders/*` -> `/dashboard/orders` (if needed)
 
 **Deliverables:**
 - Working prototype with order list + detail views
 - Direct link support (copy URL, paste, works)
 - Document the pattern for other routes
 
-### Option B: Hybrid SSR
+### FALLBACK ONLY: Hybrid SSR
+
+Only explore this if static + client-side has a blocking issue.
 
 Test this approach:
 1. Configure Astro for `output: 'hybrid'`
@@ -65,6 +75,8 @@ Test this approach:
 - Working prototype with true `/dashboard/orders/[id]` routes
 - Verify API worker still works alongside
 - Document deployment requirements
+
+**Note:** Avoid this option if possible - adds complexity.
 
 ## Acceptance Criteria
 
