@@ -39,9 +39,15 @@ const mockDb = {
 	all: vi.fn(),
 }
 
-// Create test app
+// Create test app with middleware to inject DB
 function createTestApp() {
 	const app = new Hono<{ Bindings: { DB: typeof mockDb }; Variables: any }>()
+	// Inject mock DB into env
+	app.use('*', async (c, next) => {
+		// @ts-expect-error - mocking env
+		c.env = { DB: mockDb }
+		return next()
+	})
 	app.route('/api/admin/impersonation', impersonationRoutes)
 	return app
 }
@@ -159,9 +165,7 @@ describe('Impersonation API Routes', () => {
 			})
 
 			// Verify audit log was created
-			expect(mockDb.prepare).toHaveBeenCalledWith(
-				expect.stringContaining('INSERT INTO audit_logs'),
-			)
+			expect(mockDb.prepare).toHaveBeenCalledWith(expect.stringContaining('INSERT INTO audit_logs'))
 			expect(mockDb.bind).toHaveBeenCalledWith(
 				expect.any(String), // id
 				'user_admin123', // user_id
@@ -277,9 +281,7 @@ describe('Impersonation API Routes', () => {
 			})
 
 			// Verify the logged details include admin info
-			const bindCall = mockDb.bind.mock.calls.find(
-				call => call[3] === 'view_devices',
-			)
+			const bindCall = mockDb.bind.mock.calls.find(call => call[3] === 'view_devices')
 			expect(bindCall).toBeDefined()
 
 			const details = JSON.parse(bindCall[4])

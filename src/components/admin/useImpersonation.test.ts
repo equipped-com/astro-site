@@ -22,7 +22,9 @@ const mockLocalStorage = {
 		delete mockStorage[key]
 	}),
 	clear: vi.fn(() => {
-		Object.keys(mockStorage).forEach(key => delete mockStorage[key])
+		for (const key of Object.keys(mockStorage)) {
+			delete mockStorage[key]
+		}
 	}),
 }
 
@@ -72,7 +74,7 @@ describe('useImpersonation Hook', () => {
 		})
 
 		it('should return isImpersonating=true when session exists', () => {
-			mockStorage['equipped_impersonation_session'] = JSON.stringify(mockSession)
+			mockStorage.equipped_impersonation_session = JSON.stringify(mockSession)
 
 			const { result } = renderHook(() => useImpersonation())
 
@@ -93,7 +95,7 @@ describe('useImpersonation Hook', () => {
 		})
 
 		it('should return true for restricted actions when impersonating', () => {
-			mockStorage['equipped_impersonation_session'] = JSON.stringify(mockSession)
+			mockStorage.equipped_impersonation_session = JSON.stringify(mockSession)
 
 			const { result } = renderHook(() => useImpersonation())
 
@@ -103,7 +105,7 @@ describe('useImpersonation Hook', () => {
 		})
 
 		it('should return false for allowed actions when impersonating', () => {
-			mockStorage['equipped_impersonation_session'] = JSON.stringify(mockSession)
+			mockStorage.equipped_impersonation_session = JSON.stringify(mockSession)
 
 			const { result } = renderHook(() => useImpersonation())
 
@@ -120,7 +122,7 @@ describe('useImpersonation Hook', () => {
 		})
 
 		it('should return message for restricted actions when impersonating', () => {
-			mockStorage['equipped_impersonation_session'] = JSON.stringify(mockSession)
+			mockStorage.equipped_impersonation_session = JSON.stringify(mockSession)
 
 			const { result } = renderHook(() => useImpersonation())
 
@@ -130,7 +132,7 @@ describe('useImpersonation Hook', () => {
 		})
 
 		it('should return null for allowed actions when impersonating', () => {
-			mockStorage['equipped_impersonation_session'] = JSON.stringify(mockSession)
+			mockStorage.equipped_impersonation_session = JSON.stringify(mockSession)
 
 			const { result } = renderHook(() => useImpersonation())
 
@@ -140,7 +142,7 @@ describe('useImpersonation Hook', () => {
 
 	describe('exitImpersonation()', () => {
 		beforeEach(() => {
-			mockStorage['equipped_impersonation_session'] = JSON.stringify(mockSession)
+			mockStorage.equipped_impersonation_session = JSON.stringify(mockSession)
 			;(global.fetch as any).mockResolvedValue({
 				ok: true,
 				json: async () => ({ success: true }),
@@ -196,7 +198,7 @@ describe('useImpersonation Hook', () => {
 
 	describe('logAction()', () => {
 		beforeEach(() => {
-			mockStorage['equipped_impersonation_session'] = JSON.stringify(mockSession)
+			mockStorage.equipped_impersonation_session = JSON.stringify(mockSession)
 			;(global.fetch as any).mockResolvedValue({
 				ok: true,
 				json: async () => ({ success: true }),

@@ -9,8 +9,8 @@
  * @REQ-SA-009 Exit impersonation
  */
 import { Hono } from 'hono'
-import { requireSysAdmin } from '../../middleware/sysadmin'
 import { RESTRICTED_ACTIONS, type RestrictedAction } from '@/lib/impersonation'
+import { requireSysAdmin } from '../../middleware/sysadmin'
 
 interface Env {
 	DB?: D1Database

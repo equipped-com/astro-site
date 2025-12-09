@@ -31,11 +31,6 @@ interface RestrictedActionProps {
 	 * Whether to show the restriction message inline
 	 */
 	showMessage?: boolean
-
-	/**
-	 * Callback when action is attempted while restricted
-	 */
-	onRestrictedAttempt?: () => void
 }
 
 /**
@@ -60,13 +55,7 @@ interface RestrictedActionProps {
  * />
  * ```
  */
-export function RestrictedAction({
-	action,
-	children,
-	render,
-	showMessage = true,
-	onRestrictedAttempt,
-}: RestrictedActionProps) {
+export function RestrictedAction({ action, children, render, showMessage = true }: RestrictedActionProps) {
 	const { isImpersonating, checkRestricted, getRestrictionMessage } = useImpersonation()
 
 	const isRestricted = isImpersonating && checkRestricted(action)
@@ -81,16 +70,8 @@ export function RestrictedAction({
 	if (isRestricted) {
 		return (
 			<div className="relative group">
-				{/* Disabled overlay on children */}
-				<div
-					className="opacity-50 pointer-events-none"
-					aria-disabled="true"
-					onClick={e => {
-						e.preventDefault()
-						e.stopPropagation()
-						onRestrictedAttempt?.()
-					}}
-				>
+				{/* Disabled overlay on children - pointer-events-none blocks all interactions */}
+				<div className="opacity-50 pointer-events-none" aria-disabled="true">
 					{children}
 				</div>
 

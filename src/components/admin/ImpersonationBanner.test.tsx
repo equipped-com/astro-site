@@ -22,7 +22,9 @@ const mockLocalStorage = {
 		delete mockStorage[key]
 	}),
 	clear: vi.fn(() => {
-		Object.keys(mockStorage).forEach(key => delete mockStorage[key])
+		for (const key of Object.keys(mockStorage)) {
+			delete mockStorage[key]
+		}
 	}),
 }
 
@@ -69,7 +71,7 @@ describe('ImpersonationBanner Component', () => {
 
 	describe('when impersonating', () => {
 		beforeEach(() => {
-			mockStorage['equipped_impersonation_session'] = JSON.stringify(mockSession)
+			mockStorage.equipped_impersonation_session = JSON.stringify(mockSession)
 		})
 
 		/**
@@ -108,7 +110,8 @@ describe('ImpersonationBanner Component', () => {
 		it('should show audit warning', () => {
 			render(<ImpersonationBanner />)
 
-			expect(screen.getByText('All actions are logged for audit purposes')).toBeInTheDocument()
+			// Text appears twice (desktop and mobile versions)
+			expect(screen.getAllByText('All actions are logged for audit purposes')).toHaveLength(2)
 		})
 
 		/**
@@ -135,7 +138,7 @@ describe('ImpersonationBanner Component', () => {
 
 	describe('exit impersonation', () => {
 		beforeEach(() => {
-			mockStorage['equipped_impersonation_session'] = JSON.stringify(mockSession)
+			mockStorage.equipped_impersonation_session = JSON.stringify(mockSession)
 			;(global.fetch as any).mockResolvedValue({
 				ok: true,
 				json: async () => ({ success: true }),
@@ -215,7 +218,7 @@ describe('ImpersonationBanner Component', () => {
 		it('should display session duration', () => {
 			// Set session started 30 minutes ago
 			const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000).toISOString()
-			mockStorage['equipped_impersonation_session'] = JSON.stringify({
+			mockStorage.equipped_impersonation_session = JSON.stringify({
 				...mockSession,
 				startedAt: thirtyMinutesAgo,
 			})

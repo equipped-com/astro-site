@@ -2,14 +2,47 @@
  * Customer List Component Tests
  *
  * @REQ-SA-003 View all customers with search/filter
+ * @REQ-SA-006 Enter impersonation mode
  */
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import CustomerList from './CustomerList'
 
 // Mock fetch
 global.fetch = vi.fn()
+
+// Mock @clerk/clerk-react
+vi.mock('@clerk/clerk-react', () => ({
+	useUser: () => ({
+		user: {
+			id: 'user_admin123',
+			firstName: 'John',
+			lastName: 'Admin',
+			primaryEmailAddress: { emailAddress: 'admin@tryequipped.com' },
+		},
+	}),
+}))
+
+// Mock localStorage
+const mockStorage: Record<string, string> = {}
+const mockLocalStorage = {
+	getItem: vi.fn((key: string) => mockStorage[key] || null),
+	setItem: vi.fn((key: string, value: string) => {
+		mockStorage[key] = value
+	}),
+	removeItem: vi.fn((key: string) => {
+		delete mockStorage[key]
+	}),
+	clear: vi.fn(() => {
+		for (const key of Object.keys(mockStorage)) {
+			delete mockStorage[key]
+		}
+	}),
+}
+
+// Store original location
+const originalLocation = window.location
 
 const mockCustomers = [
 	{
@@ -44,6 +77,21 @@ const mockCustomers = [
 describe('CustomerList Component', () => {
 	beforeEach(() => {
 		vi.clearAllMocks()
+		mockLocalStorage.clear()
+		Object.defineProperty(window, 'localStorage', { value: mockLocalStorage })
+
+		// Mock window.location
+		Object.defineProperty(window, 'location', {
+			value: { href: '' },
+			writable: true,
+		})
+	})
+
+	afterEach(() => {
+		Object.defineProperty(window, 'location', {
+			value: originalLocation,
+			writable: true,
+		})
 	})
 
 	/**
@@ -250,6 +298,195 @@ describe('CustomerList Component', () => {
 
 		await waitFor(() => {
 			expect(screen.getByText('Export CSV')).toBeInTheDocument()
+		})
+	})
+
+	/**
+	 * @REQ-SA-006
+	 * Scenario: Enter impersonation mode
+	 *   Given I am viewing customer "Acme Corp" in admin
+	 *   When I click "View as Customer"
+	 *   Then I should see Acme's dashboard
+	 */
+	describe('Customer Impersonation', () => {
+		it('should display "View as Customer" button for each customer', async () => {
+			;(global.fetch as any).mockResolvedValueOnce({
+				ok: true,
+				json: async () => mockCustomers,
+			})
+
+			render(<CustomerList />)
+
+			await waitFor(() => {
+				// Check for impersonation buttons
+				expect(screen.getByTestId('impersonate-acme')).toBeInTheDocument()
+				expect(screen.getByTestId('impersonate-techcorp')).toBeInTheDocument()
+				expect(screen.getByTestId('impersonate-startupxyz')).toBeInTheDocument()
+			})
+		})
+
+		it('should call impersonation API when clicking "View as Customer"', async () => {
+			// Mock fetch for customers list
+			;(global.fetch as any).mockResolvedValueOnce({
+				ok: true,
+				json: async () => mockCustomers,
+			})
+
+			// Mock fetch for impersonation start
+			;(global.fetch as any).mockResolvedValueOnce({
+				ok: true,
+				json: async () => ({
+					success: true,
+					session: {
+						adminUserId: 'user_admin123',
+						adminEmail: 'admin@tryequipped.com',
+						adminName: 'John Admin',
+						accountId: 'acc_1',
+						accountName: 'Acme Corporation',
+						accountShortName: 'acme',
+						startedAt: new Date().toISOString(),
+					},
+				}),
+			})
+
+			const user = userEvent.setup()
+			render(<CustomerList />)
+
+			await waitFor(() => {
+				expect(screen.getByTestId('impersonate-acme')).toBeInTheDocument()
+			})
+
+			// Click the impersonate button
+			await user.click(screen.getByTestId('impersonate-acme'))
+
+			await waitFor(() => {
+				expect(global.fetch).toHaveBeenCalledWith('/api/admin/impersonation/start', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ accountId: 'acc_1' }),
+				})
+			})
+		})
+
+		it('should redirect to customer dashboard after starting impersonation', async () => {
+			;(global.fetch as any).mockResolvedValueOnce({
+				ok: true,
+				json: async () => mockCustomers,
+			})
+
+			;(global.fetch as any).mockResolvedValueOnce({
+				ok: true,
+				json: async () => ({
+					success: true,
+					session: {
+						adminUserId: 'user_admin123',
+						adminEmail: 'admin@tryequipped.com',
+						adminName: 'John Admin',
+						accountId: 'acc_1',
+						accountName: 'Acme Corporation',
+						accountShortName: 'acme',
+						startedAt: new Date().toISOString(),
+					},
+				}),
+			})
+
+			const user = userEvent.setup()
+			render(<CustomerList />)
+
+			await waitFor(() => {
+				expect(screen.getByTestId('impersonate-acme')).toBeInTheDocument()
+			})
+
+			await user.click(screen.getByTestId('impersonate-acme'))
+
+			await waitFor(() => {
+				expect(window.location.href).toBe('https://acme.tryequipped.com/dashboard?impersonate=true')
+			})
+		})
+
+		it('should store impersonation session in localStorage', async () => {
+			;(global.fetch as any).mockResolvedValueOnce({
+				ok: true,
+				json: async () => mockCustomers,
+			})
+
+			;(global.fetch as any).mockResolvedValueOnce({
+				ok: true,
+				json: async () => ({
+					success: true,
+					session: {
+						adminUserId: 'user_admin123',
+						adminEmail: 'admin@tryequipped.com',
+						adminName: 'John Admin',
+						accountId: 'acc_1',
+						accountName: 'Acme Corporation',
+						accountShortName: 'acme',
+						startedAt: new Date().toISOString(),
+					},
+				}),
+			})
+
+			const user = userEvent.setup()
+			render(<CustomerList />)
+
+			await waitFor(() => {
+				expect(screen.getByTestId('impersonate-acme')).toBeInTheDocument()
+			})
+
+			await user.click(screen.getByTestId('impersonate-acme'))
+
+			await waitFor(() => {
+				expect(mockLocalStorage.setItem).toHaveBeenCalledWith('equipped_impersonation_session', expect.any(String))
+			})
+		})
+
+		it('should show loading state while starting impersonation', async () => {
+			;(global.fetch as any).mockResolvedValueOnce({
+				ok: true,
+				json: async () => mockCustomers,
+			})
+
+			// Slow response for impersonation
+			;(global.fetch as any).mockImplementationOnce(() => new Promise(resolve => setTimeout(resolve, 1000)))
+
+			const user = userEvent.setup()
+			render(<CustomerList />)
+
+			await waitFor(() => {
+				expect(screen.getByTestId('impersonate-acme')).toBeInTheDocument()
+			})
+
+			await user.click(screen.getByTestId('impersonate-acme'))
+
+			// Button should show loading state
+			await waitFor(() => {
+				expect(screen.getByText('Loading...')).toBeInTheDocument()
+			})
+		})
+
+		it('should show error when impersonation fails', async () => {
+			;(global.fetch as any).mockResolvedValueOnce({
+				ok: true,
+				json: async () => mockCustomers,
+			})
+
+			;(global.fetch as any).mockResolvedValueOnce({
+				ok: false,
+				json: async () => ({ error: 'Failed to start impersonation' }),
+			})
+
+			const user = userEvent.setup()
+			render(<CustomerList />)
+
+			await waitFor(() => {
+				expect(screen.getByTestId('impersonate-acme')).toBeInTheDocument()
+			})
+
+			await user.click(screen.getByTestId('impersonate-acme'))
+
+			await waitFor(() => {
+				expect(screen.getByText('Error loading customers')).toBeInTheDocument()
+			})
 		})
 	})
 })

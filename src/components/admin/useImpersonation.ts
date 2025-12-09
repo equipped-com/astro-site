@@ -11,9 +11,9 @@ import {
 	endImpersonationSession,
 	getAdminDashboardUrl,
 	getImpersonationSession,
+	type ImpersonationSession,
 	isActionRestricted,
 	RESTRICTED_ACTION_NAMES,
-	type ImpersonationSession,
 	type RestrictedAction,
 } from '@/lib/impersonation'
 

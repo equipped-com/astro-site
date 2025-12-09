@@ -13,12 +13,12 @@ import {
 	getAdminDashboardUrl,
 	getImpersonationSession,
 	getImpersonationUrl,
+	type ImpersonationSession,
 	isActionRestricted,
 	isImpersonating,
 	RESTRICTED_ACTION_NAMES,
 	RESTRICTED_ACTIONS,
 	startImpersonationSession,
-	type ImpersonationSession,
 } from './impersonation'
 
 // Mock localStorage
@@ -32,7 +32,9 @@ const mockLocalStorage = {
 		delete mockStorage[key]
 	}),
 	clear: vi.fn(() => {
-		Object.keys(mockStorage).forEach(key => delete mockStorage[key])
+		for (const key of Object.keys(mockStorage)) {
+			delete mockStorage[key]
+		}
 	}),
 }
 
@@ -77,7 +79,7 @@ describe('Impersonation Library', () => {
 		})
 
 		it('should return session when it exists', () => {
-			mockStorage['equipped_impersonation_session'] = JSON.stringify(mockSession)
+			mockStorage.equipped_impersonation_session = JSON.stringify(mockSession)
 
 			const session = getImpersonationSession()
 
@@ -85,7 +87,7 @@ describe('Impersonation Library', () => {
 		})
 
 		it('should return null for invalid JSON', () => {
-			mockStorage['equipped_impersonation_session'] = 'invalid json'
+			mockStorage.equipped_impersonation_session = 'invalid json'
 
 			const session = getImpersonationSession()
 
@@ -93,7 +95,7 @@ describe('Impersonation Library', () => {
 		})
 
 		it('should return null for session without required fields', () => {
-			mockStorage['equipped_impersonation_session'] = JSON.stringify({
+			mockStorage.equipped_impersonation_session = JSON.stringify({
 				adminEmail: 'admin@test.com',
 				// Missing adminUserId and accountId
 			})
@@ -138,7 +140,7 @@ describe('Impersonation Library', () => {
 		 *   Then customer session should be cleared
 		 */
 		it('should remove session from localStorage', () => {
-			mockStorage['equipped_impersonation_session'] = JSON.stringify(mockSession)
+			mockStorage.equipped_impersonation_session = JSON.stringify(mockSession)
 
 			endImpersonationSession()
 
@@ -146,7 +148,7 @@ describe('Impersonation Library', () => {
 		})
 
 		it('should dispatch custom event with previous session', () => {
-			mockStorage['equipped_impersonation_session'] = JSON.stringify(mockSession)
+			mockStorage.equipped_impersonation_session = JSON.stringify(mockSession)
 
 			endImpersonationSession()
 
@@ -163,7 +165,7 @@ describe('Impersonation Library', () => {
 		})
 
 		it('should return true when session exists', () => {
-			mockStorage['equipped_impersonation_session'] = JSON.stringify(mockSession)
+			mockStorage.equipped_impersonation_session = JSON.stringify(mockSession)
 
 			expect(isImpersonating()).toBe(true)
 		})
@@ -244,9 +246,7 @@ describe('Impersonation Library', () => {
 
 		it('should handle different account short names', () => {
 			expect(getImpersonationUrl('techcorp')).toBe('https://techcorp.tryequipped.com/dashboard?impersonate=true')
-			expect(getImpersonationUrl('startup-xyz')).toBe(
-				'https://startup-xyz.tryequipped.com/dashboard?impersonate=true',
-			)
+			expect(getImpersonationUrl('startup-xyz')).toBe('https://startup-xyz.tryequipped.com/dashboard?impersonate=true')
 		})
 	})
 

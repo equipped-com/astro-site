@@ -8,7 +8,7 @@
  * @REQ-SA-006 Enter impersonation mode
  */
 import { useUser } from '@clerk/clerk-react'
-import { Building2, Eye, ExternalLink, Search } from 'lucide-react'
+import { Building2, ExternalLink, Eye, Search } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
 import { getImpersonationUrl, startImpersonationSession } from '@/lib/impersonation'
 import { EmptyState } from '../dashboard/EmptyState'
@@ -159,7 +159,7 @@ export default function CustomerList() {
 			{/* Customer table */}
 			{filteredCustomers.length === 0 ? (
 				<EmptyState
-					icon={Building2}
+					icon={<Building2 className="h-12 w-12" />}
 					title="No customers found"
 					description={searchQuery ? 'Try adjusting your search query' : 'No customer accounts exist yet'}
 				/>
