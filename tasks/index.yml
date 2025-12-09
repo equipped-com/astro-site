@@ -791,7 +791,8 @@ epics:
       - id: dynamic-routing-poc
         name: POC - Dynamic Routing Strategy
         file: bugs/dynamic-routing-poc.md
-        done: false
+        done: true
+        commit: 99b49ca
         complexity: high
         depends_on: []
       - id: order-details-static-routes
