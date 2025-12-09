@@ -1,10 +1,22 @@
 ---
-import { OrderList } from '@/components/orders/OrderList'
+/**
+ * Orders Page - Static + Client-Side Routing Pattern
+ *
+ * This page serves as the single entry point for all order views:
+ * - /dashboard/orders - Shows order list
+ * - /dashboard/orders?id=xxx - Shows order detail
+ *
+ * The OrdersApp React component handles routing internally via URL search params.
+ * This avoids Astro's getStaticPaths() limitation where all IDs must be known at build time.
+ *
+ * See: documentation/dynamic-routing-decision.md
+ */
+import { OrdersApp } from '@/components/orders/OrdersApp'
 import DashboardLayout from '@/layouts/DashboardLayout.astro'
 import type { OrderWithItems } from '@/lib/scoped-queries'
 
 // Mock data for demonstration
-// In production, this would come from the database via an API endpoint
+// In production, this would be fetched client-side from the API
 const mockOrders: OrderWithItems[] = [
 	{
 		id: 'ord_1234567890abcdef',
@@ -17,10 +29,16 @@ const mockOrders: OrderWithItems[] = [
 		shipping_cost: 0,
 		tax_amount: 224.91,
 		total: 2723.91,
+		shipping_address: '123 Main Street',
+		shipping_city: 'San Francisco',
+		shipping_state: 'CA',
+		shipping_zip: '94105',
+		shipping_country: 'US',
 		tracking_number: '1Z999AA10123456784',
 		carrier: 'UPS',
-		estimated_delivery: '2025-12-15',
+		estimated_delivery: '2025-12-15T18:00:00Z',
 		created_at: '2025-12-01T10:30:00Z',
+		updated_at: '2025-12-02T14:22:00Z',
 		creator_name: 'Alice Johnson',
 		assignee_name: 'Bob Smith',
 		items: [
@@ -32,6 +50,7 @@ const mockOrders: OrderWithItems[] = [
 				quantity: 1,
 				unit_price: 2499.0,
 				total_price: 2499.0,
+				specs: '16GB RAM, 512GB SSD, Space Black',
 			},
 		],
 	},
@@ -46,6 +65,11 @@ const mockOrders: OrderWithItems[] = [
 		tax_amount: 449.82,
 		total: 5447.82,
 		monthly_cost: 226.16,
+		shipping_address: '456 Tech Avenue',
+		shipping_city: 'Austin',
+		shipping_state: 'TX',
+		shipping_zip: '78701',
+		shipping_country: 'US',
 		created_at: '2025-12-05T14:22:00Z',
 		creator_name: 'Alice Johnson',
 		items: [
@@ -58,6 +82,7 @@ const mockOrders: OrderWithItems[] = [
 				unit_price: 2499.0,
 				monthly_price: 113.08,
 				total_price: 4998.0,
+				specs: '16GB RAM, 512GB SSD, Space Black',
 			},
 		],
 	},
@@ -72,10 +97,16 @@ const mockOrders: OrderWithItems[] = [
 		shipping_cost: 0,
 		tax_amount: 143.91,
 		total: 1742.91,
+		shipping_address: '789 Innovation Drive',
+		shipping_city: 'Seattle',
+		shipping_state: 'WA',
+		shipping_zip: '98101',
+		shipping_country: 'US',
 		tracking_number: '1Z999AA10123456785',
 		carrier: 'UPS',
 		delivered_at: '2025-11-28T16:45:00Z',
 		created_at: '2025-11-20T09:15:00Z',
+		updated_at: '2025-11-28T16:45:00Z',
 		creator_name: 'Carol Williams',
 		assignee_name: 'David Lee',
 		items: [
@@ -87,6 +118,7 @@ const mockOrders: OrderWithItems[] = [
 				quantity: 1,
 				unit_price: 1599.0,
 				total_price: 1599.0,
+				specs: '256GB, Wi-Fi + Cellular, Space Gray',
 			},
 		],
 	},
@@ -100,6 +132,11 @@ const mockOrders: OrderWithItems[] = [
 		shipping_cost: 15.0,
 		tax_amount: 48.96,
 		total: 592.96,
+		shipping_address: '321 Developer Lane',
+		shipping_city: 'New York',
+		shipping_state: 'NY',
+		shipping_zip: '10001',
+		shipping_country: 'US',
 		created_at: '2025-12-07T11:00:00Z',
 		creator_name: 'Alice Johnson',
 		items: [
@@ -115,7 +152,7 @@ const mockOrders: OrderWithItems[] = [
 			{
 				id: 'item_5',
 				order_id: 'ord_4567890123defghi',
-				product_name: 'Magic Keyboard',
+				product_name: 'Magic Keyboard with Touch ID',
 				product_sku: 'MK-TOUCH-ID',
 				quantity: 1,
 				unit_price: 149.0,
@@ -133,6 +170,7 @@ const mockOrders: OrderWithItems[] = [
 			<p class="text-muted-foreground mt-2">View and manage all orders for your team</p>
 		</div>
 
-		<OrderList orders={mockOrders} client:only="react" />
+		<!-- OrdersApp handles both list and detail views via URL search params -->
+		<OrdersApp orders={mockOrders} client:only="react" />
 	</div>
 </DashboardLayout>
