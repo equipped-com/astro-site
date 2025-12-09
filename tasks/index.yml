@@ -236,7 +236,8 @@ epics:
       - id: initial-schema
         name: Initial Database Schema (Multi-Tenant)
         file: database/initial-schema.md
-        done: false
+        done: true
+        commit: e1b7338
         complexity: high  # Architectural, multi-tenant design
         depends_on:
           - database/create-d1-database
