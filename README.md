@@ -138,12 +138,89 @@ Tasks marked `requires: human` need manual action (dashboard setup, API keys, pa
 - **oklch Colors** - Modern color system with shadcn/ui semantics
 - **Biome** - Fast linting and formatting (replaces ESLint + Prettier)
 
+## Environment Configuration
+
+### Required Environment Variables
+
+Copy `.env.example` to `.env.local` and configure:
+
+```bash
+cp .env.example .env.local
+```
+
+| Variable | Description | Where to Get |
+|----------|-------------|--------------|
+| `PUBLIC_CLERK_PUBLISHABLE_KEY` | Clerk client-side key | [Clerk Dashboard](https://dashboard.clerk.com) → API Keys |
+| `CLERK_SECRET_KEY` | Clerk server-side key | [Clerk Dashboard](https://dashboard.clerk.com) → API Keys |
+| `CLERK_WEBHOOK_SECRET` | Webhook signature verification | Clerk Dashboard → Webhooks |
+| `PUBLIC_SENTRY_DSN` | Sentry error tracking DSN | [Sentry Dashboard](https://sentry.io) → Project Settings |
+| `PUBLIC_APP_VERSION` | App version for Sentry releases | Set manually (e.g., `1.0.0`) |
+
+**Note:** Variables prefixed with `PUBLIC_` are exposed to client-side code (Astro convention).
+
+### CloudFlare Configuration
+
+The project uses CloudFlare Workers with D1 database. Configuration is in `wrangler.toml`:
+
+| Setting | Value | Purpose |
+|---------|-------|---------|
+| `name` | `tryequipped` | Worker name |
+| `d1_databases.binding` | `DB` | Database binding name |
+| `d1_databases.database_id` | `cbc09752-...` | D1 database ID |
+| `routes.pattern` | `tryequipped.preview.frst.dev` | Custom domain |
+
+**CloudFlare Account ID** (for wrangler commands):
+```bash
+export CLOUDFLARE_ACCOUNT_ID=e6bd4c9e08862c4b3c8ddacbbef253b1
+```
+
+### Local Development
+
+```bash
+# Install dependencies
+bun install
+
+# Run local D1 database migrations
+bunx wrangler d1 execute equipped-db --local --file=drizzle/0000_init.sql
+
+# Start dev server
+bun run dev
+```
+
+## Human Tasks
+
+Some tasks require manual setup in external dashboards. These are tracked in `tasks/index.yml` with `requires: human`.
+
+### Completed (✅)
+
+| Task | Status | Notes |
+|------|--------|-------|
+| Clerk Application Setup | ✅ Done | Keys configured in `.env.local` |
+| D1 Database Creation | ✅ Done | Created via `wrangler d1 create` |
+| Database Schema | ✅ Done | 16 tables deployed to local + remote |
+
+### Remaining (⏳)
+
+| Task | File | What's Needed |
+|------|------|---------------|
+| [Stripe Payments](tasks/integrations/stripe-payments.md) | `integrations/stripe-payments` | Create Stripe account, get API keys |
+| [PostHog Analytics](tasks/integrations/posthog-analytics.md) | `integrations/posthog-analytics` | Create PostHog project, get API key |
+| [Plaid Verification](tasks/integrations/plaid-verification.md) | `integrations/plaid-verification` | Create Plaid account for bank verification |
+| [Macquarie Leasing](tasks/integrations/macquarie-leasing.md) | `integrations/macquarie-leasing` | Partnership agreement required |
+| [Upgraded API](tasks/integrations/upgraded-api.md) | `integrations/upgraded-api` | Partnership agreement required |
+
+**Note:** Mark tasks as `done: true` in `tasks/index.yml` when complete, and add `commit: {hash}` if code was committed.
+
 ## Deployment
 
 CloudFlare Workers with static assets. Domain: tryequipped.com
 
 ```bash
+# Deploy to CloudFlare
 bun run deploy
+
+# Deploy database migrations (production)
+bunx wrangler d1 execute equipped-db --remote --file=drizzle/0000_init.sql
 ```
 
 ## License

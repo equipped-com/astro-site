@@ -286,7 +286,7 @@ epics:
       - id: create-clerk-app
         name: Create Clerk Application
         file: auth/create-clerk-app.md
-        done: false
+        done: true  # Keys configured in .env.local
         complexity: low
         requires: human  # Clerk dashboard setup
         depends_on: []
