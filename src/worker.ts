@@ -3,6 +3,8 @@ import { cors } from 'hono/cors'
 import { logger } from 'hono/logger'
 import type { Role, User } from './api/middleware'
 import { authMiddleware, requireAccountAccess, requireAdmin, requireAuth, tenantMiddleware } from './api/middleware'
+import impersonationRoutes from './api/routes/admin/impersonation'
+import alchemyRoutes from './api/routes/alchemy'
 import deviceAssignmentsRoutes from './api/routes/device-assignments'
 import deviceRoutes from './api/routes/devices'
 import organizationRoutes from './api/routes/organization'
@@ -139,6 +141,7 @@ app.route('/api/user', userRoutes)
 // ============================================================================
 
 // Routes requiring account access
+app.use('/api/alchemy/*', requireAccountAccess())
 app.use('/api/devices/*', requireAccountAccess())
 app.use('/api/device-assignments/*', requireAccountAccess())
 app.use('/api/orders/*', requireAccountAccess())
@@ -152,6 +155,9 @@ app.use('/api/proposals', (c, next) => {
 	}
 	return requireAccountAccess()(c, next)
 })
+
+// Mount Alchemy routes (device valuation, lookup, FindMy status)
+app.route('/api/alchemy', alchemyRoutes)
 
 // Mount device routes
 app.route('/api/devices', deviceRoutes)
@@ -173,6 +179,13 @@ app.route('/api/team', teamRoutes)
 
 // Mount store routes (Shopify integration)
 app.route('/api/store', storeRoutes)
+
+// ============================================================================
+// SYS ADMIN ROUTES - requires sys_admin authentication
+// ============================================================================
+
+// Mount admin impersonation routes (includes sys_admin middleware internally)
+app.route('/api/admin/impersonation', impersonationRoutes)
 
 // ============================================================================
 // ADMIN ROUTES - requires auth + account access + admin role

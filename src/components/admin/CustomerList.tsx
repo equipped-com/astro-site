@@ -2,11 +2,16 @@
  * Customer List Component
  *
  * Displays all customer accounts with search and filtering for sys admins.
+ * Includes "View as Customer" button for impersonation.
+ *
+ * @REQ-SA-003 View all customers with search/filter
+ * @REQ-SA-006 Enter impersonation mode
  */
-import { Building2, ExternalLink, Search } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useUser } from '@clerk/clerk-react'
+import { Building2, Eye, ExternalLink, Search } from 'lucide-react'
+import { useCallback, useEffect, useState } from 'react'
+import { getImpersonationUrl, startImpersonationSession } from '@/lib/impersonation'
 import { EmptyState } from '../dashboard/EmptyState'
-import { Spinner } from '../dashboard/Spinner'
 import { TableSkeleton } from '../dashboard/TableSkeleton'
 
 interface Customer {
@@ -20,11 +25,13 @@ interface Customer {
 }
 
 export default function CustomerList() {
+	const { user } = useUser()
 	const [customers, setCustomers] = useState<Customer[]>([])
 	const [filteredCustomers, setFilteredCustomers] = useState<Customer[]>([])
 	const [loading, setLoading] = useState(true)
 	const [error, setError] = useState<string | null>(null)
 	const [searchQuery, setSearchQuery] = useState('')
+	const [impersonating, setImpersonating] = useState<string | null>(null)
 
 	useEffect(() => {
 		async function fetchCustomers() {
@@ -70,6 +77,44 @@ export default function CustomerList() {
 			day: 'numeric',
 		})
 	}
+
+	/**
+	 * Start impersonation session for a customer
+	 * @REQ-SA-006 Enter impersonation mode
+	 */
+	const handleViewAsCustomer = useCallback(
+		async (customer: Customer) => {
+			if (!user) return
+
+			setImpersonating(customer.id)
+
+			try {
+				// Call API to log impersonation start
+				const response = await fetch('/api/admin/impersonation/start', {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify({ accountId: customer.id }),
+				})
+
+				if (!response.ok) {
+					throw new Error('Failed to start impersonation')
+				}
+
+				const { session } = await response.json()
+
+				// Store session in localStorage
+				startImpersonationSession(session)
+
+				// Redirect to customer's dashboard with impersonation flag
+				window.location.href = getImpersonationUrl(customer.short_name)
+			} catch (err) {
+				console.error('Failed to start impersonation:', err)
+				setError(err instanceof Error ? err.message : 'Failed to start impersonation')
+				setImpersonating(null)
+			}
+		},
+		[user],
+	)
 
 	if (loading) {
 		return <TableSkeleton />
@@ -160,15 +205,29 @@ export default function CustomerList() {
 									<td className="px-6 py-4 text-sm text-muted-foreground">{formatDate(customer.last_order_date)}</td>
 									<td className="px-6 py-4 text-sm text-muted-foreground">{formatDate(customer.created_at)}</td>
 									<td className="px-6 py-4 text-right text-sm">
-										<a
-											href={`https://${customer.short_name}.tryequipped.com`}
-											target="_blank"
-											rel="noopener noreferrer"
-											className="inline-flex items-center gap-1 text-primary hover:underline"
-										>
-											View
-											<ExternalLink className="h-3 w-3" />
-										</a>
+										<div className="flex items-center justify-end gap-3">
+											{/* View as Customer button - @REQ-SA-006 */}
+											<button
+												type="button"
+												onClick={() => handleViewAsCustomer(customer)}
+												disabled={impersonating === customer.id}
+												className="inline-flex items-center gap-1 rounded-md bg-amber-100 px-3 py-1.5 text-sm font-medium text-amber-900 hover:bg-amber-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+												data-testid={`impersonate-${customer.short_name}`}
+											>
+												<Eye className="h-3.5 w-3.5" />
+												{impersonating === customer.id ? 'Loading...' : 'View as Customer'}
+											</button>
+											{/* External link to customer portal */}
+											<a
+												href={`https://${customer.short_name}.tryequipped.com`}
+												target="_blank"
+												rel="noopener noreferrer"
+												className="inline-flex items-center gap-1 text-primary hover:underline"
+											>
+												View Site
+												<ExternalLink className="h-3 w-3" />
+											</a>
+										</div>
 									</td>
 								</tr>
 							))}
