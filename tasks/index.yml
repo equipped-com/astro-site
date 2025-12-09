@@ -781,3 +781,22 @@ epics:
         complexity: medium
         depends_on:
           - trade-in/return-shipping
+
+  bugs:
+    name: Bug Fixes & Architecture Issues
+    description: Critical fixes for architectural problems and bugs
+    priority: high
+    tasks:
+      - id: order-details-static-routes
+        name: Fix Order Details Static Routes
+        file: bugs/order-details-static-routes.md
+        done: false
+        complexity: high
+        depends_on: []
+      - id: audit-dynamic-astro-routes
+        name: Audit All Dynamic Astro Routes
+        file: bugs/audit-dynamic-astro-routes.md
+        done: false
+        complexity: medium
+        depends_on:
+          - bugs/order-details-static-routes
