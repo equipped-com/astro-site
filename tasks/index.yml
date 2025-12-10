@@ -814,3 +814,45 @@ epics:
         complexity: medium
         depends_on:
           - bugs/order-details-static-routes
+      - id: fix-api-tests
+        name: Fix API Route Tests (41 failures)
+        file: bugs/fix-api-tests.md
+        done: false
+        complexity: medium
+        depends_on: []
+      - id: fix-checkout-tests
+        name: Fix Checkout & Cart Tests (22 failures)
+        file: bugs/fix-checkout-tests.md
+        done: false
+        complexity: medium
+        depends_on: []
+      - id: fix-people-tests
+        name: Fix People/Onboarding Tests (6 failures)
+        file: bugs/fix-people-tests.md
+        done: false
+        complexity: medium
+        depends_on: []
+      - id: fix-settings-tests
+        name: Fix Settings Component Tests (5 failures)
+        file: bugs/fix-settings-tests.md
+        done: false
+        complexity: low
+        depends_on: []
+      - id: fix-admin-tests
+        name: Fix Admin Component Tests (10 failures)
+        file: bugs/fix-admin-tests.md
+        done: false
+        complexity: medium
+        depends_on: []
+      - id: fix-navigation-tests
+        name: Fix Navigation Component Tests (7 failures)
+        file: bugs/fix-navigation-tests.md
+        done: false
+        complexity: medium
+        depends_on: []
+      - id: fix-lib-tests
+        name: Fix Library/Core Tests (3 failures)
+        file: bugs/fix-lib-tests.md
+        done: false
+        complexity: low
+        depends_on: []
