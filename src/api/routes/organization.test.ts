@@ -86,7 +86,7 @@ describe('Organization Settings API', () => {
 			}
 
 			// @ts-expect-error - partial mock
-			const response = await organization.fetch(req, mockEnv, ctx)
+			const response = await app.request(req)
 			const data = await response.json()
 
 			expect(data.organization).toEqual({
@@ -125,7 +125,7 @@ describe('Organization Settings API', () => {
 			}
 
 			// @ts-expect-error - partial mock
-			const response = await organization.fetch(req, mockEnv, ctx)
+			const response = await app.request(req)
 
 			expect(response.status).toBe(404)
 		})
@@ -180,7 +180,7 @@ describe('Organization Settings API', () => {
 			}
 
 			// @ts-expect-error - partial mock
-			const response = await organization.fetch(req, mockEnv, ctx)
+			const response = await app.request(req)
 			const data = await response.json()
 
 			expect(data.organization.name).toBe('Acme Corp Updated')
@@ -188,30 +188,23 @@ describe('Organization Settings API', () => {
 		})
 
 		it('should return 403 if user is not owner or admin', async () => {
-			const req = new Request('http://localhost/api/organization', {
+			// Create app with member role for this test
+			const memberApp = new Hono<{ Bindings: Env; Variables: { accountId?: string; userId?: string; role?: string } }>()
+			memberApp.use('*', async (c, next) => {
+				// @ts-expect-error - mocking env for tests
+				c.env = mockEnv
+				c.set('accountId', 'acct-123')
+				c.set('userId', 'user-123')
+				c.set('role', 'member') // Not owner or admin
+				await next()
+			})
+			memberApp.route('/', organization)
+
+			const response = await memberApp.request('/api/organization', {
 				method: 'PUT',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ name: 'Acme Corp Updated' }),
 			})
-
-			const ctx = {
-				req: {
-					url: req.url,
-					method: req.method,
-					json: async () => ({ name: 'Acme Corp Updated' }),
-				},
-				env: mockEnv,
-				get: vi.fn((key: string) => {
-					if (key === 'accountId') return 'acct-123'
-					if (key === 'role') return 'member' // Not owner or admin
-					return undefined
-				}),
-				set: vi.fn(),
-				json: (data: unknown, status?: number) => Response.json(data, { status }),
-			}
-
-			// @ts-expect-error - partial mock
-			const response = await organization.fetch(req, mockEnv, ctx)
 
 			expect(response.status).toBe(403)
 		})
@@ -275,7 +268,7 @@ describe('Organization Settings API', () => {
 			}
 
 			// @ts-expect-error - partial mock
-			const response = await organization.fetch(req, mockEnv, ctx)
+			const response = await app.request(req)
 			const data = await response.json()
 
 			expect(data.billing.stripe_customer_id).toBe('cus_123')
@@ -325,7 +318,7 @@ describe('Organization Settings API', () => {
 			}
 
 			// @ts-expect-error - partial mock
-			const response = await organization.fetch(req, mockEnv, ctx)
+			const response = await app.request(req)
 			const data = await response.json()
 
 			expect(data.success).toBe(true)
@@ -355,7 +348,7 @@ describe('Organization Settings API', () => {
 			}
 
 			// @ts-expect-error - partial mock
-			const response = await organization.fetch(req, mockEnv, ctx)
+			const response = await app.request(req)
 
 			expect(response.status).toBe(403)
 		})
@@ -392,7 +385,7 @@ describe('Organization Settings API', () => {
 			}
 
 			// @ts-expect-error - partial mock
-			const response = await organization.fetch(req, mockEnv, ctx)
+			const response = await app.request(req)
 
 			expect(response.status).toBe(400)
 		})
