@@ -25,6 +25,22 @@ brew install oven-sh/bun/bun
 curl -fsSL https://bun.sh/install | bash
 ```
 
+### Developer Access Requirements
+
+**CloudFlare Account Access** - Required for development
+
+Developers need access to the CloudFlare account to:
+- Run database migrations (`bunx wrangler d1 execute`)
+- Deploy to preview/production (`bun run deploy`)
+- Access D1 database (local and remote)
+
+**To get access:**
+1. Request invitation to CloudFlare team from project admin
+2. Authenticate wrangler: `bunx wrangler login`
+3. Verify access: `bunx wrangler d1 list`
+
+Without CloudFlare access, you can still develop the frontend locally, but database operations will fail.
+
 ## Quick Start
 
 ```bash
@@ -166,7 +182,7 @@ The project uses CloudFlare Workers with D1 database. Configuration is in `wrang
 |---------|-------|---------|
 | `name` | `tryequipped` | Worker name |
 | `d1_databases.binding` | `DB` | Database binding name |
-| `d1_databases.database_id` | `cbc09752-...` | D1 database ID |
+| `d1_databases.database_id` | `b1b71c2d-...` | D1 database ID (specific to CloudFlare account) |
 | `routes.pattern` | `tryequipped.preview.frst.dev` | Custom domain |
 
 **CloudFlare Account ID** (for wrangler commands):
