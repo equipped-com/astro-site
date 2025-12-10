@@ -434,7 +434,39 @@ Feature: B2B Identity and Onboarding
     And "finance@company.com" should NOT see "Employee Assignments"
     And "finance@company.com" should NOT see "Settings"
 
-  @REQ-ID-005 @Webhook @Sync
+  @REQ-ID-005 @Invite @Lifecycle
+  Scenario: Invitation Lifecycle - Accept
+    Given I received an invitation to join "Acme Corp" as "Admin"
+    When I click the invitation link
+    And I sign in or create an account
+    Then an Account::Access record should be created linking me to "Acme Corp"
+    And my role should be "Admin"
+    And the invitation should be marked as accepted
+    And I should be redirected to the "Acme Corp" dashboard
+
+  @REQ-ID-006 @Invite @Decline
+  Scenario: Invitation Lifecycle - Decline
+    Given I received an invitation to join "Acme Corp"
+    When I click "Decline" on the invitation
+    Then the invitation should be marked as declined
+    And I should NOT have access to "Acme Corp"
+
+  @REQ-ID-007 @Invite @Revoke
+  Scenario: Invitation Lifecycle - Revoke
+    Given I am an account "Owner" or "Admin"
+    And an invitation was sent to "pending@example.com"
+    When I revoke the invitation
+    Then the invitation should be marked as revoked
+    And the invitation link should no longer be valid
+
+  @REQ-ID-008 @Invite @Expiry
+  Scenario: Invitation Lifecycle - Expiry
+    Given an invitation was sent 15 days ago
+    When the invitee tries to accept
+    Then they should see "This invitation has expired"
+    And the invitation should NOT be accepted
+
+  @REQ-ID-009 @Webhook @Sync
   Scenario: User Created Webhook Syncs to Database
     Given Clerk fires a "user.created" webhook event
     When the webhook is received at "/api/auth/webhook"
@@ -446,12 +478,73 @@ Feature: B2B Identity and Onboarding
       | last_name   | Clerk lastName        |
       | created_at  | Current timestamp     |
 
-  @REQ-ID-006 @Session @JWT
+  @REQ-ID-010 @Session @JWT
   Scenario: Protected Route Requires Authentication
     Given I am not logged in
     When I try to access "/dashboard"
     Then I should be redirected to "/sign-in"
     And after signing in I should be redirected back to "/dashboard"
+
+  @REQ-ID-011 @MultiAccount @Switch
+  Scenario: Switch Between Accounts (Consultant Pattern)
+    Given I have access to multiple accounts:
+      | Account       | Role   |
+      | Acme Corp     | Owner  |
+      | Beta Inc      | Admin  |
+      | Client Co     | Member |
+    And my primary account is "Acme Corp"
+    When I click the account switcher
+    Then I should see all accounts I have access to
+    When I select "Beta Inc"
+    Then the tenant context should switch to "Beta Inc"
+    And the URL should change to "betainc.tryequipped.com"
+    And I should see "Beta Inc" data with "Admin" permissions
+
+  @REQ-ID-012 @MultiAccount @Primary
+  Scenario: Set Primary Account
+    Given I have access to multiple accounts
+    When I go to my user settings
+    And I set "Beta Inc" as my primary account
+    Then my next login should default to "Beta Inc"
+    And `users.primary_account_id` should be updated
+
+  @REQ-ID-013 @GoogleSync @Directory
+  Scenario: Sync People from Google Workspace
+    Given I am an account "Owner" or "Admin"
+    And Google Workspace is connected via OAuth
+    When I enable Google Directory sync
+    Then the system should fetch users from Google Workspace Admin SDK
+    And create Person records for each employee:
+      | Google Field      | Person Field   |
+      | primaryEmail      | email          |
+      | name.givenName    | first_name     |
+      | name.familyName   | last_name      |
+      | orgUnitPath       | department     |
+      | phones[0].value   | phone          |
+    And existing Person records should be updated (matched by email)
+    And sync should run automatically on a schedule
+
+  @REQ-ID-014 @MDM @Addigy @Setup
+  Scenario: Connect Addigy MDM Integration
+    Given I am an account "Owner" or "Admin"
+    When I start the Addigy integration wizard
+    Then I should be guided through these steps:
+      | Step | Action                                |
+      | 1    | Enter Addigy API credentials          |
+      | 2    | Select Addigy policy to sync from     |
+      | 3    | Preview devices that will be imported |
+      | 4    | Confirm and start sync                |
+    And devices from Addigy should appear in my fleet
+    And `accounts.device_source` should be set to "addigy"
+
+  @REQ-ID-015 @MDM @Sync
+  Scenario: MDM Device Sync
+    Given an MDM integration is configured (Addigy or Black Glove)
+    When the scheduled sync job runs
+    Then devices should be fetched from the MDM API
+    And new devices should be created in the devices table
+    And existing devices should be updated (matched by serial number)
+    And raw API response should be stored for audit purposes
 ```
 
 ---
@@ -960,11 +1053,14 @@ Feature: Equipped Sys Admin Dashboard
 
 The following schema supports all platform features:
 
-### Entity Relationship: Person vs User
+### Entity Relationship Overview
+
+#### Core Identity Models
 
 - **Person** = An employee/staff/contractor record in an organization. May or may not have platform login access.
 - **User** = A global login identity (synced from Clerk). Can access multiple accounts.
 - **Account::Access** = Links a User to an Account with a role. Optional for Person records.
+- **Account::Invitation** = Pending invitation to join an account with a specific role.
 
 ```
 ┌──────────────┐       ┌──────────────────┐       ┌──────────────┐
@@ -972,17 +1068,47 @@ The following schema supports all platform features:
 │  (global)    │       │   (role link)    │       │  (tenant)    │
 └──────────────┘       └──────────────────┘       └──────────────┘
                                ▲                         │
-                               │ optional                │
-                       ┌───────┴──────┐                  │
-                       │    Person    │◄─────────────────┘
-                       │ (employee)   │    belongs to account
-                       └──────────────┘
+                               │ optional                ├──────────────────┐
+                       ┌───────┴──────┐                  │                  │
+                       │    Person    │◄─────────────────┘                  │
+                       │ (employee)   │    belongs to account               │
+                       └──────────────┘                                     │
+                                                                            ▼
+                                                                 ┌──────────────────────┐
+                                                                 │ Account::Invitation  │
+                                                                 │ (pending invites)    │
+                                                                 └──────────────────────┘
 ```
 
 A Person can exist **without** an Account::Access (and thus no User). This allows:
 - Tracking employees who don't need platform login
 - Assigning devices to people before they have login access
 - Maintaining an employee directory separate from platform users
+
+#### Product Catalog & Inventory Models (Global)
+
+```
+┌──────────────┐       ┌──────────────┐       ┌──────────────────┐
+│    Brand     │──────►│   Product    │──────►│  Inventory Item  │
+│  (global)    │       │  (global)    │       │  (stocked item)  │
+└──────────────┘       └──────────────┘       └──────────────────┘
+      │                       │                        │
+      │ e.g., Apple           │ e.g., MacBook Pro      │ Serial: C02X...
+      │                       │ 14" M3 Pro             │ Condition: new
+      └───────────────────────┴────────────────────────┘
+                                                       │
+                              ┌─────────────────────────┘
+                              ▼
+                    ┌──────────────────┐
+                    │     Device       │
+                    │ (tenant-scoped)  │◄─── Assigned to Person
+                    └──────────────────┘
+```
+
+- **Brand** = Manufacturer (e.g., Apple, Samsung). Managed by sys_admins only.
+- **Product** = Catalog item (e.g., "MacBook Pro 14-inch M3 Pro"). Includes specs, MSRP, images.
+- **Inventory Item** = A specific stocked unit with optional serial number. Can be new or used.
+- **Device** = A device owned/managed by a tenant. May or may not link to a Product.
 
 ```sql
 -- Users table (synced from Clerk via webhook) - GLOBAL, not tenant-scoped
@@ -1099,7 +1225,7 @@ CREATE TABLE order_items (
 -- Audit log for compliance
 CREATE TABLE audit_log (
     id TEXT PRIMARY KEY,
-    organization_id TEXT REFERENCES organizations(id),
+    account_id TEXT REFERENCES accounts(id),
     user_id TEXT REFERENCES users(id),
     action TEXT NOT NULL,
     entity_type TEXT NOT NULL,     -- device, order, user, etc.
@@ -1108,12 +1234,74 @@ CREATE TABLE audit_log (
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Account invitations (pending invites to join an account)
+CREATE TABLE account_invitations (
+    id TEXT PRIMARY KEY,
+    account_id TEXT NOT NULL REFERENCES accounts(id),
+    email TEXT NOT NULL,
+    role TEXT NOT NULL DEFAULT 'member',  -- owner, admin, member, buyer
+    invited_by_user_id TEXT NOT NULL REFERENCES users(id),
+    sent_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    accepted_at DATETIME,
+    declined_at DATETIME,
+    revoked_at DATETIME,
+    expires_at DATETIME,           -- Invitation expires after 14 days
+    UNIQUE(account_id, email)      -- One active invite per email per account
+);
+
+-- Product catalog (global - managed by sys_admins)
+CREATE TABLE brands (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL UNIQUE,     -- e.g., 'Apple', 'Samsung'
+    slug TEXT NOT NULL UNIQUE,     -- e.g., 'apple'
+    logo_url TEXT,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE products (
+    id TEXT PRIMARY KEY,
+    brand_id TEXT NOT NULL REFERENCES brands(id),
+    name TEXT NOT NULL,            -- e.g., 'MacBook Pro 14"'
+    model_identifier TEXT,         -- e.g., 'MacBookPro18,3'
+    model_number TEXT,             -- e.g., 'MKGR3LL/A'
+    sku TEXT UNIQUE,
+    product_type TEXT NOT NULL,    -- laptop, desktop, tablet, phone, accessory, display
+    description TEXT,
+    specs TEXT,                    -- JSON: { "processor": "M3 Pro", "memory": "18GB", ... }
+    msrp DECIMAL(10,2),
+    image_url TEXT,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Inventory (stocked items - both new and used)
+CREATE TABLE inventory_items (
+    id TEXT PRIMARY KEY,
+    product_id TEXT NOT NULL REFERENCES products(id),
+    serial_number TEXT UNIQUE,     -- Required for used items, optional for new
+    condition TEXT NOT NULL DEFAULT 'new',  -- new, like_new, good, fair, refurbished
+    status TEXT NOT NULL DEFAULT 'available',  -- available, reserved, sold, allocated
+    purchase_cost DECIMAL(10,2),
+    sale_price DECIMAL(10,2),
+    notes TEXT,
+    warehouse_location TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Indexes
-CREATE INDEX idx_devices_org ON devices(organization_id);
+CREATE INDEX idx_devices_account ON devices(account_id);
 CREATE INDEX idx_devices_status ON devices(status);
 CREATE INDEX idx_assignments_device ON device_assignments(device_id);
-CREATE INDEX idx_orders_org ON orders(organization_id);
-CREATE INDEX idx_audit_org ON audit_log(organization_id);
+CREATE INDEX idx_orders_account ON orders(account_id);
+CREATE INDEX idx_audit_account ON audit_log(account_id);
+CREATE INDEX idx_invitations_email ON account_invitations(email);
+CREATE INDEX idx_inventory_product ON inventory_items(product_id);
+CREATE INDEX idx_inventory_status ON inventory_items(status);
+CREATE INDEX idx_products_brand ON products(brand_id);
 ```
 
 ---
@@ -1634,21 +1822,22 @@ Feature: Multi-Tenancy Architecture
     Then the following models should be isolated:
       | Model               | Isolation Key           |
       | Person              | account_id              |
-      | Device              | account_id (via org)    |
+      | Device              | account_id              |
       | Integration         | account_id              |
       | Account::Access     | account_id              |
       | Account::Invitation | account_id              |
-      | Order               | organization_id         |
+      | Order               | account_id              |
     And cross-tenant queries should be impossible without sys_admin
 
   @REQ-MT-003 @Global @Models
   Scenario: Global (Non-Tenant) Data Access
     When accessing global data
     Then the following should be accessible across tenants:
-      | Model       | Access Level                    |
-      | User        | Global (linked to accounts)     |
-      | Product     | Global (read-only for tenants)  |
-      | Brand       | Global (read-only for tenants)  |
+      | Model          | Access Level                           |
+      | User           | Global (linked to accounts)            |
+      | Brand          | Global (read-only for tenants)         |
+      | Product        | Global (read-only for tenants)         |
+      | Inventory Item | Global (stocked items for purchase)    |
     And only sys_admins can modify global models
 
   @REQ-MT-004 @Reserved @Subdomains
