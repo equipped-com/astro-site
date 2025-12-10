@@ -376,7 +376,8 @@ epics:
       - id: account-switcher
         name: Account Switcher Component
         file: multi-account/account-switcher.md
-        done: false
+        done: true
+        commit: 943a490
         complexity: medium
         depends_on:
           - auth/clerk-provider
