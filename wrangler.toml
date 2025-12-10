@@ -18,7 +18,7 @@ run_worker_first = ["/api/*", "/webhooks/*"]
 [[d1_databases]]
 binding = "DB"
 database_name = "equipped-db"
-database_id = "cbc09752-440f-4f76-a2ab-9acd90e171a3"
+database_id = "b1b71c2d-ba07-470a-bf82-3084fa82017c"
 
 [vars]
 ENVIRONMENT = "production"
