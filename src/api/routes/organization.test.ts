@@ -6,6 +6,26 @@
 
 import { Hono } from 'hono'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+
+// Mock middleware at module level
+vi.mock('../middleware/auth', () => ({
+	requireAccountAccess: () => async (c: any, next: () => Promise<void>) => {
+		c.set('userId', 'user-123')
+		// Allow tests to set role via x-test-role header
+		const role = c.req.header('x-test-role') || 'owner'
+		c.set('role', role)
+		return next()
+	},
+	getRole: (c: { get: (key: string) => string }) => c.get('role'),
+}))
+
+vi.mock('../middleware/tenant', () => ({
+	requireTenant: () => async (c: any, next: () => Promise<void>) => {
+		c.set('accountId', 'acct-123')
+		return next()
+	},
+}))
+
 import organization from './organization'
 
 describe('Organization Settings API', () => {
@@ -28,26 +48,6 @@ describe('Organization Settings API', () => {
 
 		app = new Hono()
 		app.route('/api/organization', organization)
-
-		// Mock middleware context
-		vi.mock('../middleware/auth', () => ({
-			requireAccountAccess: () => async (c: unknown, next: () => Promise<void>) => {
-				// @ts-expect-error - mocking context
-				c.set('userId', 'user-123')
-				// @ts-expect-error - mocking context
-				c.set('role', 'owner')
-				return next()
-			},
-			getRole: (c: { get: (key: string) => string }) => c.get('role'),
-		}))
-
-		vi.mock('../middleware/tenant', () => ({
-			requireTenant: () => async (c: unknown, next: () => Promise<void>) => {
-				// @ts-expect-error - mocking context
-				c.set('accountId', 'acct-123')
-				return next()
-			},
-		}))
 	})
 
 	describe('GET /api/organization', () => {
@@ -73,20 +73,7 @@ describe('Organization Settings API', () => {
 				method: 'GET',
 			})
 
-			const ctx = {
-				req: { url: req.url, method: req.method },
-				env: mockEnv,
-				get: vi.fn((key: string) => {
-					if (key === 'accountId') return 'acct-123'
-					if (key === 'role') return 'owner'
-					return undefined
-				}),
-				set: vi.fn(),
-				json: (data: unknown) => Response.json(data),
-			}
-
-			// @ts-expect-error - partial mock
-			const response = await organization.fetch(req, mockEnv, ctx)
+			const response = await app.request(req, mockEnv)
 			const data = await response.json()
 
 			expect(data.organization).toEqual({
@@ -112,20 +99,7 @@ describe('Organization Settings API', () => {
 				method: 'GET',
 			})
 
-			const ctx = {
-				req: { url: req.url, method: req.method },
-				env: mockEnv,
-				get: vi.fn((key: string) => {
-					if (key === 'accountId') return 'acct-123'
-					if (key === 'role') return 'owner'
-					return undefined
-				}),
-				set: vi.fn(),
-				json: (data: unknown, status?: number) => Response.json(data, { status }),
-			}
-
-			// @ts-expect-error - partial mock
-			const response = await organization.fetch(req, mockEnv, ctx)
+			const response = await app.request(req, mockEnv)
 
 			expect(response.status).toBe(404)
 		})
@@ -160,27 +134,7 @@ describe('Organization Settings API', () => {
 				}),
 			})
 
-			const ctx = {
-				req: {
-					url: req.url,
-					method: req.method,
-					json: async () => ({
-						name: 'Acme Corp Updated',
-						address: '456 New St, SF, CA 94105',
-					}),
-				},
-				env: mockEnv,
-				get: vi.fn((key: string) => {
-					if (key === 'accountId') return 'acct-123'
-					if (key === 'role') return 'owner'
-					return undefined
-				}),
-				set: vi.fn(),
-				json: (data: unknown) => Response.json(data),
-			}
-
-			// @ts-expect-error - partial mock
-			const response = await organization.fetch(req, mockEnv, ctx)
+			const response = await app.request(req, mockEnv)
 			const data = await response.json()
 
 			expect(data.organization.name).toBe('Acme Corp Updated')
@@ -190,28 +144,14 @@ describe('Organization Settings API', () => {
 		it('should return 403 if user is not owner or admin', async () => {
 			const req = new Request('http://localhost/api/organization', {
 				method: 'PUT',
-				headers: { 'Content-Type': 'application/json' },
+				headers: {
+					'Content-Type': 'application/json',
+					'x-test-role': 'member'
+				},
 				body: JSON.stringify({ name: 'Acme Corp Updated' }),
 			})
 
-			const ctx = {
-				req: {
-					url: req.url,
-					method: req.method,
-					json: async () => ({ name: 'Acme Corp Updated' }),
-				},
-				env: mockEnv,
-				get: vi.fn((key: string) => {
-					if (key === 'accountId') return 'acct-123'
-					if (key === 'role') return 'member' // Not owner or admin
-					return undefined
-				}),
-				set: vi.fn(),
-				json: (data: unknown, status?: number) => Response.json(data, { status }),
-			}
-
-			// @ts-expect-error - partial mock
-			const response = await organization.fetch(req, mockEnv, ctx)
+			const response = await app.request(req, mockEnv)
 
 			expect(response.status).toBe(403)
 		})
@@ -262,20 +202,7 @@ describe('Organization Settings API', () => {
 				method: 'GET',
 			})
 
-			const ctx = {
-				req: { url: req.url, method: req.method },
-				env: mockEnv,
-				get: vi.fn((key: string) => {
-					if (key === 'accountId') return 'acct-123'
-					if (key === 'role') return 'owner'
-					return undefined
-				}),
-				set: vi.fn(),
-				json: (data: unknown) => Response.json(data),
-			}
-
-			// @ts-expect-error - partial mock
-			const response = await organization.fetch(req, mockEnv, ctx)
+			const response = await app.request(req, mockEnv)
 			const data = await response.json()
 
 			expect(data.billing.stripe_customer_id).toBe('cus_123')
@@ -308,24 +235,7 @@ describe('Organization Settings API', () => {
 				body: JSON.stringify({ confirm_name: 'Acme Corporation' }),
 			})
 
-			const ctx = {
-				req: {
-					url: req.url,
-					method: req.method,
-					json: async () => ({ confirm_name: 'Acme Corporation' }),
-				},
-				env: mockEnv,
-				get: vi.fn((key: string) => {
-					if (key === 'accountId') return 'acct-123'
-					if (key === 'role') return 'owner'
-					return undefined
-				}),
-				set: vi.fn(),
-				json: (data: unknown) => Response.json(data),
-			}
-
-			// @ts-expect-error - partial mock
-			const response = await organization.fetch(req, mockEnv, ctx)
+			const response = await app.request(req, mockEnv)
 			const data = await response.json()
 
 			expect(data.success).toBe(true)
@@ -334,28 +244,14 @@ describe('Organization Settings API', () => {
 		it('should return 403 if user is not owner', async () => {
 			const req = new Request('http://localhost/api/organization', {
 				method: 'DELETE',
-				headers: { 'Content-Type': 'application/json' },
+				headers: {
+					'Content-Type': 'application/json',
+					'x-test-role': 'admin'
+				},
 				body: JSON.stringify({ confirm_name: 'Acme Corporation' }),
 			})
 
-			const ctx = {
-				req: {
-					url: req.url,
-					method: req.method,
-					json: async () => ({ confirm_name: 'Acme Corporation' }),
-				},
-				env: mockEnv,
-				get: vi.fn((key: string) => {
-					if (key === 'accountId') return 'acct-123'
-					if (key === 'role') return 'admin' // Not owner
-					return undefined
-				}),
-				set: vi.fn(),
-				json: (data: unknown, status?: number) => Response.json(data, { status }),
-			}
-
-			// @ts-expect-error - partial mock
-			const response = await organization.fetch(req, mockEnv, ctx)
+			const response = await app.request(req, mockEnv)
 
 			expect(response.status).toBe(403)
 		})
@@ -375,24 +271,7 @@ describe('Organization Settings API', () => {
 				body: JSON.stringify({ confirm_name: 'Wrong Name' }),
 			})
 
-			const ctx = {
-				req: {
-					url: req.url,
-					method: req.method,
-					json: async () => ({ confirm_name: 'Wrong Name' }),
-				},
-				env: mockEnv,
-				get: vi.fn((key: string) => {
-					if (key === 'accountId') return 'acct-123'
-					if (key === 'role') return 'owner'
-					return undefined
-				}),
-				set: vi.fn(),
-				json: (data: unknown, status?: number) => Response.json(data, { status }),
-			}
-
-			// @ts-expect-error - partial mock
-			const response = await organization.fetch(req, mockEnv, ctx)
+			const response = await app.request(req, mockEnv)
 
 			expect(response.status).toBe(400)
 		})

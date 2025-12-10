@@ -46,10 +46,6 @@ function TeamAccessManager({ accountId, role }: TeamAccessManagerProps) {
 	const canManage = role === 'owner' || role === 'admin'
 	const canAssignOwner = role === 'owner'
 
-	useEffect(() => {
-		fetchTeamData()
-	}, [fetchTeamData])
-
 	async function fetchTeamData() {
 		setLoading(true)
 		setError(null)
@@ -72,6 +68,11 @@ function TeamAccessManager({ accountId, role }: TeamAccessManagerProps) {
 			setLoading(false)
 		}
 	}
+
+	useEffect(() => {
+		fetchTeamData()
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [])
 
 	async function handleInvite(email: string, inviteRole: Role) {
 		const response = await fetch('/api/team/invite', {
