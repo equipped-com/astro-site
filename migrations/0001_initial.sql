@@ -255,6 +255,29 @@ CREATE TABLE trade_ins (
 );
 
 -- ============================================
+-- PAYMENTS (Stripe Integration)
+-- ============================================
+
+-- Payments table
+-- Tracks all payment transactions processed through Stripe
+CREATE TABLE payments (
+	id TEXT PRIMARY KEY,
+	account_id TEXT NOT NULL REFERENCES accounts(id) ON DELETE CASCADE,
+	order_id TEXT REFERENCES orders(id),
+	stripe_session_id TEXT UNIQUE,
+	stripe_payment_intent_id TEXT UNIQUE,
+	stripe_customer_id TEXT,
+	status TEXT DEFAULT 'pending',          -- pending, processing, succeeded, failed, canceled, refunded, partially_refunded
+	amount INTEGER NOT NULL,                -- Amount in cents
+	currency TEXT DEFAULT 'usd',
+	customer_email TEXT,
+	failure_reason TEXT,
+	metadata TEXT,                          -- JSON string for additional data
+	created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+	updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ============================================
 -- AUDIT & COMPLIANCE
 -- ============================================
 
@@ -323,6 +346,13 @@ CREATE INDEX idx_proposals_share_token ON proposals(share_token);
 -- Trade-ins
 CREATE INDEX idx_trade_ins_account ON trade_ins(account_id);
 CREATE INDEX idx_trade_ins_status ON trade_ins(status);
+
+-- Payments
+CREATE INDEX idx_payments_account ON payments(account_id);
+CREATE INDEX idx_payments_order ON payments(order_id);
+CREATE INDEX idx_payments_status ON payments(status);
+CREATE INDEX idx_payments_stripe_session ON payments(stripe_session_id);
+CREATE INDEX idx_payments_stripe_intent ON payments(stripe_payment_intent_id);
 
 -- Audit Log
 CREATE INDEX idx_audit_account ON audit_log(account_id);
