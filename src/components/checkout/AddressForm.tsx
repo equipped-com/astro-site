@@ -1,7 +1,7 @@
 'use client'
 
 import { AlertCircle, Building2 } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import type { AddressData, ValidationError } from '@/lib/address-validation'
 import { formatPhoneNumber, validateAddress } from '@/lib/address-validation'
 import { cn } from '@/lib/utils'
@@ -20,14 +20,20 @@ export default function AddressForm({ address, onChange, onValidate, showValidat
 	const [touched, setTouched] = useState<Set<keyof AddressData>>(new Set())
 	const [errors, setErrors] = useState<ValidationError[]>([])
 
+	// Run validation on mount and when address changes
+	useEffect(() => {
+		const validationErrors = validateAddress(address)
+		setErrors(validationErrors)
+		if (onValidate) {
+			onValidate(validationErrors)
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [address, onValidate])
+
 	function handleFieldChange(field: keyof AddressData, value: string | boolean) {
 		const updated = { ...address, [field]: value }
 		onChange(updated)
-
-		// Validate and trigger callback
-		const validationErrors = validateAddress(updated)
-		setErrors(validationErrors)
-		onValidate?.(validationErrors)
+		// Validation will run automatically via useEffect when address prop updates
 	}
 
 	function handleBlur(field: keyof AddressData) {
@@ -36,12 +42,9 @@ export default function AddressForm({ address, onChange, onValidate, showValidat
 		// Format phone number on blur
 		if (field === 'phone' && address.phone) {
 			const formatted = formatPhoneNumber(address.phone)
-			handleFieldChange('phone', formatted)
-		} else {
-			// Run validation even if field wasn't changed
-			const validationErrors = validateAddress(address)
-			setErrors(validationErrors)
-			onValidate?.(validationErrors)
+			if (formatted !== address.phone) {
+				handleFieldChange('phone', formatted)
+			}
 		}
 	}
 
