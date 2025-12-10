@@ -383,7 +383,8 @@ epics:
       - id: account-list-api
         name: User Accounts API Endpoint
         file: multi-account/account-list-api.md
-        done: false
+        done: true
+        commit: 11362b8
         complexity: medium
         depends_on:
           - api/auth-middleware
@@ -404,7 +405,8 @@ epics:
       - id: catalog-schema
         name: Product Catalog Schema Migration
         file: catalog/catalog-schema.md
-        done: false
+        done: true
+        commit: 0b87d74
         complexity: medium
         depends_on:
           - database/initial-schema
