@@ -847,7 +847,8 @@ epics:
       - id: fix-navigation-tests
         name: Fix Navigation Component Tests (7 failures)
         file: bugs/fix-navigation-tests.md
-        done: false
+        done: true
+        commit: 34ca391
         complexity: medium
         depends_on: []
       - id: fix-lib-tests
