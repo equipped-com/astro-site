@@ -187,8 +187,8 @@
 #
 # =============================================================================
 
-version: 3
-updated: 2024-12-08
+version: 4
+updated: 2025-12-10
 
 epics:
   infrastructure:
@@ -246,6 +246,13 @@ epics:
         file: database/run-migrations.md
         done: true
         commit: 800b6d4
+        complexity: low
+        depends_on:
+          - database/initial-schema
+      - id: fix-schema-naming
+        name: Fix Schema Naming Consistency
+        file: database/fix-schema-naming.md
+        done: false
         complexity: low
         depends_on:
           - database/initial-schema
@@ -315,6 +322,114 @@ epics:
         depends_on:
           - auth/auth-pages
           - auth/clerk-provider
+
+  invitations:
+    name: Team Invitations
+    description: Account invitation lifecycle (REQ-ID-005 to REQ-ID-008)
+    priority: high
+    tasks:
+      - id: invitations-schema
+        name: Account Invitations Table Migration
+        file: invitations/invitations-schema.md
+        done: false
+        complexity: medium
+        depends_on:
+          - database/initial-schema
+      - id: invitation-api
+        name: Invitation API Endpoints
+        file: invitations/invitation-api.md
+        done: false
+        complexity: high  # Security, lifecycle management
+        depends_on:
+          - invitations/invitations-schema
+          - api/auth-middleware
+      - id: invitation-ui
+        name: Invitation UI Components
+        file: invitations/invitation-ui.md
+        done: false
+        complexity: medium
+        depends_on:
+          - invitations/invitation-api
+          - settings/team-access
+      - id: invitation-emails
+        name: Invitation Email Templates
+        file: invitations/invitation-emails.md
+        done: false
+        complexity: low
+        depends_on:
+          - invitations/invitation-api
+      - id: invitation-expiry
+        name: Invitation Expiry Worker
+        file: invitations/invitation-expiry.md
+        done: false
+        complexity: medium
+        depends_on:
+          - invitations/invitations-schema
+
+  multi-account:
+    name: Multi-Account Access
+    description: Consultant pattern for users with multiple accounts (REQ-ID-011, REQ-ID-012)
+    priority: high
+    tasks:
+      - id: account-switcher
+        name: Account Switcher Component
+        file: multi-account/account-switcher.md
+        done: false
+        complexity: medium
+        depends_on:
+          - auth/clerk-provider
+          - api/auth-middleware
+      - id: account-list-api
+        name: User Accounts API Endpoint
+        file: multi-account/account-list-api.md
+        done: false
+        complexity: medium
+        depends_on:
+          - api/auth-middleware
+      - id: set-primary-account
+        name: Set Primary Account
+        file: multi-account/set-primary-account.md
+        done: false
+        complexity: low
+        depends_on:
+          - multi-account/account-list-api
+          - api/user-endpoints
+
+  catalog:
+    name: Global Product Catalog
+    description: Brands, products, and inventory management (Database Schema)
+    priority: medium
+    tasks:
+      - id: catalog-schema
+        name: Product Catalog Schema Migration
+        file: catalog/catalog-schema.md
+        done: false
+        complexity: medium
+        depends_on:
+          - database/initial-schema
+      - id: catalog-seed-data
+        name: Seed Brands and Products
+        file: catalog/catalog-seed-data.md
+        done: false
+        complexity: low
+        depends_on:
+          - catalog/catalog-schema
+      - id: catalog-api
+        name: Catalog CRUD API Endpoints
+        file: catalog/catalog-api.md
+        done: false
+        complexity: medium
+        depends_on:
+          - catalog/catalog-schema
+          - api/auth-middleware
+      - id: catalog-admin-ui
+        name: Catalog Admin UI (Sys Admin Only)
+        file: catalog/catalog-admin-ui.md
+        done: false
+        complexity: medium
+        depends_on:
+          - catalog/catalog-api
+          - sysadmin/admin-dashboard
 
   api:
     name: API Layer
@@ -785,6 +900,38 @@ epics:
         complexity: medium
         depends_on:
           - trade-in/return-shipping
+      - id: google-workspace-oauth
+        name: Google Workspace OAuth Setup
+        file: integrations/google-workspace-oauth.md
+        done: false
+        complexity: high  # OAuth integration, security
+        requires: human  # Google Cloud Console setup
+        depends_on:
+          - api/auth-middleware
+      - id: google-directory-sync
+        name: Google Directory Sync
+        file: integrations/google-directory-sync.md
+        done: false
+        complexity: high  # External API, data sync
+        depends_on:
+          - integrations/google-workspace-oauth
+          - people/directory-view
+      - id: addigy-integration
+        name: Addigy MDM Integration
+        file: integrations/addigy-integration.md
+        done: false
+        complexity: high  # External API, MDM setup wizard
+        requires: human  # Addigy account setup
+        depends_on:
+          - fleet/device-inventory
+      - id: mdm-device-sync
+        name: MDM Device Sync Worker
+        file: integrations/mdm-device-sync.md
+        done: false
+        complexity: medium
+        depends_on:
+          - integrations/addigy-integration
+          - database/run-migrations
 
   bugs:
     name: Bug Fixes & Architecture Issues
