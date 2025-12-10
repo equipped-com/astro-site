@@ -30,6 +30,85 @@ export const users = sqliteTable(
 	table => [index('idx_users_email').on(table.email), index('idx_users_primary_account').on(table.primaryAccountId)],
 )
 
+/**
+ * Brands table (global)
+ * Managed exclusively by sys_admins
+ */
+export const brands = sqliteTable(
+	'brands',
+	{
+		id: text('id').primaryKey(),
+		name: text('name').notNull().unique(),
+		slug: text('slug').notNull().unique(),
+		logoUrl: text('logo_url'),
+		isActive: integer('is_active', { mode: 'boolean' }).default(true),
+		createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
+		updatedAt: text('updated_at').default(sql`CURRENT_TIMESTAMP`),
+	},
+	table => [index('idx_brands_slug').on(table.slug), index('idx_brands_is_active').on(table.isActive)],
+)
+
+/**
+ * Products table (global)
+ * Managed exclusively by sys_admins
+ */
+export const products = sqliteTable(
+	'products',
+	{
+		id: text('id').primaryKey(),
+		brandId: text('brand_id')
+			.notNull()
+			.references(() => brands.id),
+		name: text('name').notNull(),
+		modelIdentifier: text('model_identifier'),
+		modelNumber: text('model_number'),
+		sku: text('sku').unique(),
+		productType: text('product_type').notNull(), // laptop, desktop, tablet, phone, accessory, display
+		description: text('description'),
+		specs: text('specs'), // JSON: {cpu, memory, storage, display, etc}
+		msrp: real('msrp'),
+		imageUrl: text('image_url'),
+		isActive: integer('is_active', { mode: 'boolean' }).default(true),
+		createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
+		updatedAt: text('updated_at').default(sql`CURRENT_TIMESTAMP`),
+	},
+	table => [
+		index('idx_products_brand').on(table.brandId),
+		index('idx_products_sku').on(table.sku),
+		index('idx_products_type').on(table.productType),
+		index('idx_products_is_active').on(table.isActive),
+	],
+)
+
+/**
+ * Inventory items table (global)
+ * Tracks specific stocked units with serial numbers
+ */
+export const inventoryItems = sqliteTable(
+	'inventory_items',
+	{
+		id: text('id').primaryKey(),
+		productId: text('product_id')
+			.notNull()
+			.references(() => products.id),
+		serialNumber: text('serial_number').unique(),
+		condition: text('condition').notNull().default('new'), // new, like_new, good, fair, refurbished
+		status: text('status').notNull().default('available'), // available, reserved, sold, allocated
+		purchaseCost: real('purchase_cost'),
+		salePrice: real('sale_price'),
+		notes: text('notes'),
+		warehouseLocation: text('warehouse_location'),
+		createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
+		updatedAt: text('updated_at').default(sql`CURRENT_TIMESTAMP`),
+	},
+	table => [
+		index('idx_inventory_product').on(table.productId),
+		index('idx_inventory_status').on(table.status),
+		index('idx_inventory_condition').on(table.condition),
+		index('idx_inventory_serial').on(table.serialNumber),
+	],
+)
+
 // ============================================
 // TENANT ENTITIES
 // ============================================
@@ -80,6 +159,35 @@ export const accountAccess = sqliteTable(
 		uniqueIndex('idx_account_access_unique').on(table.accountId, table.userId),
 		index('idx_account_access_account').on(table.accountId),
 		index('idx_account_access_user').on(table.userId),
+	],
+)
+
+/**
+ * Account invitations (tracks invitation lifecycle)
+ * Manages pending invitations to join an account with a specific role
+ */
+export const accountInvitations = sqliteTable(
+	'account_invitations',
+	{
+		id: text('id').primaryKey(),
+		accountId: text('account_id')
+			.notNull()
+			.references(() => accounts.id, { onDelete: 'cascade' }),
+		email: text('email').notNull(),
+		role: text('role').notNull().default('member'), // owner, admin, member, buyer, noaccess
+		invitedByUserId: text('invited_by_user_id')
+			.notNull()
+			.references(() => users.id),
+		sentAt: text('sent_at').default(sql`CURRENT_TIMESTAMP`),
+		acceptedAt: text('accepted_at'),
+		declinedAt: text('declined_at'),
+		revokedAt: text('revoked_at'),
+		expiresAt: text('expires_at').notNull(),
+	},
+	table => [
+		uniqueIndex('idx_invitations_account_email').on(table.accountId, table.email),
+		index('idx_invitations_email').on(table.email),
+		index('idx_invitations_account').on(table.accountId),
 	],
 )
 
@@ -470,11 +578,23 @@ export const auditLog = sqliteTable(
 export type User = typeof users.$inferSelect
 export type NewUser = typeof users.$inferInsert
 
+export type Brand = typeof brands.$inferSelect
+export type NewBrand = typeof brands.$inferInsert
+
+export type Product = typeof products.$inferSelect
+export type NewProduct = typeof products.$inferInsert
+
+export type InventoryItem = typeof inventoryItems.$inferSelect
+export type NewInventoryItem = typeof inventoryItems.$inferInsert
+
 export type Account = typeof accounts.$inferSelect
 export type NewAccount = typeof accounts.$inferInsert
 
 export type AccountAccess = typeof accountAccess.$inferSelect
 export type NewAccountAccess = typeof accountAccess.$inferInsert
+
+export type AccountInvitation = typeof accountInvitations.$inferSelect
+export type NewAccountInvitation = typeof accountInvitations.$inferInsert
 
 export type Person = typeof people.$inferSelect
 export type NewPerson = typeof people.$inferInsert

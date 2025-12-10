@@ -272,8 +272,37 @@ describe('User Profile API', () => {
 		})
 	})
 
-	describe('@REQ-USER-004: List account memberships', () => {
-		test('should return all accounts user has access to', async () => {
+	/**
+	 * @REQ-API-001: Requires authentication
+	 * Scenario: Requires authentication
+	 */
+	describe('@REQ-API-001 @Authentication: GET /api/user/accounts requires authentication', () => {
+		test('should return 401 when not logged in', async () => {
+			const mockDb = {
+				prepare: vi.fn(),
+			}
+
+			const { app, authCallTracker } = createTestApp({
+				db: mockDb,
+				auth: { userId: undefined },
+			})
+			const res = await app.request('/accounts')
+
+			// Auth was still checked
+			expect(authCallTracker).toHaveBeenCalled()
+
+			expect(res.status).toBe(401)
+			const json = await res.json()
+			expect(json.error).toBe('Authentication required')
+		})
+	})
+
+	/**
+	 * @REQ-API-002: Response format
+	 * Scenario: List accessible accounts
+	 */
+	describe('@REQ-API-002 @Response: List accessible accounts', () => {
+		test('should return all accessible accounts with correct fields', async () => {
 			const mockDb = {
 				prepare: vi.fn((_query: string) => ({
 					bind: vi.fn(() => ({
@@ -282,14 +311,29 @@ describe('User Profile API', () => {
 								{
 									id: 'acc_acme',
 									name: 'Acme Corp',
-									short_name: 'acme',
-									role: 'admin',
+									short_name: 'acmecorp',
+									logo_url: 'https://example.com/acme.png',
+									role: 'owner',
+									account_access_id: 'aa_001',
+									is_primary: 1,
 								},
 								{
 									id: 'acc_beta',
 									name: 'Beta Inc',
-									short_name: 'beta',
+									short_name: 'betainc',
+									logo_url: null,
+									role: 'admin',
+									account_access_id: 'aa_002',
+									is_primary: 0,
+								},
+								{
+									id: 'acc_client',
+									name: 'Client Co',
+									short_name: 'clientco',
+									logo_url: 'https://example.com/client.png',
 									role: 'member',
+									account_access_id: 'aa_003',
+									is_primary: 0,
 								},
 							],
 						})),
@@ -302,15 +346,191 @@ describe('User Profile API', () => {
 
 			expect(res.status).toBe(200)
 			const json = await res.json()
-			expect(json.accounts).toHaveLength(2)
+			expect(json.accounts).toHaveLength(3)
+
+			// Verify all required fields are present
+			for (const account of json.accounts) {
+				expect(account).toHaveProperty('id')
+				expect(account).toHaveProperty('name')
+				expect(account).toHaveProperty('short_name')
+				expect(account).toHaveProperty('logo_url')
+				expect(account).toHaveProperty('role')
+				expect(account).toHaveProperty('is_primary')
+				expect(account).toHaveProperty('account_access_id')
+
+				// Verify types
+				expect(typeof account.id).toBe('string')
+				expect(typeof account.name).toBe('string')
+				expect(typeof account.short_name).toBe('string')
+				expect(typeof account.role).toBe('string')
+				expect(typeof account.is_primary).toBe('boolean')
+				expect(typeof account.account_access_id).toBe('string')
+				// logo_url can be string or null
+				expect(account.logo_url === null || typeof account.logo_url === 'string').toBe(true)
+			}
+
+			// Verify first account
 			expect(json.accounts[0]).toMatchObject({
+				id: 'acc_acme',
 				name: 'Acme Corp',
-				role: 'admin',
+				short_name: 'acmecorp',
+				logo_url: 'https://example.com/acme.png',
+				role: 'owner',
+				is_primary: true,
+				account_access_id: 'aa_001',
 			})
+
+			// Verify second account
 			expect(json.accounts[1]).toMatchObject({
+				id: 'acc_beta',
 				name: 'Beta Inc',
-				role: 'member',
+				short_name: 'betainc',
+				logo_url: null,
+				role: 'admin',
+				is_primary: false,
+				account_access_id: 'aa_002',
 			})
+
+			// Verify third account
+			expect(json.accounts[2]).toMatchObject({
+				id: 'acc_client',
+				name: 'Client Co',
+				short_name: 'clientco',
+				role: 'member',
+				is_primary: false,
+				account_access_id: 'aa_003',
+			})
+		})
+	})
+
+	/**
+	 * @REQ-API-003: Sorting
+	 * Scenario: Accounts sorted by primary then alphabetically
+	 */
+	describe('@REQ-API-003 @Sorting: Accounts sorted by primary then alphabetically', () => {
+		test('should sort primary account first, then alphabetically', async () => {
+			const mockDb = {
+				prepare: vi.fn((_query: string) => ({
+					bind: vi.fn(() => ({
+						all: vi.fn(async () => ({
+							results: [
+								// Database returns already sorted (simulating ORDER BY is_primary DESC, a.name ASC)
+								{
+									id: 'acc_beta',
+									name: 'Beta Inc',
+									short_name: 'betainc',
+									logo_url: null,
+									role: 'admin',
+									account_access_id: 'aa_002',
+									is_primary: 1, // Primary account
+								},
+								{
+									id: 'acc_acme',
+									name: 'Acme Corp',
+									short_name: 'acmecorp',
+									logo_url: null,
+									role: 'member',
+									account_access_id: 'aa_001',
+									is_primary: 0,
+								},
+								{
+									id: 'acc_zeta',
+									name: 'Zeta Co',
+									short_name: 'zetaco',
+									logo_url: null,
+									role: 'member',
+									account_access_id: 'aa_003',
+									is_primary: 0,
+								},
+							],
+						})),
+					})),
+				})),
+			}
+
+			const { app } = createTestApp({ db: mockDb })
+			const res = await app.request('/accounts')
+
+			expect(res.status).toBe(200)
+			const json = await res.json()
+			expect(json.accounts).toHaveLength(3)
+
+			// Verify order
+			expect(json.accounts[0].name).toBe('Beta Inc')
+			expect(json.accounts[0].is_primary).toBe(true)
+
+			expect(json.accounts[1].name).toBe('Acme Corp')
+			expect(json.accounts[1].is_primary).toBe(false)
+
+			expect(json.accounts[2].name).toBe('Zeta Co')
+			expect(json.accounts[2].is_primary).toBe(false)
+		})
+	})
+
+	/**
+	 * @REQ-API-004: Single account
+	 * Scenario: User with single account
+	 */
+	describe('@REQ-API-004 @SingleAccount: User with single account', () => {
+		test('should return single account marked as primary', async () => {
+			const mockDb = {
+				prepare: vi.fn((_query: string) => ({
+					bind: vi.fn(() => ({
+						all: vi.fn(async () => ({
+							results: [
+								{
+									id: 'acc_acme',
+									name: 'Acme Corp',
+									short_name: 'acmecorp',
+									logo_url: null,
+									role: 'owner',
+									account_access_id: 'aa_001',
+									is_primary: 1,
+								},
+							],
+						})),
+					})),
+				})),
+			}
+
+			const { app } = createTestApp({ db: mockDb })
+			const res = await app.request('/accounts')
+
+			expect(res.status).toBe(200)
+			const json = await res.json()
+			expect(json.accounts).toHaveLength(1)
+			expect(json.accounts[0].is_primary).toBe(true)
+			expect(json.accounts[0]).toMatchObject({
+				id: 'acc_acme',
+				name: 'Acme Corp',
+				role: 'owner',
+			})
+		})
+	})
+
+	/**
+	 * @REQ-API-005: No access
+	 * Scenario: User with no account access (edge case)
+	 */
+	describe('@REQ-API-005 @NoAccess: User with no account access', () => {
+		test('should return empty array when user has no account access', async () => {
+			const mockDb = {
+				prepare: vi.fn((_query: string) => ({
+					bind: vi.fn(() => ({
+						all: vi.fn(async () => ({
+							results: [],
+						})),
+					})),
+				})),
+			}
+
+			const { app } = createTestApp({ db: mockDb })
+			const res = await app.request('/accounts')
+
+			expect(res.status).toBe(200)
+			const json = await res.json()
+			expect(json.accounts).toHaveLength(0)
+			expect(Array.isArray(json.accounts)).toBe(true)
 		})
 	})
 

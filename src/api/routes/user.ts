@@ -113,28 +113,47 @@ user.put('/', async c => {
 /**
  * GET /api/user/accounts
  * List all account memberships for the current user
+ * Returns accounts sorted by primary first, then alphabetically
  */
 user.get('/accounts', async c => {
 	const auth = getAuth(c)
 	const userId = auth?.userId
 
 	if (!userId) {
-		return c.json({ error: 'Unauthorized' }, 401)
+		return c.json({ error: 'Authentication required' }, 401)
 	}
 
 	const result = await c.env.DB.prepare(
 		`
-		SELECT a.*, aa.role
-		FROM accounts a
-		JOIN account_access aa ON a.id = aa.account_id
+		SELECT
+			a.id,
+			a.name,
+			a.short_name,
+			a.logo_url,
+			aa.role,
+			aa.id as account_access_id,
+			CASE WHEN u.primary_account_id = a.id THEN 1 ELSE 0 END as is_primary
+		FROM account_access aa
+		JOIN accounts a ON aa.account_id = a.id
+		JOIN users u ON aa.user_id = u.id
 		WHERE aa.user_id = ?
-		ORDER BY a.name
+		ORDER BY is_primary DESC, a.name ASC
 	`,
 	)
 		.bind(userId)
 		.all()
 
-	return c.json({ accounts: result.results })
+	return c.json({
+		accounts: result.results.map((row: Record<string, unknown>) => ({
+			id: row.id,
+			name: row.name,
+			short_name: row.short_name,
+			logo_url: row.logo_url,
+			role: row.role,
+			is_primary: Boolean(row.is_primary),
+			account_access_id: row.account_access_id,
+		})),
+	})
 })
 
 /**

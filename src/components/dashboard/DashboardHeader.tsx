@@ -3,12 +3,15 @@
 import { ClerkProvider, UserButton } from '@clerk/clerk-react'
 import { Menu } from 'lucide-react'
 import { useState } from 'react'
+import { AccountSwitcher, type Account } from './AccountSwitcher'
 
 interface DashboardHeaderProps {
 	title?: string
+	currentAccount?: Account
+	accounts?: Account[]
 }
 
-export default function DashboardHeader({ title = 'Dashboard' }: DashboardHeaderProps) {
+export default function DashboardHeader({ title = 'Dashboard', currentAccount, accounts }: DashboardHeaderProps) {
 	const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 	const publishableKey = import.meta.env.PUBLIC_CLERK_PUBLISHABLE_KEY
 
@@ -59,6 +62,7 @@ export default function DashboardHeader({ title = 'Dashboard' }: DashboardHeader
 						<h1 className="text-2xl font-bold">{title}</h1>
 					</div>
 					<div className="flex items-center gap-4">
+						{currentAccount && accounts && <AccountSwitcher currentAccount={currentAccount} accounts={accounts} />}
 						<UserButton />
 					</div>
 				</div>
