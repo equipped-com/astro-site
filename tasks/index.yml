@@ -829,7 +829,8 @@ epics:
       - id: fix-people-tests
         name: Fix People/Onboarding Tests (6 failures)
         file: bugs/fix-people-tests.md
-        done: false
+        done: true
+        commit: 5d2a1b7
         complexity: medium
         depends_on: []
       - id: fix-settings-tests
