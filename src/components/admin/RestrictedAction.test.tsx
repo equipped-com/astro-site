@@ -146,7 +146,9 @@ describe('RestrictedAction Component', () => {
 				<RestrictedAction
 					action="view_devices"
 					render={(isRestricted, _message) => (
-						<button type="button" disabled={isRestricted}>{isRestricted ? 'Restricted' : 'View Devices'}</button>
+						<button type="button" disabled={isRestricted}>
+							{isRestricted ? 'Restricted' : 'View Devices'}
+						</button>
 					)}
 				/>,
 			)
