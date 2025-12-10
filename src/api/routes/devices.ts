@@ -58,7 +58,7 @@ devices.get('/', async c => {
  *   - model: string (required)
  *   - serial_number: string (optional)
  *   - status: Device['status'] (optional, defaults to 'available')
- *   - assigned_to: string (optional)
+ *   - assigned_to_person_id: string (optional)
  *
  * Response: { device: Device }
  */
@@ -80,7 +80,7 @@ devices.post('/', async c => {
 
 	// Insert device
 	await c.env.DB.prepare(
-		`INSERT INTO devices (id, account_id, name, type, model, serial_number, status, assigned_to, created_at)
+		`INSERT INTO devices (id, account_id, name, type, model, serial_number, status, assigned_to_person_id, created_at)
 		VALUES (?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))`,
 	)
 		.bind(
@@ -91,7 +91,7 @@ devices.post('/', async c => {
 			body.model,
 			body.serial_number || null,
 			body.status || 'available',
-			body.assigned_to || null,
+			body.assigned_to_person_id || null,
 		)
 		.run()
 
@@ -141,7 +141,7 @@ devices.get('/:id', async c => {
  *   - model: string
  *   - serial_number: string
  *   - status: Device['status']
- *   - assigned_to: string
+ *   - assigned_to_person_id: string
  *
  * Response: { device: Device }
  * Status: 404 if device not found or belongs to different account
@@ -170,7 +170,7 @@ devices.put('/:id', async c => {
 	const updates: string[] = ["updated_at = datetime('now')"]
 	const params: unknown[] = []
 
-	const allowedFields = ['name', 'type', 'model', 'serial_number', 'status', 'assigned_to']
+	const allowedFields = ['name', 'type', 'model', 'serial_number', 'status', 'assigned_to_person_id']
 	for (const [key, value] of Object.entries(body)) {
 		if (allowedFields.includes(key) && value !== undefined) {
 			updates.push(`${key} = ?`)

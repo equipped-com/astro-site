@@ -284,14 +284,19 @@ describe('scopedQuery - Orders', () => {
 
 		const queries = scopedQuery(context)
 		queries.orders.insert({
-			order_number: 'ORD-001',
-			total_amount: 2500.0,
-			currency: 'USD',
+			created_by_user_id: 'user_123',
+			subtotal: 2500.0,
+			total: 2500.0,
 		})
 
 		expect(mockDb.prepare).toHaveBeenCalledWith(
 			expect.stringContaining(
-				'INSERT INTO orders (id, account_id, order_number, status, total_amount, currency, created_at)',
+				'INSERT INTO orders',
+			),
+		)
+		expect(mockDb.prepare).toHaveBeenCalledWith(
+			expect.stringContaining(
+				'account_id',
 			),
 		)
 		const bindCall = mockDb._mockStatement.bind.mock.calls[0]

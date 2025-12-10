@@ -44,6 +44,11 @@ function createMockEnv() {
 							const personId = params[0] as string
 							return mockPeople.get(personId) || null
 						}
+						// Handle JOIN query for assignment with person/device details
+						if (sql.includes('FROM device_assignments da') && sql.includes('JOIN people p') && sql.includes('JOIN devices d')) {
+							const assignmentId = params[0] as string
+							return mockAssignments.get(assignmentId) || null
+						}
 						if (sql.includes('FROM device_assignments') && sql.includes('WHERE id')) {
 							return Array.from(mockAssignments.values()).find((a: { id: string }) => a.id === params[0])
 						}
@@ -107,19 +112,19 @@ function createMockEnv() {
 					run: vi.fn(() => {
 						if (sql.includes('INSERT INTO device_assignments')) {
 							const id = params[0] as string
-							const device_id = params[1] as string
-							const person_id = params[2] as string
-							const assigned_by_user_id = params[3] as string
+							const deviceId = params[1] as string
+							const personId = params[2] as string
+							const assignedByUserId = params[3] as string
 							const notes = params[4] as string | null
 
-							const device = mockDevices.get(device_id)
-							const person = mockPeople.get(person_id)
+							const device = mockDevices.get(deviceId)
+							const person = mockPeople.get(personId)
 
 							const assignment = {
 								id,
-								device_id,
-								person_id,
-								assigned_by_user_id,
+								device_id: deviceId,
+								person_id: personId,
+								assigned_by_user_id: assignedByUserId,
 								assigned_at: new Date().toISOString(),
 								returned_at: null,
 								notes,
@@ -131,19 +136,19 @@ function createMockEnv() {
 							}
 							mockAssignments.set(id, assignment)
 						}
-						if (sql.includes('UPDATE devices SET status')) {
-							const person_id = params[0] as string
-							const device_id = params[1] as string
-							const device = mockDevices.get(device_id)
+						if (sql.includes('UPDATE devices SET status') && sql.includes('deployed')) {
+							const personId = params[0] as string
+							const deviceId = params[1] as string
+							const device = mockDevices.get(deviceId)
 							if (device) {
 								device.status = 'deployed'
-								device.assigned_to_person_id = person_id
+								device.assigned_to_person_id = personId
 								device.updated_at = new Date().toISOString()
 							}
 						}
 						if (sql.includes('UPDATE devices SET status') && sql.includes('available')) {
-							const device_id = params[0] as string
-							const device = mockDevices.get(device_id)
+							const deviceId = params[0] as string
+							const device = mockDevices.get(deviceId)
 							if (device) {
 								device.status = 'available'
 								device.assigned_to_person_id = null
