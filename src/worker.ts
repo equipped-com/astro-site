@@ -5,8 +5,12 @@ import type { Role, User } from './api/middleware'
 import { authMiddleware, requireAccountAccess, requireAdmin, requireAuth, tenantMiddleware } from './api/middleware'
 import impersonationRoutes from './api/routes/admin/impersonation'
 import alchemyRoutes from './api/routes/alchemy'
+import brandsRoutes from './api/routes/catalog/brands'
+import inventoryRoutes from './api/routes/catalog/inventory'
+import productsRoutes from './api/routes/catalog/products'
 import deviceAssignmentsRoutes from './api/routes/device-assignments'
 import deviceRoutes from './api/routes/devices'
+import invitationsRoutes from './api/routes/invitations'
 import organizationRoutes from './api/routes/organization'
 import peopleRoutes from './api/routes/people'
 import proposalRoutes from './api/routes/proposals'
@@ -177,6 +181,9 @@ app.route('/api/organization', organizationRoutes)
 // Mount team routes
 app.route('/api/team', teamRoutes)
 
+// Mount invitations routes (handles its own middleware per-route)
+app.route('/api/invitations', invitationsRoutes)
+
 // Mount store routes (Shopify integration)
 app.route('/api/store', storeRoutes)
 
@@ -186,6 +193,17 @@ app.route('/api/store', storeRoutes)
 
 // Mount admin impersonation routes (includes sys_admin middleware internally)
 app.route('/api/admin/impersonation', impersonationRoutes)
+
+// ============================================================================
+// CATALOG ROUTES - public read, sys_admin write
+// ============================================================================
+
+// Catalog routes - brands, products, inventory
+// GET endpoints require auth only (public to authenticated users)
+// POST/PUT endpoints require sys_admin (enforced in route handlers)
+app.route('/api/catalog/brands', brandsRoutes)
+app.route('/api/catalog/products', productsRoutes)
+app.route('/api/catalog/inventory', inventoryRoutes)
 
 // ============================================================================
 // ADMIN ROUTES - requires auth + account access + admin role
@@ -231,5 +249,12 @@ export default {
 
 		// Serve static assets for non-API routes
 		return env.ASSETS.fetch(request)
+	},
+
+	// Scheduled event handler for cron triggers
+	async scheduled(event: ScheduledEvent, env: Env, ctx: ExecutionContext) {
+		// Import and run the invitation expiry worker
+		const invitationExpiryWorker = await import('./workers/invitation-expiry')
+		await invitationExpiryWorker.default.scheduled(event, env)
 	},
 }

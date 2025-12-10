@@ -23,8 +23,10 @@ import { brands, products } from '@/db/schema'
  * @throws Error if database operations fail
  */
 export async function seedCatalog(db: Database): Promise<void> {
+	const now = new Date().toISOString()
+
 	// Upsert Apple brand (REQ-SEED-001)
-	await db
+	const appleInsert = db
 		.insert(brands)
 		.values({
 			id: 'brand_apple',
@@ -35,11 +37,14 @@ export async function seedCatalog(db: Database): Promise<void> {
 		})
 		.onConflictDoUpdate({
 			target: brands.slug,
-			set: { updatedAt: new Date().toISOString() },
+			set: { updatedAt: now },
 		})
 
+	// eslint-disable-next-line @typescript-eslint/no-floating-promises
+	await appleInsert
+
 	// Upsert Samsung brand (REQ-SEED-002 - optional)
-	await db
+	const samsungInsert = db
 		.insert(brands)
 		.values({
 			id: 'brand_samsung',
@@ -50,8 +55,10 @@ export async function seedCatalog(db: Database): Promise<void> {
 		})
 		.onConflictDoUpdate({
 			target: brands.slug,
-			set: { updatedAt: new Date().toISOString() },
+			set: { updatedAt: now },
 		})
+
+	await samsungInsert
 
 	// Apple Products - At least 10 common products with specs, MSRP, and images (REQ-SEED-002, REQ-SEED-003)
 	const appleProducts = [
@@ -373,16 +380,17 @@ export async function seedCatalog(db: Database): Promise<void> {
 
 	// Upsert all Apple products
 	for (const product of appleProducts) {
-		await db
+		const productInsert = db
 			.insert(products)
 			.values(product)
 			.onConflictDoUpdate({
 				target: products.sku,
-				set: { updatedAt: new Date().toISOString() },
+				set: { updatedAt: now },
 			})
+		await productInsert
 	}
 
 	console.log('✅ Catalog seeded successfully')
 	console.log(`   - Brands: Apple, Samsung`)
-	console.log(`   - Products: ${appleProducts.length} Apple products`)
+	console.log(`   - Products: ${appleProducts.length} Apple products (4 MacBooks, 3 iPads, 3 iPhones, 5 Accessories)`)
 }

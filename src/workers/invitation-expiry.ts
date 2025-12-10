@@ -11,6 +11,7 @@
 import { and, isNull, lt } from 'drizzle-orm'
 import { drizzle } from 'drizzle-orm/d1'
 import { accountInvitations } from '../db/schema'
+import { getInvitationStatus, type Invitation } from '../lib/invitations'
 
 interface Env {
 	DB: D1Database
@@ -22,42 +23,8 @@ interface ScheduledEvent {
 	cron: string
 }
 
-/**
- * Compute if an invitation is expired
- * Used by both the worker and API endpoints
- */
-export function isInvitationExpired(invitation: {
-	expiresAt: string | Date
-	acceptedAt?: string | Date | null
-	declinedAt?: string | Date | null
-	revokedAt?: string | Date | null
-}): boolean {
-	const now = new Date()
-	const expiresAt = typeof invitation.expiresAt === 'string' ? new Date(invitation.expiresAt) : invitation.expiresAt
-
-	return (
-		expiresAt < now &&
-		!invitation.acceptedAt &&
-		!invitation.declinedAt &&
-		!invitation.revokedAt
-	)
-}
-
-/**
- * Get computed status for an invitation
- */
-export function getInvitationStatus(invitation: {
-	expiresAt: string | Date
-	acceptedAt?: string | Date | null
-	declinedAt?: string | Date | null
-	revokedAt?: string | Date | null
-}): 'pending' | 'accepted' | 'declined' | 'revoked' | 'expired' {
-	if (invitation.acceptedAt) return 'accepted'
-	if (invitation.declinedAt) return 'declined'
-	if (invitation.revokedAt) return 'revoked'
-	if (isInvitationExpired(invitation)) return 'expired'
-	return 'pending'
-}
+// Re-export from lib/invitations for convenience
+export { getInvitationStatus }
 
 /**
  * Scheduled worker handler

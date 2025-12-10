@@ -137,27 +137,113 @@ As of the latest setup, our E2E testing infrastructure includes:
 - Basic Playwright configuration with multi-browser support
 - Test directory structure (`e2e/` with fixtures, pages, specs)
 - Test user pattern using `+clerk_test` suffix
-- Basic UI-based authentication in `e2e/fixtures/auth.ts`
+- **@clerk/testing package integration** - Bot protection bypass implemented
+- **Global setup with clerkSetup()** - Configured in `global-setup.ts`
+- **Programmatic authentication** - Fast sign-in using `clerk.signIn()` in `e2e/fixtures/auth.ts`
+- **Dual authentication methods** - Both programmatic (fast) and UI-based (thorough) approaches available
+- **Comprehensive test coverage** - Tests for all Clerk integration scenarios in `e2e/clerk-integration.spec.ts`
 
 ### ⚠️ Needs Implementation
 The following best practices from this document are **not yet implemented**:
 
-1. **@clerk/testing package integration** - For bot protection bypass and programmatic sign-in
-2. **Global setup with clerkSetup()** - Required to avoid bot detection in CI/CD
-3. **Programmatic authentication** - Faster tests using `clerk.signIn()` instead of UI interaction
-4. **Storage state reuse** - Avoid re-authenticating for every test file
-5. **OTP handling** - Tests for email/SMS verification flows using static code `424242`
+1. **Storage state reuse** - Avoid re-authenticating for every test file (performance optimization)
+2. **OTP handling** - Tests for email/SMS verification flows using static code `424242`
 
 ### 📋 Related Tasks
 
 See `tasks/index.yml` for implementation tasks:
-- `testing/clerk-e2e-integration` - Integrate @clerk/testing package with Playwright
+- ✅ `testing/clerk-e2e-integration` - Integrate @clerk/testing package with Playwright (COMPLETED)
 - `testing/e2e-auth-state` - Implement storage state reuse for authentication
 - `testing/e2e-otp-flows` - Add tests for OTP verification with static code
+
+## When to Use Each Approach
+
+### Decision Tree
+
+```
+Need to test authentication?
+├─ YES: Testing the sign-in flow itself?
+│   ├─ YES: Use signInUI()
+│   │   - Form validation
+│   │   - Error messages
+│   │   - Sign-up flow
+│   │   - Password reset
+│   └─ NO: Use signInProgrammatic()
+│       - Dashboard tests
+│       - Settings tests
+│       - Commerce flows
+│       - API interactions
+└─ NO: No authentication needed
+    - Public pages
+    - Marketing site
+    - Landing pages
+```
+
+### Available Functions in `e2e/fixtures/auth.ts`
+
+```typescript
+// Programmatic sign-in (FAST - 1-2 seconds)
+signInProgrammatic(page: Page): Promise<void>
+
+// UI-based sign-in (SLOWER - 3-5 seconds)
+signInUI(page: Page): Promise<void>
+
+// Default sign-in (alias for programmatic)
+signIn(page: Page): Promise<void>
+
+// Sign out
+signOut(page: Page): Promise<void>
+```
+
+### Best Practices
+
+#### ✅ GOOD: Use programmatic for feature tests
+
+```typescript
+test('user can view orders', async ({ page }) => {
+	await signInProgrammatic(page)
+	await page.goto('/dashboard/orders')
+	await expect(page.locator('text=Orders')).toBeVisible()
+})
+```
+
+#### ❌ BAD: Using UI sign-in for non-auth tests
+
+```typescript
+test('user can view orders', async ({ page }) => {
+	await signInUI(page)  // Unnecessarily slow!
+	await page.goto('/dashboard/orders')
+	await expect(page.locator('text=Orders')).toBeVisible()
+})
+```
+
+#### ✅ GOOD: Use UI for auth flow tests
+
+```typescript
+test('sign-in shows error for invalid password', async ({ page }) => {
+	await page.goto('/sign-in')
+	await page.fill('input[name="identifier"]', 'test@example.com')
+	await page.click('button:has-text("Continue")')
+	await page.fill('input[name="password"]', 'wrong-password')
+	await page.click('button:has-text("Sign in")')
+
+	await expect(page.locator('text=Invalid password')).toBeVisible()
+})
+```
+
+### Performance Impact
+
+**Example**: A test suite with 50 tests:
+- All UI-based: ~150-250 seconds
+- 47 programmatic + 3 UI: ~62-110 seconds
+- **Savings**: ~88-140 seconds (58% faster)
+
+Most test suites should aim for 95% programmatic, 5% UI-based tests.
 
 ## References
 
 - [Clerk Guide: Test emails and phones](https://clerk.com/docs/guides/development/testing/test-emails-and-phones)
 - [Clerk Testing with Playwright](https://clerk.com/docs/testing/playwright)
 - **Internal**: tasks/testing/setup-playwright.md
+- **Internal**: tasks/testing/clerk-e2e-integration.md
 - **Internal**: PRD.md Section 13 (E2E Testing Requirements)
