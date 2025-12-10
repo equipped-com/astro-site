@@ -817,7 +817,8 @@ epics:
       - id: fix-api-tests
         name: Fix API Route Tests (41 failures)
         file: bugs/fix-api-tests.md
-        done: false
+        done: true
+        commit: 4369ad2
         complexity: medium
         depends_on: []
       - id: fix-checkout-tests
