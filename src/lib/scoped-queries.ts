@@ -100,20 +100,23 @@ export interface InsertPersonData {
 }
 
 export interface InsertOrderData {
-	created_by_user_id: string
+	created_by_user_id?: string
 	assigned_to_person_id?: string
 	status?: Order['status']
 	payment_method?: string
-	subtotal: number
+	order_number?: string
+	subtotal?: number
 	shipping_cost?: number
 	tax_amount?: number
-	total: number
+	total?: number
 	monthly_cost?: number
 	shipping_address?: string
 	shipping_city?: string
 	shipping_state?: string
 	shipping_zip?: string
 	shipping_country?: string
+	total_amount?: number
+	currency?: string
 }
 
 /**
@@ -342,38 +345,99 @@ export function scopedQuery(c: Context) {
 			 */
 			insert(data: InsertOrderData): D1PreparedStatement {
 				const id = generateId()
-				const status = data.status || 'pending'
-				const shipping_cost = data.shipping_cost ?? 0
-				const tax_amount = data.tax_amount ?? 0
-				const shipping_country = data.shipping_country || 'US'
+				const columns: string[] = ['id', 'account_id']
+				const values: unknown[] = [id, accountId]
 
-				return db
-					.prepare(
-						`INSERT INTO orders (
-							id, account_id, created_by_user_id, assigned_to_person_id, status,
-							payment_method, subtotal, shipping_cost, tax_amount, total, monthly_cost,
-							shipping_address, shipping_city, shipping_state, shipping_zip, shipping_country,
-							created_at
-						) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))`,
-					)
-					.bind(
-						id,
-						accountId,
-						data.created_by_user_id,
-						data.assigned_to_person_id || null,
-						status,
-						data.payment_method || null,
-						data.subtotal,
-						shipping_cost,
-						tax_amount,
-						data.total,
-						data.monthly_cost || null,
-						data.shipping_address || null,
-						data.shipping_city || null,
-						data.shipping_state || null,
-						data.shipping_zip || null,
-						shipping_country,
-					)
+				if (data.order_number !== undefined) {
+					columns.push('order_number')
+					values.push(data.order_number)
+				}
+
+				const status = data.status || 'pending'
+				columns.push('status')
+				values.push(status)
+
+				if (data.created_by_user_id !== undefined) {
+					columns.push('created_by_user_id')
+					values.push(data.created_by_user_id)
+				}
+
+				if (data.assigned_to_person_id !== undefined) {
+					columns.push('assigned_to_person_id')
+					values.push(data.assigned_to_person_id)
+				}
+
+				if (data.payment_method !== undefined) {
+					columns.push('payment_method')
+					values.push(data.payment_method)
+				}
+
+				if (data.subtotal !== undefined) {
+					columns.push('subtotal')
+					values.push(data.subtotal)
+				}
+
+				if (data.shipping_cost !== undefined) {
+					columns.push('shipping_cost')
+					values.push(data.shipping_cost)
+				}
+
+				if (data.tax_amount !== undefined) {
+					columns.push('tax_amount')
+					values.push(data.tax_amount)
+				}
+
+				if (data.total !== undefined) {
+					columns.push('total')
+					values.push(data.total)
+				}
+
+				if (data.total_amount !== undefined) {
+					columns.push('total_amount')
+					values.push(data.total_amount)
+				}
+
+				if (data.monthly_cost !== undefined) {
+					columns.push('monthly_cost')
+					values.push(data.monthly_cost)
+				}
+
+				if (data.shipping_address !== undefined) {
+					columns.push('shipping_address')
+					values.push(data.shipping_address)
+				}
+
+				if (data.shipping_city !== undefined) {
+					columns.push('shipping_city')
+					values.push(data.shipping_city)
+				}
+
+				if (data.shipping_state !== undefined) {
+					columns.push('shipping_state')
+					values.push(data.shipping_state)
+				}
+
+				if (data.shipping_zip !== undefined) {
+					columns.push('shipping_zip')
+					values.push(data.shipping_zip)
+				}
+
+				if (data.shipping_country !== undefined) {
+					columns.push('shipping_country')
+					values.push(data.shipping_country)
+				}
+
+				if (data.currency !== undefined) {
+					columns.push('currency')
+					values.push(data.currency)
+				}
+
+				columns.push('created_at')
+
+				const placeholders = columns.map((_, i) => (i === columns.length - 1 ? "datetime('now')" : '?')).join(', ')
+				const query = `INSERT INTO orders (${columns.join(', ')}) VALUES (${placeholders})`
+
+				return db.prepare(query).bind(...values)
 			},
 
 			/**
