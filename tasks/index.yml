@@ -363,7 +363,8 @@ epics:
       - id: invitation-expiry
         name: Invitation Expiry Worker
         file: invitations/invitation-expiry.md
-        done: false
+        done: true
+        commit: 632f34d
         complexity: medium
         depends_on:
           - invitations/invitations-schema

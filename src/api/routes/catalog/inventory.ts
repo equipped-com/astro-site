@@ -6,7 +6,8 @@
 import { Hono } from 'hono'
 import { requireSysAdmin } from '@/api/middleware/sysadmin'
 import { inventoryItems, products, brands, type InventoryItem, type NewInventoryItem } from '@/db/schema'
-import { eq, and, desc, sql } from 'drizzle-orm'
+import { eq, and, desc } from 'drizzle-orm'
+import { sql } from 'drizzle-orm'
 import { drizzle } from 'drizzle-orm/d1'
 
 const inventoryRouter = new Hono<{ Bindings: Env }>()
@@ -271,7 +272,7 @@ inventoryRouter.put('/:id', requireSysAdmin(), async c => {
 	}
 
 	// Always update the updatedAt timestamp
-	updates.updatedAt = sql`CURRENT_TIMESTAMP`.toString()
+	updates.updatedAt = sql`CURRENT_TIMESTAMP` as unknown as string
 
 	try {
 		await db.update(inventoryItems).set(updates).where(eq(inventoryItems.id, itemId))
