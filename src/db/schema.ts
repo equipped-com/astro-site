@@ -643,6 +643,19 @@ export const ACCOUNT_ROLES = ['owner', 'admin', 'member', 'buyer', 'noaccess'] a
 export type AccountRole = (typeof ACCOUNT_ROLES)[number]
 
 // ============================================
+// CATALOG ENUMS
+// ============================================
+
+export const PRODUCT_TYPES = ['laptop', 'desktop', 'tablet', 'phone', 'accessory', 'display'] as const
+export type ProductType = (typeof PRODUCT_TYPES)[number]
+
+export const INVENTORY_CONDITIONS = ['new', 'like_new', 'good', 'fair', 'refurbished'] as const
+export type InventoryCondition = (typeof INVENTORY_CONDITIONS)[number]
+
+export const INVENTORY_STATUSES = ['available', 'reserved', 'sold', 'allocated'] as const
+export type InventoryStatus = (typeof INVENTORY_STATUSES)[number]
+
+// ============================================
 // STATUS ENUMS
 // ============================================
 
