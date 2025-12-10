@@ -332,7 +332,8 @@ epics:
       - id: invitations-schema
         name: Account Invitations Table Migration
         file: invitations/invitations-schema.md
-        done: false
+        done: true
+        commit: 8d43f4b
         complexity: medium
         depends_on:
           - database/initial-schema
