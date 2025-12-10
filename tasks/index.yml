@@ -393,7 +393,8 @@ epics:
       - id: set-primary-account
         name: Set Primary Account
         file: multi-account/set-primary-account.md
-        done: false
+        done: true
+        commit: 2beacaf
         complexity: low
         depends_on:
           - multi-account/account-list-api
