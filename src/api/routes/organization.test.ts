@@ -2,52 +2,97 @@
  * Organization Settings API Tests
  *
  * Tests organization profile management, billing info, and deletion.
+ *
+ * NOTE: Uses auth injection pattern - middleware sets clerkAuth context
+ * that getAuth() reads, allowing full control over auth state in tests.
  */
 
 import { Hono } from 'hono'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import organization from './organization'
+import organizationRoutes from './organization'
+
+interface MockAuth {
+	userId?: string
+	sessionId?: string
+}
+
+interface MockDb {
+	prepare: ReturnType<typeof vi.fn>
+}
+
+interface TestAppOptions {
+	db: MockDb
+	auth?: MockAuth
+	context?: Record<string, unknown>
+}
+
+/**
+ * Create test app with injected auth and tenant context.
+ */
+function createTestApp({
+	db,
+	auth = { userId: 'user-123', sessionId: 'session-123' },
+	context = {},
+}: TestAppOptions) {
+	const app = new Hono()
+
+	app.use('*', async (c, next) => {
+		c.env = { DB: db } as unknown as typeof c.env
+		c.set('clerkAuth', () => auth)
+		c.set('accountId', context.accountId ?? 'acct-123')
+		c.set('account', context.account ?? { id: 'acct-123', short_name: 'acme', name: 'Acme Corporation' })
+		return next()
+	})
+
+	app.route('/', organizationRoutes)
+	return app
+}
+
+/**
+ * Create a mock database with middleware-aware handling.
+ */
+function createMockDb(
+	handlers: {
+		first?: (query: string, params: unknown[]) => Promise<unknown>
+		all?: (query: string, params: unknown[]) => Promise<{ results: unknown[] }>
+		run?: (query: string, params: unknown[]) => Promise<{ success: boolean }>
+	},
+	options: { role?: string } = {},
+): MockDb {
+	let lastParams: unknown[] = []
+	const userRole = options.role ?? 'owner'
+
+	return {
+		prepare: vi.fn((query: string) => ({
+			bind: vi.fn((...params: unknown[]) => {
+				lastParams = params
+				return {
+					first: vi.fn(async () => {
+						// Handle requireAccountAccess middleware query
+						if (query.includes('account_access aa') && query.includes('JOIN users u')) {
+							return {
+								id: 'access-test',
+								user_id: 'user-123',
+								account_id: 'acct-123',
+								role: userRole,
+								email: 'owner@test.com',
+								first_name: 'Test',
+								last_name: 'Owner',
+							}
+						}
+						return handlers.first?.(query, lastParams) ?? null
+					}),
+					all: vi.fn(() => handlers.all?.(query, lastParams) ?? { results: [] }),
+					run: vi.fn(() => handlers.run?.(query, lastParams) ?? { success: true }),
+				}
+			}),
+		})),
+	}
+}
 
 describe('Organization Settings API', () => {
-	let app: Hono
-	let mockDB: D1Database
-	let mockEnv: Env
-
 	beforeEach(() => {
-		// Mock D1 Database
-		mockDB = {
-			prepare: vi.fn().mockReturnValue({
-				bind: vi.fn().mockReturnThis(),
-				first: vi.fn(),
-				all: vi.fn(),
-				run: vi.fn(),
-			}),
-		} as unknown as D1Database
-
-		mockEnv = { DB: mockDB } as Env
-
-		app = new Hono()
-		app.route('/api/organization', organization)
-
-		// Mock middleware context
-		vi.mock('../middleware/auth', () => ({
-			requireAccountAccess: () => async (c: unknown, next: () => Promise<void>) => {
-				// @ts-expect-error - mocking context
-				c.set('userId', 'user-123')
-				// @ts-expect-error - mocking context
-				c.set('role', 'owner')
-				return next()
-			},
-			getRole: (c: { get: (key: string) => string }) => c.get('role'),
-		}))
-
-		vi.mock('../middleware/tenant', () => ({
-			requireTenant: () => async (c: unknown, next: () => Promise<void>) => {
-				// @ts-expect-error - mocking context
-				c.set('accountId', 'acct-123')
-				return next()
-			},
-		}))
+		vi.clearAllMocks()
 	})
 
 	describe('GET /api/organization', () => {
@@ -63,30 +108,17 @@ describe('Organization Settings API', () => {
 				updated_at: '2025-01-10T00:00:00Z',
 			}
 
-			// @ts-expect-error - partial mock
-			mockDB.prepare = vi.fn().mockReturnValue({
-				bind: vi.fn().mockReturnThis(),
-				first: vi.fn().mockResolvedValue(mockAccount),
+			const db = createMockDb({
+				first: async query => {
+					if (query.includes('FROM accounts WHERE')) {
+						return mockAccount
+					}
+					return null
+				},
 			})
 
-			const req = new Request('http://localhost/api/organization', {
-				method: 'GET',
-			})
-
-			const ctx = {
-				req: { url: req.url, method: req.method },
-				env: mockEnv,
-				get: vi.fn((key: string) => {
-					if (key === 'accountId') return 'acct-123'
-					if (key === 'role') return 'owner'
-					return undefined
-				}),
-				set: vi.fn(),
-				json: (data: unknown) => Response.json(data),
-			}
-
-			// @ts-expect-error - partial mock
-			const response = await app.request(req)
+			const app = createTestApp({ db })
+			const response = await app.request('/')
 			const data = await response.json()
 
 			expect(data.organization).toEqual({
@@ -102,30 +134,17 @@ describe('Organization Settings API', () => {
 		})
 
 		it('should return 404 if organization not found', async () => {
-			// @ts-expect-error - partial mock
-			mockDB.prepare = vi.fn().mockReturnValue({
-				bind: vi.fn().mockReturnThis(),
-				first: vi.fn().mockResolvedValue(null),
+			const db = createMockDb({
+				first: async query => {
+					if (query.includes('FROM accounts WHERE')) {
+						return null
+					}
+					return null
+				},
 			})
 
-			const req = new Request('http://localhost/api/organization', {
-				method: 'GET',
-			})
-
-			const ctx = {
-				req: { url: req.url, method: req.method },
-				env: mockEnv,
-				get: vi.fn((key: string) => {
-					if (key === 'accountId') return 'acct-123'
-					if (key === 'role') return 'owner'
-					return undefined
-				}),
-				set: vi.fn(),
-				json: (data: unknown, status?: number) => Response.json(data, { status }),
-			}
-
-			// @ts-expect-error - partial mock
-			const response = await app.request(req)
+			const app = createTestApp({ db })
+			const response = await app.request('/')
 
 			expect(response.status).toBe(404)
 		})
@@ -144,14 +163,17 @@ describe('Organization Settings API', () => {
 				updated_at: '2025-01-15T00:00:00Z',
 			}
 
-			// @ts-expect-error - partial mock
-			mockDB.prepare = vi.fn().mockReturnValue({
-				bind: vi.fn().mockReturnThis(),
-				run: vi.fn().mockResolvedValue({ success: true }),
-				first: vi.fn().mockResolvedValue(updatedAccount),
+			const db = createMockDb({
+				first: async query => {
+					if (query.includes('FROM accounts WHERE')) {
+						return updatedAccount
+					}
+					return null
+				},
 			})
 
-			const req = new Request('http://localhost/api/organization', {
+			const app = createTestApp({ db })
+			const response = await app.request('/', {
 				method: 'PUT',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({
@@ -159,28 +181,6 @@ describe('Organization Settings API', () => {
 					address: '456 New St, SF, CA 94105',
 				}),
 			})
-
-			const ctx = {
-				req: {
-					url: req.url,
-					method: req.method,
-					json: async () => ({
-						name: 'Acme Corp Updated',
-						address: '456 New St, SF, CA 94105',
-					}),
-				},
-				env: mockEnv,
-				get: vi.fn((key: string) => {
-					if (key === 'accountId') return 'acct-123'
-					if (key === 'role') return 'owner'
-					return undefined
-				}),
-				set: vi.fn(),
-				json: (data: unknown) => Response.json(data),
-			}
-
-			// @ts-expect-error - partial mock
-			const response = await app.request(req)
 			const data = await response.json()
 
 			expect(data.organization.name).toBe('Acme Corp Updated')
@@ -188,19 +188,10 @@ describe('Organization Settings API', () => {
 		})
 
 		it('should return 403 if user is not owner or admin', async () => {
-			// Create app with member role for this test
-			const memberApp = new Hono<{ Bindings: Env; Variables: { accountId?: string; userId?: string; role?: string } }>()
-			memberApp.use('*', async (c, next) => {
-				// @ts-expect-error - mocking env for tests
-				c.env = mockEnv
-				c.set('accountId', 'acct-123')
-				c.set('userId', 'user-123')
-				c.set('role', 'member') // Not owner or admin
-				await next()
-			})
-			memberApp.route('/', organization)
+			const db = createMockDb({}, { role: 'member' })
 
-			const response = await memberApp.request('/api/organization', {
+			const app = createTestApp({ db })
+			const response = await app.request('/', {
 				method: 'PUT',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ name: 'Acme Corp Updated' }),
@@ -218,57 +209,29 @@ describe('Organization Settings API', () => {
 				billing_email: 'billing@acme.com',
 			}
 
-			// @ts-expect-error - partial mock
-			mockDB.prepare = vi.fn((query: string) => {
-				if (query.includes('FROM accounts')) {
-					return {
-						bind: vi.fn().mockReturnThis(),
-						first: vi.fn().mockResolvedValue(mockAccount),
+			const db = createMockDb({
+				first: async query => {
+					if (query.includes('FROM accounts WHERE')) {
+						return mockAccount
 					}
-				}
-				if (query.includes('FROM devices')) {
-					return {
-						bind: vi.fn().mockReturnThis(),
-						first: vi.fn().mockResolvedValue({ count: 15 }),
+					if (query.includes('FROM devices')) {
+						return { count: 15 }
 					}
-				}
-				if (query.includes('FROM account_access')) {
-					return {
-						bind: vi.fn().mockReturnThis(),
-						first: vi.fn().mockResolvedValue({ count: 5 }),
+					if (query.includes('FROM account_access') && !query.includes('JOIN users')) {
+						return { count: 5 }
 					}
-				}
-				if (query.includes('FROM lease_agreements')) {
-					return {
-						bind: vi.fn().mockReturnThis(),
-						all: vi.fn().mockResolvedValue({ results: [] }),
+					return null
+				},
+				all: async query => {
+					if (query.includes('FROM lease_agreements')) {
+						return { results: [] }
 					}
-				}
-				return {
-					bind: vi.fn().mockReturnThis(),
-					first: vi.fn().mockResolvedValue(null),
-					all: vi.fn().mockResolvedValue({ results: [] }),
-				}
+					return { results: [] }
+				},
 			})
 
-			const req = new Request('http://localhost/api/organization/billing', {
-				method: 'GET',
-			})
-
-			const ctx = {
-				req: { url: req.url, method: req.method },
-				env: mockEnv,
-				get: vi.fn((key: string) => {
-					if (key === 'accountId') return 'acct-123'
-					if (key === 'role') return 'owner'
-					return undefined
-				}),
-				set: vi.fn(),
-				json: (data: unknown) => Response.json(data),
-			}
-
-			// @ts-expect-error - partial mock
-			const response = await app.request(req)
+			const app = createTestApp({ db })
+			const response = await app.request('/billing')
 			const data = await response.json()
 
 			expect(data.billing.stripe_customer_id).toBe('cus_123')
@@ -281,111 +244,60 @@ describe('Organization Settings API', () => {
 		it('should delete organization with correct confirmation', async () => {
 			const mockAccount = { name: 'Acme Corporation' }
 
-			// @ts-expect-error - partial mock
-			mockDB.prepare = vi.fn((query: string) => {
-				if (query.includes('SELECT name')) {
-					return {
-						bind: vi.fn().mockReturnThis(),
-						first: vi.fn().mockResolvedValue(mockAccount),
+			const db = createMockDb({
+				first: async query => {
+					if (query.includes('SELECT name')) {
+						return mockAccount
 					}
-				}
-				return {
-					bind: vi.fn().mockReturnThis(),
-					run: vi.fn().mockResolvedValue({ success: true }),
-				}
+					return null
+				},
 			})
 
-			const req = new Request('http://localhost/api/organization', {
+			const app = createTestApp({ db })
+			const response = await app.request('/', {
 				method: 'DELETE',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ confirm_name: 'Acme Corporation' }),
 			})
-
-			const ctx = {
-				req: {
-					url: req.url,
-					method: req.method,
-					json: async () => ({ confirm_name: 'Acme Corporation' }),
-				},
-				env: mockEnv,
-				get: vi.fn((key: string) => {
-					if (key === 'accountId') return 'acct-123'
-					if (key === 'role') return 'owner'
-					return undefined
-				}),
-				set: vi.fn(),
-				json: (data: unknown) => Response.json(data),
-			}
-
-			// @ts-expect-error - partial mock
-			const response = await app.request(req)
 			const data = await response.json()
 
 			expect(data.success).toBe(true)
 		})
 
 		it('should return 403 if user is not owner', async () => {
-			const req = new Request('http://localhost/api/organization', {
+			const db = createMockDb(
+				{
+					first: async () => ({ name: 'Acme Corporation' }),
+				},
+				{ role: 'admin' },
+			)
+
+			const app = createTestApp({ db })
+			const response = await app.request('/', {
 				method: 'DELETE',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ confirm_name: 'Acme Corporation' }),
 			})
 
-			const ctx = {
-				req: {
-					url: req.url,
-					method: req.method,
-					json: async () => ({ confirm_name: 'Acme Corporation' }),
-				},
-				env: mockEnv,
-				get: vi.fn((key: string) => {
-					if (key === 'accountId') return 'acct-123'
-					if (key === 'role') return 'admin' // Not owner
-					return undefined
-				}),
-				set: vi.fn(),
-				json: (data: unknown, status?: number) => Response.json(data, { status }),
-			}
-
-			// @ts-expect-error - partial mock
-			const response = await app.request(req)
-
 			expect(response.status).toBe(403)
 		})
 
 		it('should return 400 if confirmation name does not match', async () => {
-			const mockAccount = { name: 'Acme Corporation' }
-
-			// @ts-expect-error - partial mock
-			mockDB.prepare = vi.fn().mockReturnValue({
-				bind: vi.fn().mockReturnThis(),
-				first: vi.fn().mockResolvedValue(mockAccount),
+			const db = createMockDb({
+				first: async query => {
+					if (query.includes('SELECT name')) {
+						return { name: 'Acme Corporation' }
+					}
+					return null
+				},
 			})
 
-			const req = new Request('http://localhost/api/organization', {
+			const app = createTestApp({ db })
+			const response = await app.request('/', {
 				method: 'DELETE',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ confirm_name: 'Wrong Name' }),
 			})
-
-			const ctx = {
-				req: {
-					url: req.url,
-					method: req.method,
-					json: async () => ({ confirm_name: 'Wrong Name' }),
-				},
-				env: mockEnv,
-				get: vi.fn((key: string) => {
-					if (key === 'accountId') return 'acct-123'
-					if (key === 'role') return 'owner'
-					return undefined
-				}),
-				set: vi.fn(),
-				json: (data: unknown, status?: number) => Response.json(data, { status }),
-			}
-
-			// @ts-expect-error - partial mock
-			const response = await app.request(req)
 
 			expect(response.status).toBe(400)
 		})

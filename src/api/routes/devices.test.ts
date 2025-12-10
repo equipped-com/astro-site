@@ -295,51 +295,51 @@ describe('Device CRUD API', () => {
 
 	describe('@REQ-API-DEV-004: Update device', () => {
 		test('should update device status and assigned_to', async () => {
+			let selectCallCount = 0
 			const mockDb = {
 				prepare: vi.fn((query: string) => {
-					// SELECT query (check existence)
-					if (query.includes('SELECT') && !query.includes('UPDATE')) {
-						return {
-							bind: vi.fn(() => ({
-								first: vi.fn(async () => ({
-									id: 'dev_123',
-									account_id: 'acc_123',
-									name: 'MacBook Pro',
-									type: 'laptop',
-									status: 'available',
-								})),
-							})),
-						}
-					}
 					// UPDATE query
 					if (query.includes('UPDATE')) {
 						return {
 							bind: vi.fn(() => ({
 								run: vi.fn(async () => ({ meta: { changes: 1 } })),
-								first: vi.fn(async () => ({
-									id: 'dev_123',
-									account_id: 'acc_123',
-									name: 'MacBook Pro',
-									type: 'laptop',
-									status: 'assigned',
-									assigned_to: 'person_456',
-									updated_at: '2024-12-08T00:00:00Z',
-								})),
 							})),
 						}
 					}
-					// GET updated device
+					// SELECT queries - first returns pre-update, subsequent return post-update
+					if (query.includes('SELECT')) {
+						selectCallCount++
+						return {
+							bind: vi.fn(() => ({
+								first: vi.fn(async () => {
+									// First SELECT: check existence (pre-update state)
+									if (selectCallCount === 1) {
+										return {
+											id: 'dev_123',
+											account_id: 'acc_123',
+											name: 'MacBook Pro',
+											type: 'laptop',
+											status: 'available',
+										}
+									}
+									// Second SELECT: get updated device (post-update state)
+									return {
+										id: 'dev_123',
+										account_id: 'acc_123',
+										name: 'MacBook Pro',
+										type: 'laptop',
+										status: 'assigned',
+										assigned_to: 'person_456',
+										updated_at: '2024-12-08T00:00:00Z',
+									}
+								}),
+							})),
+						}
+					}
+					// Fallback
 					return {
 						bind: vi.fn(() => ({
-							first: vi.fn(async () => ({
-								id: 'dev_123',
-								account_id: 'acc_123',
-								name: 'MacBook Pro',
-								type: 'laptop',
-								status: 'assigned',
-								assigned_to: 'person_456',
-								updated_at: '2024-12-08T00:00:00Z',
-							})),
+							first: vi.fn(async () => null),
 						})),
 					}
 				}),
