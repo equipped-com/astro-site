@@ -620,4 +620,148 @@ describe('User Profile API', () => {
 			expect(json.error).toBe('Unauthorized')
 		})
 	})
+
+	/**
+	 * @REQ-API-001 @Update
+	 * Scenario: Set primary account
+	 * Given I am logged in as "alice@example.com"
+	 * And I have access to "Acme Corp" and "Beta Inc"
+	 * And my current primary is "Acme Corp"
+	 * When I PUT "/api/users/me/primary-account" with account_id
+	 * Then the response status should be 200
+	 * And users.primary_account_id should be updated
+	 */
+	describe('@REQ-API-001 @Update: Set primary account', () => {
+		test('should set primary account when user has access', async () => {
+			const mockDb = {
+				prepare: vi.fn((query: string) => {
+					if (query.includes('SELECT aa.role')) {
+						// Access check query
+						return {
+							bind: vi.fn(() => ({
+								first: vi.fn(async () => ({
+									role: 'admin',
+									name: 'Beta Inc',
+								})),
+							})),
+						}
+					}
+					if (query.includes('UPDATE')) {
+						// Update query
+						return {
+							bind: vi.fn(() => ({
+								run: vi.fn(async () => ({ success: true })),
+							})),
+						}
+					}
+					// SELECT after update
+					return {
+						bind: vi.fn(() => ({
+							first: vi.fn(async () => ({
+								id: 'user_123',
+								email: 'alice@example.com',
+								first_name: 'Alice',
+								last_name: 'Smith',
+								phone: null,
+								primary_account_id: 'acc_betainc',
+								avatar_url: null,
+							})),
+						})),
+					}
+				}),
+			}
+
+			const { app } = createTestApp({ db: mockDb })
+			const res = await app.request('/primary-account', {
+				method: 'PUT',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ account_id: 'acc_betainc' }),
+			})
+
+			expect(res.status).toBe(200)
+			const json = await res.json()
+			expect(json.user.primary_account_id).toBe('acc_betainc')
+			expect(json.user.email).toBe('alice@example.com')
+		})
+	})
+
+	/**
+	 * @REQ-API-002 @Validation
+	 * Scenario: Cannot set primary to account without access
+	 * Given I am logged in as "alice@example.com"
+	 * And I do NOT have access to "Client Co"
+	 * When I PUT "/api/users/me/primary-account" with account_id
+	 * Then the response status should be 403
+	 */
+	describe('@REQ-API-002 @Validation: Cannot set primary to unauthorized account', () => {
+		test('should return 403 when user lacks access', async () => {
+			const mockDb = {
+				prepare: vi.fn((_query: string) => ({
+					bind: vi.fn(() => ({
+						first: vi.fn(async () => null), // No access found
+					})),
+				})),
+			}
+
+			const { app } = createTestApp({ db: mockDb })
+			const res = await app.request('/primary-account', {
+				method: 'PUT',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ account_id: 'acc_clientco' }),
+			})
+
+			expect(res.status).toBe(403)
+			const json = await res.json()
+			expect(json.error).toBe('You do not have access to this account')
+		})
+	})
+
+	/**
+	 * @REQ-API-003 @Validation
+	 * Scenario: Validation - Missing account_id
+	 */
+	describe('@REQ-API-003 @Validation: Missing account_id', () => {
+		test('should return 400 when account_id is missing', async () => {
+			const mockDb = {
+				prepare: vi.fn(),
+			}
+
+			const { app } = createTestApp({ db: mockDb })
+			const res = await app.request('/primary-account', {
+				method: 'PUT',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({}),
+			})
+
+			expect(res.status).toBe(400)
+			const json = await res.json()
+			expect(json.error).toBe('account_id is required')
+		})
+	})
+
+	/**
+	 * @REQ-API-004 @Auth
+	 * Scenario: Requires authentication
+	 */
+	describe('@REQ-API-004 @Auth: Unauthenticated user', () => {
+		test('should return 401 when not authenticated', async () => {
+			const mockDb = {
+				prepare: vi.fn(),
+			}
+
+			const { app } = createTestApp({
+				db: mockDb,
+				auth: { userId: undefined },
+			})
+			const res = await app.request('/primary-account', {
+				method: 'PUT',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ account_id: 'acc_123' }),
+			})
+
+			expect(res.status).toBe(401)
+			const json = await res.json()
+			expect(json.error).toBe('Unauthorized')
+		})
+	})
 })

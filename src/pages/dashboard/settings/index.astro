@@ -1,5 +1,5 @@
 ---
-import { AlertTriangle, Blocks, Building2, CreditCard, Shield, Users } from 'lucide-react'
+import { AlertTriangle, Blocks, Building2, CreditCard, Layers3, Shield, Users } from 'lucide-react'
 import DashboardLayout from '@/layouts/DashboardLayout.astro'
 ---
 
@@ -13,6 +13,26 @@ import DashboardLayout from '@/layouts/DashboardLayout.astro'
 		</div>
 
 		<div class="grid gap-4 md:grid-cols-2">
+			<!-- Profile -->
+			<a
+				href="/dashboard/settings/profile"
+				class="group block p-6 border rounded-lg hover:border-primary transition-colors"
+			>
+				<div class="flex items-start gap-4">
+					<div class="p-2 rounded-lg bg-primary/10 text-primary">
+						<Layers3 size={24} />
+					</div>
+					<div class="flex-1">
+						<h3 class="font-semibold text-lg group-hover:text-primary transition-colors">
+							Profile
+						</h3>
+						<p class="text-sm text-muted-foreground mt-1">
+							Select your default account and workspace
+						</p>
+					</div>
+				</div>
+			</a>
+
 			<!-- Organization -->
 			<a
 				href="/dashboard/settings/organization"

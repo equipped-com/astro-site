@@ -206,4 +206,66 @@ user.post('/accounts/:id/switch', async c => {
 	})
 })
 
+/**
+ * PUT /api/user/primary-account
+ * Set the user's primary account
+ * Validates user has access to the specified account before updating
+ */
+user.put('/primary-account', async c => {
+	const auth = getAuth(c)
+	const userId = auth?.userId
+
+	if (!userId) {
+		return c.json({ error: 'Unauthorized' }, 401)
+	}
+
+	const body = await c.req.json()
+	const accountId = body.account_id
+
+	if (!accountId) {
+		return c.json({ error: 'account_id is required' }, 400)
+	}
+
+	// Verify user has access to this account
+	const access = await c.env.DB.prepare(
+		`
+		SELECT aa.role, a.name
+		FROM account_access aa
+		JOIN accounts a ON aa.account_id = a.id
+		WHERE aa.user_id = ? AND aa.account_id = ?
+	`,
+	)
+		.bind(userId, accountId)
+		.first()
+
+	if (!access) {
+		return c.json({ error: 'You do not have access to this account' }, 403)
+	}
+
+	// Update user's primary account
+	await c.env.DB.prepare(
+		`
+		UPDATE users
+		SET primary_account_id = ?,
+			updated_at = CURRENT_TIMESTAMP
+		WHERE id = ?
+	`,
+	)
+		.bind(accountId, userId)
+		.run()
+
+	// Return updated user profile
+	const updated = await c.env.DB.prepare(
+		'SELECT id, email, first_name, last_name, phone, primary_account_id, avatar_url FROM users WHERE id = ?',
+	)
+		.bind(userId)
+		.first()
+
+	if (!updated) {
+		return c.json({ error: 'User not found after update' }, 404)
+	}
+
+	return c.json({ user: updated })
+})
+
 export default user
