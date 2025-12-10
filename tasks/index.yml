@@ -252,7 +252,8 @@ epics:
       - id: fix-schema-naming
         name: Fix Schema Naming Consistency
         file: database/fix-schema-naming.md
-        done: false
+        done: true
+        commit: 11362b8
         complexity: low
         depends_on:
           - database/initial-schema
