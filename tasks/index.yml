@@ -823,7 +823,8 @@ epics:
       - id: fix-checkout-tests
         name: Fix Checkout & Cart Tests (22 failures)
         file: bugs/fix-checkout-tests.md
-        done: false
+        done: true
+        commit: 1cea39d
         complexity: medium
         depends_on: []
       - id: fix-people-tests
