@@ -837,6 +837,28 @@ epics:
           - testing/setup-vitest
           - auth/auth-pages
           - commerce/checkout-assignment
+      - id: clerk-e2e-integration
+        name: Integrate Clerk Testing with Playwright
+        file: testing/clerk-e2e-integration.md
+        done: false
+        complexity: medium
+        depends_on:
+          - testing/setup-playwright
+          - auth/clerk-provider
+      - id: e2e-auth-state
+        name: E2E Authentication State Reuse
+        file: testing/e2e-auth-state.md
+        done: false
+        complexity: low
+        depends_on:
+          - testing/clerk-e2e-integration
+      - id: e2e-otp-flows
+        name: E2E Tests for OTP Verification Flows
+        file: testing/e2e-otp-flows.md
+        done: false
+        complexity: medium
+        depends_on:
+          - testing/clerk-e2e-integration
 
   integrations:
     name: External Integrations
