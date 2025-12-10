@@ -835,7 +835,8 @@ epics:
       - id: fix-settings-tests
         name: Fix Settings Component Tests (5 failures)
         file: bugs/fix-settings-tests.md
-        done: false
+        done: true
+        commit: 7ee64e2
         complexity: low
         depends_on: []
       - id: fix-admin-tests
