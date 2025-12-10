@@ -417,7 +417,8 @@ epics:
       - id: catalog-seed-data
         name: Seed Brands and Products
         file: catalog/catalog-seed-data.md
-        done: false
+        done: true
+        commit: 89892ed
         complexity: low
         depends_on:
           - catalog/catalog-schema
