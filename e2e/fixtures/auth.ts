@@ -2,7 +2,7 @@ import { test as base, type Page } from '@playwright/test'
 
 // Test user for E2E (create in Clerk test mode)
 const TEST_USER = {
-	email: 'e2e-test@equipped.test',
+	email: 'e2e+clerk_test@example.com',
 	password: process.env.E2E_TEST_PASSWORD || 'test-password-123',
 }
 

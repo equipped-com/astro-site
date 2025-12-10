@@ -30,11 +30,13 @@ curl -fsSL https://bun.sh/install | bash
 **CloudFlare Account Access** - Required for development
 
 Developers need access to the CloudFlare account to:
+
 - Run database migrations (`bunx wrangler d1 execute`)
 - Deploy to preview/production (`bun run deploy`)
 - Access D1 database (local and remote)
 
 **To get access:**
+
 1. Request invitation to CloudFlare team from project admin
 2. Authenticate wrangler: `bunx wrangler login`
 3. Verify access: `bunx wrangler d1 list`
@@ -50,13 +52,13 @@ bun run dev
 
 ## Commands
 
-| Command | Description |
-|---------|-------------|
-| `bun run dev` | Start dev server at localhost:4321 |
-| `bun run build` | Production build to dist/ |
-| `bun run preview` | Preview production build |
-| `bun run deploy` | Deploy to CloudFlare Workers |
-| `bun run check` | Lint with Biome |
+| Command           | Description                        |
+| ----------------- | ---------------------------------- |
+| `bun run dev`     | Start dev server at localhost:4321 |
+| `bun run build`   | Production build to dist/          |
+| `bun run preview` | Preview production build           |
+| `bun run deploy`  | Deploy to CloudFlare Workers       |
+| `bun run check`   | Lint with Biome                    |
 
 ## Testing
 
@@ -80,7 +82,8 @@ bun run test:e2e:chromium    # Run only in Chromium
 ```
 
 **Before running E2E tests:**
-1. Create test user in Clerk (e2e-test@equipped.test)
+
+1. Create test user in Clerk (e2e+clerk_test@example.com)
 2. Set `E2E_TEST_PASSWORD` in `.env.local`
 3. Make sure dev server is running (Playwright will auto-start it)
 
@@ -112,13 +115,13 @@ tasks/                # Development task tracking
 
 ## Documentation
 
-| Document | Purpose |
-|----------|---------|
-| `documentation/PRD.md` | Product Requirements - authoritative feature specs |
-| `documentation/EQUIPPED.md` | Product vision and capabilities overview |
-| `documentation/PLAN.md` | Development phases and implementation plan |
-| `documentation/platform-*.md` | UX flows with Figma references |
-| `tasks/index.yml` | Development task index with status tracking |
+| Document                      | Purpose                                            |
+| ----------------------------- | -------------------------------------------------- |
+| `documentation/PRD.md`        | Product Requirements - authoritative feature specs |
+| `documentation/EQUIPPED.md`   | Product vision and capabilities overview           |
+| `documentation/PLAN.md`       | Development phases and implementation plan         |
+| `documentation/platform-*.md` | UX flows with Figma references                     |
+| `tasks/index.yml`             | Development task index with status tracking        |
 
 ## Task System
 
@@ -128,18 +131,18 @@ Development tasks are tracked in `tasks/` with BDD test criteria. See `tasks/ind
 
 ```yaml
 # Each task has:
-done: false           # Completion status
-complexity: low|medium|high  # Agent capability matching
-requires: human       # Optional - needs manual action
+done: false # Completion status
+complexity: low|medium|high # Agent capability matching
+requires: human # Optional - needs manual action
 ```
 
 ### Complexity Levels
 
-| Level | Agent | Examples |
-|-------|-------|----------|
-| `low` | haiku | Static pages, loading states, simple patterns |
-| `medium` | sonnet | Dashboard views, CRUD, forms, API endpoints |
-| `high` | opus | Auth, payments, external APIs, architecture |
+| Level    | Agent  | Examples                                      |
+| -------- | ------ | --------------------------------------------- |
+| `low`    | haiku  | Static pages, loading states, simple patterns |
+| `medium` | sonnet | Dashboard views, CRUD, forms, API endpoints   |
+| `high`   | opus   | Auth, payments, external APIs, architecture   |
 
 ### Escalation Protocol
 
@@ -164,13 +167,13 @@ Copy `.env.example` to `.env.local` and configure:
 cp .env.example .env.local
 ```
 
-| Variable | Description | Where to Get |
-|----------|-------------|--------------|
-| `PUBLIC_CLERK_PUBLISHABLE_KEY` | Clerk client-side key | [Clerk Dashboard](https://dashboard.clerk.com) → API Keys |
-| `CLERK_SECRET_KEY` | Clerk server-side key | [Clerk Dashboard](https://dashboard.clerk.com) → API Keys |
-| `CLERK_WEBHOOK_SECRET` | Webhook signature verification | Clerk Dashboard → Webhooks |
-| `PUBLIC_SENTRY_DSN` | Sentry error tracking DSN | [Sentry Dashboard](https://sentry.io) → Project Settings |
-| `PUBLIC_APP_VERSION` | App version for Sentry releases | Set manually (e.g., `1.0.0`) |
+| Variable                       | Description                     | Where to Get                                              |
+| ------------------------------ | ------------------------------- | --------------------------------------------------------- |
+| `PUBLIC_CLERK_PUBLISHABLE_KEY` | Clerk client-side key           | [Clerk Dashboard](https://dashboard.clerk.com) → API Keys |
+| `CLERK_SECRET_KEY`             | Clerk server-side key           | [Clerk Dashboard](https://dashboard.clerk.com) → API Keys |
+| `CLERK_WEBHOOK_SECRET`         | Webhook signature verification  | Clerk Dashboard → Webhooks                                |
+| `PUBLIC_SENTRY_DSN`            | Sentry error tracking DSN       | [Sentry Dashboard](https://sentry.io) → Project Settings  |
+| `PUBLIC_APP_VERSION`           | App version for Sentry releases | Set manually (e.g., `1.0.0`)                              |
 
 **Note:** Variables prefixed with `PUBLIC_` are exposed to client-side code (Astro convention).
 
@@ -178,14 +181,15 @@ cp .env.example .env.local
 
 The project uses CloudFlare Workers with D1 database. Configuration is in `wrangler.toml`:
 
-| Setting | Value | Purpose |
-|---------|-------|---------|
-| `name` | `tryequipped` | Worker name |
-| `d1_databases.binding` | `DB` | Database binding name |
-| `d1_databases.database_id` | `b1b71c2d-...` | D1 database ID (specific to CloudFlare account) |
-| `routes.pattern` | `tryequipped.preview.frst.dev` | Custom domain |
+| Setting                    | Value                          | Purpose                                         |
+| -------------------------- | ------------------------------ | ----------------------------------------------- |
+| `name`                     | `tryequipped`                  | Worker name                                     |
+| `d1_databases.binding`     | `DB`                           | Database binding name                           |
+| `d1_databases.database_id` | `b1b71c2d-...`                 | D1 database ID (specific to CloudFlare account) |
+| `routes.pattern`           | `tryequipped.preview.frst.dev` | Custom domain                                   |
 
 **CloudFlare Account ID** (for wrangler commands):
+
 ```bash
 export CLOUDFLARE_ACCOUNT_ID=e6bd4c9e08862c4b3c8ddacbbef253b1
 ```
@@ -209,21 +213,21 @@ Some tasks require manual setup in external dashboards. These are tracked in `ta
 
 ### Completed (✅)
 
-| Task | Status | Notes |
-|------|--------|-------|
-| Clerk Application Setup | ✅ Done | Keys configured in `.env.local` |
-| D1 Database Creation | ✅ Done | Created via `wrangler d1 create` |
-| Database Schema | ✅ Done | 16 tables deployed to local + remote |
+| Task                    | Status  | Notes                                |
+| ----------------------- | ------- | ------------------------------------ |
+| Clerk Application Setup | ✅ Done | Keys configured in `.env.local`      |
+| D1 Database Creation    | ✅ Done | Created via `wrangler d1 create`     |
+| Database Schema         | ✅ Done | 16 tables deployed to local + remote |
 
 ### Remaining (⏳)
 
-| Task | File | What's Needed |
-|------|------|---------------|
-| [Stripe Payments](tasks/integrations/stripe-payments.md) | `integrations/stripe-payments` | Create Stripe account, get API keys |
-| [PostHog Analytics](tasks/integrations/posthog-analytics.md) | `integrations/posthog-analytics` | Create PostHog project, get API key |
+| Task                                                           | File                              | What's Needed                              |
+| -------------------------------------------------------------- | --------------------------------- | ------------------------------------------ |
+| [Stripe Payments](tasks/integrations/stripe-payments.md)       | `integrations/stripe-payments`    | Create Stripe account, get API keys        |
+| [PostHog Analytics](tasks/integrations/posthog-analytics.md)   | `integrations/posthog-analytics`  | Create PostHog project, get API key        |
 | [Plaid Verification](tasks/integrations/plaid-verification.md) | `integrations/plaid-verification` | Create Plaid account for bank verification |
-| [Macquarie Leasing](tasks/integrations/macquarie-leasing.md) | `integrations/macquarie-leasing` | Partnership agreement required |
-| [Upgraded API](tasks/integrations/upgraded-api.md) | `integrations/upgraded-api` | Partnership agreement required |
+| [Macquarie Leasing](tasks/integrations/macquarie-leasing.md)   | `integrations/macquarie-leasing`  | Partnership agreement required             |
+| [Upgraded API](tasks/integrations/upgraded-api.md)             | `integrations/upgraded-api`       | Partnership agreement required             |
 
 **Note:** Mark tasks as `done: true` in `tasks/index.yml` when complete, and add `commit: {hash}` if code was committed.
 

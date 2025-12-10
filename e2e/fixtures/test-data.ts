@@ -5,7 +5,7 @@
 
 export const TEST_USERS = {
 	default: {
-		email: 'e2e-test@equipped.test',
+		email: 'e2e+clerk_test@example.com',
 		password: process.env.E2E_TEST_PASSWORD || 'test-password-123',
 	},
 	admin: {
