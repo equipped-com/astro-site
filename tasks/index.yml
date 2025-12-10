@@ -853,6 +853,7 @@ epics:
       - id: fix-lib-tests
         name: Fix Library/Core Tests (3 failures)
         file: bugs/fix-lib-tests.md
-        done: false
+        done: true
+        commit: 07a66d7
         complexity: low
         depends_on: []
