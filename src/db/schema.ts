@@ -398,6 +398,43 @@ export const tradeIns = sqliteTable(
 )
 
 // ============================================
+// PAYMENTS (Stripe Integration)
+// ============================================
+
+/**
+ * Payments table
+ * Tracks all payment transactions processed through Stripe
+ */
+export const payments = sqliteTable(
+	'payments',
+	{
+		id: text('id').primaryKey(),
+		accountId: text('account_id')
+			.notNull()
+			.references(() => accounts.id, { onDelete: 'cascade' }),
+		orderId: text('order_id').references(() => orders.id),
+		stripeSessionId: text('stripe_session_id').unique(),
+		stripePaymentIntentId: text('stripe_payment_intent_id').unique(),
+		stripeCustomerId: text('stripe_customer_id'),
+		status: text('status').default('pending'), // pending, processing, succeeded, failed, canceled, refunded, partially_refunded
+		amount: integer('amount').notNull(), // Amount in cents
+		currency: text('currency').default('usd'),
+		customerEmail: text('customer_email'),
+		failureReason: text('failure_reason'),
+		metadata: text('metadata'), // JSON string for additional data
+		createdAt: text('created_at').default(sql`CURRENT_TIMESTAMP`),
+		updatedAt: text('updated_at').default(sql`CURRENT_TIMESTAMP`),
+	},
+	table => [
+		index('idx_payments_account').on(table.accountId),
+		index('idx_payments_order').on(table.orderId),
+		index('idx_payments_status').on(table.status),
+		index('idx_payments_stripe_session').on(table.stripeSessionId),
+		index('idx_payments_stripe_intent').on(table.stripePaymentIntentId),
+	],
+)
+
+// ============================================
 // AUDIT & COMPLIANCE
 // ============================================
 
@@ -472,6 +509,9 @@ export type NewProposalItem = typeof proposalItems.$inferInsert
 export type TradeIn = typeof tradeIns.$inferSelect
 export type NewTradeIn = typeof tradeIns.$inferInsert
 
+export type Payment = typeof payments.$inferSelect
+export type NewPayment = typeof payments.$inferInsert
+
 export type AuditLogEntry = typeof auditLog.$inferSelect
 export type NewAuditLogEntry = typeof auditLog.$inferInsert
 
@@ -523,6 +563,17 @@ export type TradeInStatus = (typeof TRADE_IN_STATUSES)[number]
 
 export const TRADE_IN_CONDITIONS = ['excellent', 'good', 'fair', 'poor'] as const
 export type TradeInCondition = (typeof TRADE_IN_CONDITIONS)[number]
+
+export const PAYMENT_STATUSES = [
+	'pending',
+	'processing',
+	'succeeded',
+	'failed',
+	'canceled',
+	'refunded',
+	'partially_refunded',
+] as const
+export type PaymentStatusType = (typeof PAYMENT_STATUSES)[number]
 
 export const AUDIT_ACTIONS = ['create', 'update', 'delete', 'view', 'export'] as const
 export type AuditAction = (typeof AUDIT_ACTIONS)[number]
