@@ -25,7 +25,8 @@ export default function FeatureFlagManager() {
 	const [accountFlags, setAccountFlags] = useState<AccountFlag[]>([])
 	const [loading, setLoading] = useState(true)
 	const [saving, setSaving] = useState(false)
-	const [error, setError] = useState<string | null>(null)
+	const [loadError, setLoadError] = useState<string | null>(null)
+	const [saveError, setSaveError] = useState<string | null>(null)
 	const [successMessage, setSuccessMessage] = useState<string | null>(null)
 
 	useEffect(() => {
@@ -39,7 +40,7 @@ export default function FeatureFlagManager() {
 				setFlags(data.flags)
 				setAccountFlags(data.accountFlags)
 			} catch (err) {
-				setError(err instanceof Error ? err.message : 'Unknown error')
+				setLoadError(err instanceof Error ? err.message : 'Unknown error')
 			} finally {
 				setLoading(false)
 			}
@@ -66,7 +67,7 @@ export default function FeatureFlagManager() {
 
 	async function handleSave() {
 		setSaving(true)
-		setError(null)
+		setSaveError(null)
 		setSuccessMessage(null)
 
 		try {
@@ -83,7 +84,7 @@ export default function FeatureFlagManager() {
 			setSuccessMessage('Feature flags updated successfully')
 			setTimeout(() => setSuccessMessage(null), 3000)
 		} catch (err) {
-			setError(err instanceof Error ? err.message : 'Unknown error')
+			setSaveError(err instanceof Error ? err.message : 'Unknown error')
 		} finally {
 			setSaving(false)
 		}
@@ -97,11 +98,11 @@ export default function FeatureFlagManager() {
 		)
 	}
 
-	if (error && !saving) {
+	if (loadError) {
 		return (
 			<div className="rounded-md bg-red-50 p-4 text-red-900">
 				<p className="font-medium">Error loading feature flags</p>
-				<p className="text-sm">{error}</p>
+				<p className="text-sm">{loadError}</p>
 			</div>
 		)
 	}
@@ -116,10 +117,10 @@ export default function FeatureFlagManager() {
 			)}
 
 			{/* Error message */}
-			{error && (
+			{saveError && (
 				<div className="rounded-md bg-red-50 p-4 text-red-900">
 					<p className="font-medium">Error saving flags</p>
-					<p className="text-sm">{error}</p>
+					<p className="text-sm">{saveError}</p>
 				</div>
 			)}
 

@@ -44,9 +44,12 @@ export function CartProvider({ children, accountId = '', userId = '' }: CartProv
 	// Load cart from storage on mount
 	useEffect(() => {
 		const storedCart = loadCartFromStorage()
-		if (storedCart) {
+		// Clear cart if accountId changes (different account)
+		if (storedCart && storedCart.accountId === accountId) {
 			setCart(storedCart)
 		} else {
+			// Account changed or no cart - create new empty cart
+			clearCartStorage()
 			setCart(createEmptyCart(accountId, userId))
 		}
 		setIsLoading(false)

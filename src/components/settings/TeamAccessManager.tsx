@@ -48,7 +48,7 @@ function TeamAccessManager({ accountId, role }: TeamAccessManagerProps) {
 
 	useEffect(() => {
 		fetchTeamData()
-	}, [fetchTeamData])
+	}, [])
 
 	async function fetchTeamData() {
 		setLoading(true)

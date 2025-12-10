@@ -163,9 +163,10 @@ describe('OnboardingWizard', () => {
 			fireEvent.click(packageButton)
 		}
 
-		// Check cost display
+		// Check cost display (use getAllByText since price appears in both package card and summary)
 		await waitFor(() => {
-			expect(screen.getByText('$2,499')).toBeInTheDocument()
+			const prices = screen.getAllByText('$2,499')
+			expect(prices.length).toBeGreaterThan(0)
 			expect(screen.getByText(/99\/mo/i)).toBeInTheDocument()
 		})
 	})
@@ -262,11 +263,11 @@ describe('OnboardingWizard', () => {
 
 		fireEvent.change(screen.getByLabelText(/first name/i), { target: { value: 'Alice' } })
 		fireEvent.change(screen.getByLabelText(/last name/i), { target: { value: 'Smith' } })
-		const addressInputs = screen.getAllByLabelText(/address/i)
-		fireEvent.change(addressInputs[0], { target: { value: '123 Main St' } })
+		fireEvent.change(screen.getByLabelText(/^address \*/i), { target: { value: '123 Main St' } })
 		fireEvent.change(screen.getByLabelText(/city/i), { target: { value: 'San Francisco' } })
 		fireEvent.change(screen.getByLabelText(/state/i), { target: { value: 'CA' } })
 		fireEvent.change(screen.getByLabelText(/zip/i), { target: { value: '94105' } })
+		fireEvent.change(screen.getByLabelText(/country/i), { target: { value: 'US' } })
 		fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'alice@company.com' } })
 		fireEvent.change(screen.getByLabelText(/phone/i), { target: { value: '5551234567' } })
 

@@ -116,9 +116,18 @@ describe('GlobalDeviceView Component', () => {
 			json: async () => mockDevices,
 		})
 
+		const user = userEvent.setup()
+		render(<GlobalDeviceView />)
+
+		await waitFor(() => {
+			expect(screen.getByText('MacBook Pro 16"')).toBeInTheDocument()
+		})
+
 		// Mock URL.createObjectURL
 		const mockCreateObjectURL = vi.fn(() => 'blob:mock-url')
 		const mockRevokeObjectURL = vi.fn()
+		const originalCreateObjectURL = global.URL.createObjectURL
+		const originalRevokeObjectURL = global.URL.revokeObjectURL
 		global.URL.createObjectURL = mockCreateObjectURL
 		global.URL.revokeObjectURL = mockRevokeObjectURL
 
@@ -128,14 +137,16 @@ describe('GlobalDeviceView Component', () => {
 			click: mockClick,
 			href: '',
 			download: '',
+			setAttribute: vi.fn(),
+			getAttribute: vi.fn(),
+			removeAttribute: vi.fn(),
 		}
-		vi.spyOn(document, 'createElement').mockReturnValue(mockAnchor as any)
-
-		const user = userEvent.setup()
-		render(<GlobalDeviceView />)
-
-		await waitFor(() => {
-			expect(screen.getByText('MacBook Pro 16"')).toBeInTheDocument()
+		const originalCreateElement = document.createElement.bind(document)
+		vi.spyOn(document, 'createElement').mockImplementation((tagName: string) => {
+			if (tagName === 'a') {
+				return mockAnchor as any
+			}
+			return originalCreateElement(tagName)
 		})
 
 		// When user clicks export button
@@ -146,6 +157,11 @@ describe('GlobalDeviceView Component', () => {
 		expect(mockCreateObjectURL).toHaveBeenCalled()
 		expect(mockClick).toHaveBeenCalled()
 		expect(mockRevokeObjectURL).toHaveBeenCalled()
+
+		// Cleanup
+		global.URL.createObjectURL = originalCreateObjectURL
+		global.URL.revokeObjectURL = originalRevokeObjectURL
+		vi.restoreAllMocks()
 	})
 
 	it('should search devices by name', async () => {

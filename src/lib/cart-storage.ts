@@ -117,20 +117,35 @@ export function clearCartStorage(): void {
 }
 
 /**
+ * Check if two items have the same specs
+ */
+function hasSameSpecs(specs1: Record<string, string>, specs2: Record<string, string>): boolean {
+	const keys1 = Object.keys(specs1).sort()
+	const keys2 = Object.keys(specs2).sort()
+
+	if (keys1.length !== keys2.length) return false
+
+	return keys1.every(key => specs1[key] === specs2[key])
+}
+
+/**
  * Add item to cart or update quantity if already exists
  */
 export function addItemToCart(cart: Cart, newItem: Omit<CartItem, 'id'>): Cart {
-	const existingItemIndex = cart.items.findIndex(item => item.productSku === newItem.productSku)
+	// Find existing item with same SKU AND same specs
+	const existingItemIndex = cart.items.findIndex(
+		item => item.productSku === newItem.productSku && hasSameSpecs(item.specs, newItem.specs),
+	)
 
 	let updatedItems: CartItem[]
 
 	if (existingItemIndex >= 0) {
-		// Item exists, update quantity
+		// Item exists with same specs, update quantity
 		updatedItems = cart.items.map((item, index) =>
 			index === existingItemIndex ? { ...item, quantity: item.quantity + newItem.quantity } : item,
 		)
 	} else {
-		// New item, add to cart
+		// New item (or same SKU but different specs), add to cart
 		updatedItems = [...cart.items, { ...newItem, id: generateCartItemId() }]
 	}
 

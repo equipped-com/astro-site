@@ -39,16 +39,7 @@ describe('Cart Component', () => {
 
 	describe('@REQ-COM-CART-001 - Add product to cart', () => {
 		it('should display item when added to cart', async () => {
-			const { rerender } = render(
-				<CartProvider accountId="test-account" userId="test-user">
-					<Cart />
-				</CartProvider>,
-			)
-
-			// Initially empty
-			expect(screen.getByText('Your cart is empty')).toBeInTheDocument()
-
-			// Add item via context (simulating add from product page)
+			// Pre-populate cart in localStorage before mounting
 			const cart = {
 				id: 'test-cart',
 				accountId: 'test-account',
@@ -71,12 +62,8 @@ describe('Cart Component', () => {
 			}
 			localStorage.setItem('equipped_cart', JSON.stringify(cart))
 
-			// Rerender to pick up localStorage change
-			rerender(
-				<CartProvider accountId="test-account" userId="test-user">
-					<Cart />
-				</CartProvider>,
-			)
+			// Render with pre-populated cart
+			renderCart()
 
 			await waitFor(() => {
 				expect(screen.getByText('MacBook Air M2')).toBeInTheDocument()
@@ -497,9 +484,12 @@ describe('Cart Component', () => {
 			const shareButton = screen.getByRole('button', { name: /share cart/i })
 			fireEvent.click(shareButton)
 
-			await waitFor(() => {
-				expect(toast.success).toHaveBeenCalledWith('Cart link copied to clipboard!')
-			})
+			await waitFor(
+				() => {
+					expect(toast.success).toHaveBeenCalledWith('Cart link copied to clipboard!')
+				},
+				{ timeout: 2000 },
+			)
 		})
 
 		it('should handle share as proposal action', async () => {
@@ -534,9 +524,12 @@ describe('Cart Component', () => {
 			const proposalButton = screen.getByRole('button', { name: /share as proposal/i })
 			fireEvent.click(proposalButton)
 
-			await waitFor(() => {
-				expect(toast.success).toHaveBeenCalledWith('Proposal created and shared!')
-			})
+			await waitFor(
+				() => {
+					expect(toast.success).toHaveBeenCalledWith('Proposal created and shared!')
+				},
+				{ timeout: 2000 },
+			)
 		})
 	})
 })

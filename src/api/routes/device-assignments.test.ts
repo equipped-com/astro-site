@@ -44,6 +44,16 @@ function createMockEnv() {
 							const personId = params[0] as string
 							return mockPeople.get(personId) || null
 						}
+						// Handle SELECT with JOIN (fetching assignment after creation)
+						if (
+							sql.includes('FROM device_assignments da') &&
+							sql.includes('JOIN people p ON') &&
+							sql.includes('JOIN devices d ON') &&
+							sql.includes('WHERE da.id = ?')
+						) {
+							const assignmentId = params[0] as string
+							return mockAssignments.get(assignmentId) || null
+						}
 						if (sql.includes('FROM device_assignments') && sql.includes('WHERE id')) {
 							return Array.from(mockAssignments.values()).find((a: { id: string }) => a.id === params[0])
 						}

@@ -30,7 +30,7 @@ describe('OrganizationForm', () => {
 		})
 
 		render(<OrganizationForm accountId="acct-123" role="owner" />)
-		expect(screen.getByRole('progressbar')).toBeInTheDocument()
+		expect(screen.getByTestId('spinner')).toBeInTheDocument()
 	})
 
 	it('should display organization details after loading', async () => {

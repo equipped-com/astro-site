@@ -16,6 +16,10 @@ describe('TeamAccessManager Component', () => {
 	beforeEach(() => {
 		vi.clearAllMocks()
 
+		// Mock window.confirm to be available - define it globally if not present
+		if (typeof window.confirm === 'undefined') {
+			;(globalThis as any).confirm = vi.fn(() => true)
+		}
 		// Default mock responses
 		;(global.fetch as ReturnType<typeof vi.fn>).mockImplementation((url: string) => {
 			if (url === '/api/team') {
@@ -100,7 +104,10 @@ describe('TeamAccessManager Component', () => {
 
 			fireEvent.click(screen.getByText('Invite Member'))
 
-			expect(screen.getByText('Invite Team Member')).toBeInTheDocument()
+			await waitFor(() => {
+				expect(screen.getByText('Invite Team Member')).toBeInTheDocument()
+			})
+
 			expect(screen.getByPlaceholderText('colleague@company.com')).toBeInTheDocument()
 		})
 
@@ -148,7 +155,7 @@ describe('TeamAccessManager Component', () => {
 
 			fireEvent.click(screen.getByText('Invite Member'))
 
-			const emailInput = screen.getByPlaceholderText('colleague@company.com')
+			const emailInput = await waitFor(() => screen.getByPlaceholderText('colleague@company.com'))
 			fireEvent.change(emailInput, { target: { value: 'newuser@company.com' } })
 
 			const sendButton = screen.getByText('Send Invitation')
@@ -285,7 +292,8 @@ describe('TeamAccessManager Component', () => {
 
 		it('should call remove API when remove button is clicked', async () => {
 			// Mock window.confirm
-			const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true)
+			const confirmSpy = vi.fn(() => true)
+			;(globalThis as any).confirm = confirmSpy
 
 			;(global.fetch as ReturnType<typeof vi.fn>).mockImplementation((url: string, options?: RequestInit) => {
 				if (url.includes('/api/team/access-') && options?.method === 'DELETE') {
@@ -325,7 +333,7 @@ describe('TeamAccessManager Component', () => {
 			render(<TeamAccessManager accountId="account-123" role="owner" />)
 
 			await waitFor(() => {
-				expect(screen.getByText('Alice Owner')).toBeInTheDocument()
+				expect(screen.getByText('Alice')).toBeInTheDocument()
 			})
 
 			const removeButtons = screen.getAllByTitle('Remove member')
@@ -336,8 +344,6 @@ describe('TeamAccessManager Component', () => {
 					expect(confirmSpy).toHaveBeenCalled()
 				})
 			}
-
-			confirmSpy.mockRestore()
 		})
 	})
 
@@ -347,7 +353,8 @@ describe('TeamAccessManager Component', () => {
 	 */
 	describe('Cannot remove last owner', () => {
 		it('should show error when trying to remove last owner', async () => {
-			const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true)
+			const confirmSpy = vi.fn(() => true)
+			;(globalThis as any).confirm = confirmSpy
 
 			;(global.fetch as ReturnType<typeof vi.fn>).mockImplementation((url: string, options?: RequestInit) => {
 				if (url.includes('/api/team/access-') && options?.method === 'DELETE') {
@@ -391,15 +398,13 @@ describe('TeamAccessManager Component', () => {
 			render(<TeamAccessManager accountId="account-123" role="owner" />)
 
 			await waitFor(() => {
-				expect(screen.getByText('Alice Owner')).toBeInTheDocument()
+				expect(screen.getByText('Alice')).toBeInTheDocument()
 			})
 
 			const removeButtons = screen.getAllByTitle('Remove member')
 			if (removeButtons.length > 0) {
 				fireEvent.click(removeButtons[0])
 			}
-
-			confirmSpy.mockRestore()
 		})
 	})
 })

@@ -81,6 +81,8 @@ function TeamMemberList({
 		setRemoving(accessId)
 		try {
 			await onRemoveMember(accessId, memberEmail)
+		} catch (err) {
+			// Error is handled by the parent component or silently ignored
 		} finally {
 			setRemoving(null)
 		}

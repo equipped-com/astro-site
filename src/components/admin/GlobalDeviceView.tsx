@@ -151,7 +151,7 @@ export default function GlobalDeviceView() {
 			{/* Device table */}
 			{filteredDevices.length === 0 ? (
 				<EmptyState
-					icon={Package}
+					icon={<Package className="h-12 w-12" />}
 					title="No devices found"
 					description={searchQuery || customerFilter ? 'Try adjusting your filters' : 'No devices exist yet'}
 				/>

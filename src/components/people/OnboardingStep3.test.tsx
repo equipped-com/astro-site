@@ -48,7 +48,7 @@ describe('OnboardingStep3', () => {
 		render(<OnboardingStep3 startDate={startDate} onContinue={mockOnContinue} onBack={mockOnBack} />)
 
 		expect(screen.getByText(/Shipping Address/i)).toBeInTheDocument()
-		expect(screen.getByLabelText(/address/i)).toBeInTheDocument()
+		expect(screen.getByLabelText(/^address \*/i)).toBeInTheDocument()
 		expect(screen.getByLabelText(/city/i)).toBeInTheDocument()
 		expect(screen.getByLabelText(/state/i)).toBeInTheDocument()
 		expect(screen.getByLabelText(/zip/i)).toBeInTheDocument()
@@ -67,16 +67,14 @@ describe('OnboardingStep3', () => {
 	it('should call onContinue with delivery data when valid', () => {
 		render(<OnboardingStep3 startDate={startDate} onContinue={mockOnContinue} onBack={mockOnBack} />)
 
-		// Fill address
+		// Fill address (all required fields)
 		fireEvent.change(screen.getByLabelText(/first name/i), { target: { value: 'Alice' } })
 		fireEvent.change(screen.getByLabelText(/last name/i), { target: { value: 'Smith' } })
-
-		const addressInputs = screen.getAllByLabelText(/address/i)
-		fireEvent.change(addressInputs[0], { target: { value: '123 Main St' } })
-
+		fireEvent.change(screen.getByLabelText(/^address \*/i), { target: { value: '123 Main St' } })
 		fireEvent.change(screen.getByLabelText(/city/i), { target: { value: 'San Francisco' } })
 		fireEvent.change(screen.getByLabelText(/state/i), { target: { value: 'CA' } })
 		fireEvent.change(screen.getByLabelText(/zip/i), { target: { value: '94105' } })
+		fireEvent.change(screen.getByLabelText(/country/i), { target: { value: 'US' } })
 		fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'alice@company.com' } })
 		fireEvent.change(screen.getByLabelText(/phone/i), { target: { value: '5551234567' } })
 
@@ -92,6 +90,7 @@ describe('OnboardingStep3', () => {
 					city: 'San Francisco',
 					state: 'CA',
 					zipCode: '94105',
+					country: 'US',
 				}),
 			}),
 		)

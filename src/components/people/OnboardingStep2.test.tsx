@@ -117,7 +117,8 @@ describe('OnboardingStep2', () => {
 		render(<OnboardingStep2 initialPackage={initialPackage} onContinue={mockOnContinue} onBack={mockOnBack} />)
 
 		// Should show cost summary for initial selection
-		expect(screen.getByText('$3,999')).toBeInTheDocument()
 		expect(screen.getByText(/Total Cost/i)).toBeInTheDocument()
+		const prices = screen.getAllByText('$3,999')
+		expect(prices.length).toBeGreaterThan(0)
 	})
 })
