@@ -425,7 +425,8 @@ epics:
       - id: catalog-api
         name: Catalog CRUD API Endpoints
         file: catalog/catalog-api.md
-        done: false
+        done: true
+        commit: 2beacaf
         complexity: medium
         depends_on:
           - catalog/catalog-schema
