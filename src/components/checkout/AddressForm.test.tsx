@@ -94,10 +94,17 @@ describe('AddressForm', () => {
 	describe('Phone Number Formatting', () => {
 		it('should format phone number on blur', () => {
 			const onChange = vi.fn()
-			render(<AddressForm address={{}} onChange={onChange} />)
+			const { rerender } = render(<AddressForm address={{}} onChange={onChange} />)
 
 			const phoneInput = screen.getByLabelText(/Phone/i)
+
+			// Simulate user typing phone number
 			fireEvent.change(phoneInput, { target: { value: '5551234567' } })
+
+			// Rerender with updated address (simulating parent component updating prop)
+			rerender(<AddressForm address={{ phone: '5551234567' }} onChange={onChange} />)
+
+			// Blur to trigger formatting
 			fireEvent.blur(phoneInput)
 
 			// Should format to (555) 123-4567
@@ -108,10 +115,17 @@ describe('AddressForm', () => {
 
 		it('should handle 11-digit numbers with leading 1', () => {
 			const onChange = vi.fn()
-			render(<AddressForm address={{}} onChange={onChange} />)
+			const { rerender } = render(<AddressForm address={{}} onChange={onChange} />)
 
 			const phoneInput = screen.getByLabelText(/Phone/i)
+
+			// Simulate user typing phone number with leading 1
 			fireEvent.change(phoneInput, { target: { value: '15551234567' } })
+
+			// Rerender with updated address
+			rerender(<AddressForm address={{ phone: '15551234567' }} onChange={onChange} />)
+
+			// Blur to trigger formatting
 			fireEvent.blur(phoneInput)
 
 			// Should strip leading 1 and format

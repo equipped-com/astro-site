@@ -132,6 +132,9 @@ describe('User API [REGRESSION TESTS]', () => {
 		const app = createTestApp(mockDb)
 		const res = await app.request('/')
 
+		if (res.status !== 200) {
+			console.error('Response body:', await res.clone().text())
+		}
 		expect(res.status).toBe(200)
 		const json = await res.json()
 

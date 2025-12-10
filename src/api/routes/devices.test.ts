@@ -385,11 +385,8 @@ describe('Device CRUD API', () => {
 			const mockDb = {
 				prepare: vi.fn((_query: string) => ({
 					bind: vi.fn(() => ({
-						first: vi.fn(async () => ({
-							id: 'dev_deleted',
-							account_id: 'acc_123',
-							deleted_at: '2024-12-07T00:00:00Z',
-						})),
+						// SQL filters out deleted devices with deleted_at IS NULL, so return null
+						first: vi.fn(async () => null),
 					})),
 				})),
 			}

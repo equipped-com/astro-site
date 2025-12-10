@@ -37,6 +37,11 @@ export default function AddressForm({ address, onChange, onValidate, showValidat
 		if (field === 'phone' && address.phone) {
 			const formatted = formatPhoneNumber(address.phone)
 			handleFieldChange('phone', formatted)
+		} else {
+			// Run validation even if field wasn't changed
+			const validationErrors = validateAddress(address)
+			setErrors(validationErrors)
+			onValidate?.(validationErrors)
 		}
 	}
 

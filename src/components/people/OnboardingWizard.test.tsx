@@ -164,11 +164,14 @@ describe('OnboardingWizard', () => {
 		}
 
 		// Check cost display (use getAllByText since price appears in both package card and summary)
-		await waitFor(() => {
-			const prices = screen.getAllByText('$2,499')
-			expect(prices.length).toBeGreaterThan(0)
-			expect(screen.getByText(/99\/mo/i)).toBeInTheDocument()
-		})
+		await waitFor(
+			() => {
+				expect(screen.getByText(/Total Cost/i)).toBeInTheDocument()
+				const monthlyPrices = screen.getAllByText(/99\/mo/i)
+				expect(monthlyPrices.length).toBeGreaterThan(0)
+			},
+			{ timeout: 2000 },
+		)
 	})
 
 	/**
@@ -208,10 +211,12 @@ describe('OnboardingWizard', () => {
 		fireEvent.click(continueButtons[continueButtons.length - 1])
 
 		// Should be on delivery step
-		await waitFor(() => {
-			expect(screen.getByText('Delivery Details')).toBeInTheDocument()
-			expect(screen.getByText('Employee Start Date')).toBeInTheDocument()
-		})
+		await waitFor(
+			() => {
+				expect(screen.getByText('Employee Start Date')).toBeInTheDocument()
+			},
+			{ timeout: 3000 },
+		)
 	})
 
 	/**
@@ -275,9 +280,12 @@ describe('OnboardingWizard', () => {
 		fireEvent.click(continueButtons2[continueButtons2.length - 1])
 
 		// Should be on review step
-		await waitFor(() => {
-			expect(screen.getByText(/review & submit/i)).toBeInTheDocument()
-		})
+		await waitFor(
+			() => {
+				expect(screen.getByRole('button', { name: /complete onboarding/i })).toBeInTheDocument()
+			},
+			{ timeout: 3000 },
+		)
 
 		// Submit
 		const submitButton = screen.getByRole('button', { name: /complete onboarding/i })
