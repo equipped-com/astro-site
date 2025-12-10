@@ -842,7 +842,8 @@ epics:
       - id: fix-admin-tests
         name: Fix Admin Component Tests (10 failures)
         file: bugs/fix-admin-tests.md
-        done: false
+        done: true
+        commit: 7ee64e2
         complexity: medium
         depends_on: []
       - id: fix-navigation-tests
