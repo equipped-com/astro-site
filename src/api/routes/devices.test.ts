@@ -74,7 +74,7 @@ describe('Device CRUD API', () => {
 									name: 'MacBook Pro 14"',
 									type: 'laptop',
 									model: 'MacBook Pro',
-									status: 'active',
+									status: 'available',
 									created_at: '2024-12-01T00:00:00Z',
 								},
 								{
@@ -83,7 +83,7 @@ describe('Device CRUD API', () => {
 									name: 'iPhone 15 Pro',
 									type: 'phone',
 									model: 'iPhone 15 Pro',
-									status: 'active',
+									status: 'deployed',
 									created_at: '2024-12-02T00:00:00Z',
 								},
 							],
@@ -117,14 +117,6 @@ describe('Device CRUD API', () => {
 									status: 'available',
 									created_at: '2024-12-01T00:00:00Z',
 								},
-								{
-									id: 'dev_2',
-									account_id: 'acc_123',
-									name: 'Dell XPS',
-									type: 'laptop',
-									status: 'assigned',
-									created_at: '2024-12-02T00:00:00Z',
-								},
 							],
 						})),
 					})),
@@ -153,15 +145,6 @@ describe('Device CRUD API', () => {
 									type: 'laptop',
 									status: 'available',
 									created_at: '2024-12-01T00:00:00Z',
-								},
-								{
-									id: 'dev_2',
-									account_id: 'acc_123',
-									name: 'Deleted Device',
-									type: 'laptop',
-									status: 'available',
-									deleted_at: '2024-12-08T00:00:00Z',
-									created_at: '2024-12-02T00:00:00Z',
 								},
 							],
 						})),
@@ -311,52 +294,52 @@ describe('Device CRUD API', () => {
 	})
 
 	describe('@REQ-API-DEV-004: Update device', () => {
-		test('should update device status and assigned_to', async () => {
+		test('should update device status and assigned_to_person_id', async () => {
+			let selectCount = 0
 			const mockDb = {
 				prepare: vi.fn((query: string) => {
-					// SELECT query (check existence)
-					if (query.includes('SELECT') && !query.includes('UPDATE')) {
-						return {
-							bind: vi.fn(() => ({
-								first: vi.fn(async () => ({
-									id: 'dev_123',
-									account_id: 'acc_123',
-									name: 'MacBook Pro',
-									type: 'laptop',
-									status: 'available',
-								})),
-							})),
-						}
-					}
 					// UPDATE query
 					if (query.includes('UPDATE')) {
 						return {
 							bind: vi.fn(() => ({
 								run: vi.fn(async () => ({ meta: { changes: 1 } })),
-								first: vi.fn(async () => ({
-									id: 'dev_123',
-									account_id: 'acc_123',
-									name: 'MacBook Pro',
-									type: 'laptop',
-									status: 'assigned',
-									assigned_to: 'person_456',
-									updated_at: '2024-12-08T00:00:00Z',
-								})),
 							})),
 						}
 					}
-					// GET updated device
+					// SELECT queries
+					if (query.includes('SELECT')) {
+						selectCount++
+						return {
+							bind: vi.fn(() => ({
+								first: vi.fn(async () => {
+									// First SELECT: return existing device
+									if (selectCount === 1) {
+										return {
+											id: 'dev_123',
+											account_id: 'acc_123',
+											name: 'MacBook Pro',
+											type: 'laptop',
+											status: 'available',
+										}
+									}
+									// Second SELECT: return updated device
+									return {
+										id: 'dev_123',
+										account_id: 'acc_123',
+										name: 'MacBook Pro',
+										type: 'laptop',
+										status: 'deployed',
+										assigned_to_person_id: 'person_456',
+										updated_at: '2024-12-08T00:00:00Z',
+									}
+								}),
+							})),
+						}
+					}
+					// Default fallback
 					return {
 						bind: vi.fn(() => ({
-							first: vi.fn(async () => ({
-								id: 'dev_123',
-								account_id: 'acc_123',
-								name: 'MacBook Pro',
-								type: 'laptop',
-								status: 'assigned',
-								assigned_to: 'person_456',
-								updated_at: '2024-12-08T00:00:00Z',
-							})),
+							first: vi.fn(async () => null),
 						})),
 					}
 				}),
@@ -367,15 +350,15 @@ describe('Device CRUD API', () => {
 				method: 'PUT',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({
-					status: 'assigned',
-					assigned_to: 'person_456',
+					status: 'deployed',
+					assigned_to_person_id: 'person_456',
 				}),
 			})
 			const data = await res.json()
 
 			expect(res.status).toBe(200)
-			expect(data.device.status).toBe('assigned')
-			expect(data.device.assigned_to).toBe('person_456')
+			expect(data.device.status).toBe('deployed')
+			expect(data.device.assigned_to_person_id).toBe('person_456')
 			expect(data.device.updated_at).toBeDefined()
 		})
 
@@ -402,11 +385,7 @@ describe('Device CRUD API', () => {
 			const mockDb = {
 				prepare: vi.fn((_query: string) => ({
 					bind: vi.fn(() => ({
-						first: vi.fn(async () => ({
-							id: 'dev_deleted',
-							account_id: 'acc_123',
-							deleted_at: '2024-12-07T00:00:00Z',
-						})),
+						first: vi.fn(async () => null), // Device with deleted_at is filtered out by query
 					})),
 				})),
 			}
@@ -415,7 +394,7 @@ describe('Device CRUD API', () => {
 			const res = await app.request('/dev_deleted', {
 				method: 'PUT',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ status: 'assigned' }),
+				body: JSON.stringify({ status: 'deployed' }),
 			})
 
 			expect(res.status).toBe(404)

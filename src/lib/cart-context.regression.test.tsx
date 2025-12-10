@@ -100,12 +100,19 @@ describe('Cart Context [REGRESSION TESTS]', () => {
 	 * Verification: Cart clears when accountId changes
 	 */
 	it('should clear cart when accountId changes', async () => {
-		const { result, rerender } = renderHook(() => useCart(), {
-			wrapper: ({ children }) => (
-				<CartProvider accountId="account-1" userId="test-user">
+		// Use a ref to track which account we're testing
+		const accountRef = { current: 'account-1' }
+
+		function TestWrapper({ children }: { children: ReactNode }) {
+			return (
+				<CartProvider accountId={accountRef.current} userId="test-user">
 					{children}
 				</CartProvider>
-			),
+			)
+		}
+
+		const { result, rerender } = renderHook(() => useCart(), {
+			wrapper: TestWrapper,
 		})
 
 		await waitFor(() => {
@@ -127,11 +134,13 @@ describe('Cart Context [REGRESSION TESTS]', () => {
 		expect(result.current.cart.items).toHaveLength(1)
 
 		// Switch to account-2
-		rerender(
-			<CartProvider accountId="account-2" userId="test-user">
-				<div />
-			</CartProvider>,
-		)
+		accountRef.current = 'account-2'
+		rerender()
+
+		// Wait for the provider to finish loading with new account
+		await waitFor(() => {
+			expect(result.current.isLoading).toBe(false)
+		})
 
 		await waitFor(() => {
 			expect(result.current.cart.items).toHaveLength(0)

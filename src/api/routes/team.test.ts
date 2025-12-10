@@ -5,50 +5,53 @@
  * Follows Gherkin BDD format with @REQ tags.
  */
 
-import type { Context } from 'hono'
+import { Hono } from 'hono'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import team from './team'
 
-// Mock D1 Database
-const mockDB = {
-	prepare: vi.fn().mockReturnThis(),
-	bind: vi.fn().mockReturnThis(),
-	first: vi.fn(),
-	all: vi.fn(),
-	run: vi.fn(),
-}
-
-// Mock environment
-const mockEnv = {
-	DB: mockDB,
-	ENVIRONMENT: 'development' as const,
-}
-
-// Helper to create mock context
-function createMockContext(overrides = {}) {
-	const ctx = {
-		env: mockEnv,
-		req: {
-			json: vi.fn(),
-			param: vi.fn(),
-		},
-		get: vi.fn((key: string) => {
-			const defaults: Record<string, unknown> = {
-				accountId: 'account-123',
-				userId: 'user-123',
-				role: 'owner',
-				user: { id: 'user-123', email: 'owner@test.com' },
-				...overrides,
-			}
-			return defaults[key]
-		}),
-		json: vi.fn((data, status) => ({ data, status })),
-	} as unknown as Context
-	return ctx
-}
-
 describe('Team Access API Routes', () => {
+	let app: Hono
+	let mockDB: D1Database
+	let mockEnv: Env
+
 	beforeEach(() => {
+		// Mock D1 Database
+		mockDB = {
+			prepare: vi.fn().mockReturnValue({
+				bind: vi.fn().mockReturnThis(),
+				first: vi.fn(),
+				all: vi.fn(),
+				run: vi.fn(),
+			}),
+		} as unknown as D1Database
+
+		mockEnv = { DB: mockDB } as Env
+
+		app = new Hono()
+		app.route('/api/team', team)
+
+		// Mock middleware context
+		vi.mock('../middleware/auth', () => ({
+			requireAccountAccess: () => async (c: unknown, next: () => Promise<void>) => {
+				// @ts-expect-error - mocking context
+				c.set('userId', 'user-123')
+				// @ts-expect-error - mocking context
+				c.set('role', 'owner')
+				// @ts-expect-error - mocking context
+				c.set('user', { id: 'user-123', email: 'owner@test.com' })
+				return next()
+			},
+			getRole: (c: { get: (key: string) => string }) => c.get('role'),
+		}))
+
+		vi.mock('../middleware/tenant', () => ({
+			requireTenant: () => async (c: unknown, next: () => Promise<void>) => {
+				// @ts-expect-error - mocking context
+				c.set('accountId', 'account-123')
+				return next()
+			},
+		}))
+
 		vi.clearAllMocks()
 	})
 
@@ -88,13 +91,14 @@ describe('Team Access API Routes', () => {
 				},
 			]
 
-			mockDB.all.mockResolvedValueOnce({ results: mockMembers })
-
-			const ctx = createMockContext()
-			const handler = team.fetch as (req: Request, env: typeof mockEnv) => Promise<Response>
+			// @ts-expect-error - partial mock
+			mockDB.prepare = vi.fn().mockReturnValue({
+				bind: vi.fn().mockReturnThis(),
+				all: vi.fn().mockResolvedValue({ results: mockMembers }),
+			})
 
 			const req = new Request('http://localhost/api/team')
-			const res = await handler(req, mockEnv)
+			const res = await app.request(req, mockEnv)
 
 			expect(res.status).toBe(200)
 			const data = await res.json()
@@ -109,24 +113,34 @@ describe('Team Access API Routes', () => {
 	 */
 	describe('POST /api/team/invite - Invite new member', () => {
 		it('should send invitation for new user via Clerk', async () => {
-			mockDB.first
-				.mockResolvedValueOnce(null) // User doesn't exist
-				.mockResolvedValueOnce(null) // No existing access
-
-			const ctx = createMockContext({ role: 'owner' })
-			ctx.req.json = vi.fn().mockResolvedValueOnce({
-				email: 'newuser@company.com',
-				role: 'member',
+			// @ts-expect-error - partial mock
+			mockDB.prepare = vi.fn((query: string) => {
+				if (query.includes('FROM users WHERE email')) {
+					return {
+						bind: vi.fn().mockReturnThis(),
+						first: vi.fn().mockResolvedValue(null), // User doesn't exist
+					}
+				}
+				if (query.includes('FROM account_access')) {
+					return {
+						bind: vi.fn().mockReturnThis(),
+						first: vi.fn().mockResolvedValue(null), // No existing access
+					}
+				}
+				return {
+					bind: vi.fn().mockReturnThis(),
+					first: vi.fn().mockResolvedValue(null),
+					run: vi.fn().mockResolvedValue({}),
+				}
 			})
 
-			const handler = team.fetch as (req: Request, env: typeof mockEnv) => Promise<Response>
 			const req = new Request('http://localhost/api/team/invite', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ email: 'newuser@company.com', role: 'member' }),
 			})
 
-			const res = await handler(req, mockEnv)
+			const res = await app.request(req, mockEnv)
 			expect(res.status).toBe(200)
 
 			const data = await res.json()
@@ -135,20 +149,34 @@ describe('Team Access API Routes', () => {
 		})
 
 		it('should grant access to existing user without sending invitation', async () => {
-			mockDB.first
-				.mockResolvedValueOnce({ id: 'existing-user-123' }) // User exists
-				.mockResolvedValueOnce(null) // No existing access
+			// @ts-expect-error - partial mock
+			mockDB.prepare = vi.fn((query: string) => {
+				if (query.includes('FROM users WHERE email')) {
+					return {
+						bind: vi.fn().mockReturnThis(),
+						first: vi.fn().mockResolvedValue({ id: 'existing-user-123' }), // User exists
+					}
+				}
+				if (query.includes('FROM account_access')) {
+					return {
+						bind: vi.fn().mockReturnThis(),
+						first: vi.fn().mockResolvedValue(null), // No existing access
+					}
+				}
+				return {
+					bind: vi.fn().mockReturnThis(),
+					first: vi.fn().mockResolvedValue(null),
+					run: vi.fn().mockResolvedValue({}),
+				}
+			})
 
-			mockDB.run.mockResolvedValueOnce({})
-
-			const handler = team.fetch as (req: Request, env: typeof mockEnv) => Promise<Response>
 			const req = new Request('http://localhost/api/team/invite', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ email: 'existing@company.com', role: 'member' }),
 			})
 
-			const res = await handler(req, mockEnv)
+			const res = await app.request(req, mockEnv)
 			expect(res.status).toBe(200)
 
 			const data = await res.json()
@@ -157,18 +185,33 @@ describe('Team Access API Routes', () => {
 		})
 
 		it('should reject invitation if user already has access', async () => {
-			mockDB.first
-				.mockResolvedValueOnce({ id: 'existing-user-123' }) // User exists
-				.mockResolvedValueOnce({ id: 'access-456' }) // Already has access
+			// @ts-expect-error - partial mock
+			mockDB.prepare = vi.fn((query: string) => {
+				if (query.includes('FROM users WHERE email')) {
+					return {
+						bind: vi.fn().mockReturnThis(),
+						first: vi.fn().mockResolvedValue({ id: 'existing-user-123' }), // User exists
+					}
+				}
+				if (query.includes('FROM account_access')) {
+					return {
+						bind: vi.fn().mockReturnThis(),
+						first: vi.fn().mockResolvedValue({ id: 'access-456' }), // Already has access
+					}
+				}
+				return {
+					bind: vi.fn().mockReturnThis(),
+					first: vi.fn().mockResolvedValue(null),
+				}
+			})
 
-			const handler = team.fetch as (req: Request, env: typeof mockEnv) => Promise<Response>
 			const req = new Request('http://localhost/api/team/invite', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ email: 'duplicate@company.com', role: 'member' }),
 			})
 
-			const res = await handler(req, mockEnv)
+			const res = await app.request(req, mockEnv)
 			expect(res.status).toBe(400)
 
 			const data = await res.json()

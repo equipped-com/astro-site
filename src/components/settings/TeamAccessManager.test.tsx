@@ -16,6 +16,9 @@ describe('TeamAccessManager Component', () => {
 	beforeEach(() => {
 		vi.clearAllMocks()
 
+		// Setup window.confirm mock (happy-dom doesn't provide it by default)
+		window.confirm = vi.fn()
+
 		// Default mock responses
 		;(global.fetch as ReturnType<typeof vi.fn>).mockImplementation((url: string) => {
 			if (url === '/api/team') {
@@ -294,7 +297,7 @@ describe('TeamAccessManager Component', () => {
 						json: () => Promise.resolve({ success: true }),
 					})
 				}
-				// Default mocks
+				// Default mocks - need both members for the test
 				if (url === '/api/team') {
 					return Promise.resolve({
 						ok: true,
@@ -306,8 +309,18 @@ describe('TeamAccessManager Component', () => {
 										user_id: 'user-1',
 										email: 'alice@test.com',
 										first_name: 'Alice',
+										last_name: 'Owner',
 										role: 'owner',
 										created_at: '2025-01-01T00:00:00Z',
+									},
+									{
+										id: 'access-2',
+										user_id: 'user-2',
+										email: 'bob@test.com',
+										first_name: 'Bob',
+										last_name: 'Admin',
+										role: 'admin',
+										created_at: '2025-01-02T00:00:00Z',
 									},
 								],
 							}),

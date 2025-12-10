@@ -38,17 +38,28 @@ interface CartProviderProps {
 }
 
 export function CartProvider({ children, accountId = '', userId = '' }: CartProviderProps) {
-	const [cart, setCart] = useState<Cart>(createEmptyCart(accountId, userId))
+	const [cart, setCart] = useState<Cart>(() => {
+		// Initialize with empty cart on first render
+		return createEmptyCart(accountId, userId)
+	})
 	const [isLoading, setIsLoading] = useState(true)
 
-	// Load cart from storage on mount
+	// Load cart from storage on mount and when account changes
 	useEffect(() => {
+		setIsLoading(true)
 		const storedCart = loadCartFromStorage()
-		if (storedCart) {
+
+		// Only use stored cart if it belongs to the same account
+		if (storedCart && storedCart.accountId === accountId) {
 			setCart(storedCart)
 		} else {
+			// Clear storage if account changed or doesn't match
+			if (storedCart && storedCart.accountId !== accountId) {
+				clearCartStorage()
+			}
 			setCart(createEmptyCart(accountId, userId))
 		}
+
 		setIsLoading(false)
 	}, [accountId, userId])
 
