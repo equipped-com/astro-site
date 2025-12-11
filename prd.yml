@@ -1,0 +1,33 @@
+# PRD Tracking File
+# Tracks PRD files and their task generation status
+# Run `/prepare-prd` to process new PRD files
+
+version: 1
+updated: 2025-12-11
+
+files:
+  PRD.md:
+    status: complete
+    location: documentation/PRD.md
+    processed_at: 2024-12-08
+    notes: "Original PRD - tasks created manually"
+    epics_created:
+      - infrastructure
+      - database
+      - multi-tenancy
+      - auth
+      - api
+      - commerce
+      - orders
+      - people
+      - proposals
+      - trade-in
+      - fleet
+      - settings
+      - sysadmin
+      - monitoring
+      - dashboard
+      - static-pages
+      - testing
+      - integrations
+      - bugs
