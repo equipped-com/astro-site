@@ -113,13 +113,13 @@ export function inferComplexity(
 export function inferDependencies(gherkin: string): string[] {
 	const deps: string[] = [];
 
-	// Look for "Given X exists" or "Given X is configured"
-	const givenPattern = /Given (.+?) (exists?|is configured|is available)/gi;
+	// Look for "Given X exists" or "Given X is configured" or "And X is configured"
+	const givenPattern = /(Given|And) (.+?) (exists?|is configured|is available)/gi;
 
 	let match: RegExpExecArray | null;
 	while ((match = givenPattern.exec(gherkin)) !== null) {
 		// This is a simplification - in practice you'd map these to actual task IDs
-		deps.push(match[1].trim());
+		deps.push(match[2].trim());
 	}
 
 	return deps;

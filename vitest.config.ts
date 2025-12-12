@@ -14,6 +14,12 @@ export default defineConfig(
 			env: testEnv,
 			globals: true,
 			environment: 'happy-dom',
+			pool: 'forks',
+			poolOptions: {
+				forks: {
+					singleFork: true,
+				},
+			},
 			environmentOptions: {
 				happyDOM: {
 					settings: {
@@ -36,7 +42,7 @@ export default defineConfig(
 					height: 768,
 				},
 			},
-			setupFiles: ['./src/test/setup.ts', './src/test/dom-setup.ts'],
+			setupFiles: ['./src/test/dom-setup.ts', './src/test/setup.ts'],
 			coverage: {
 				provider: 'v8',
 				reporter: ['text', 'html', 'json'],
@@ -57,7 +63,7 @@ export default defineConfig(
 					statements: 85,
 				},
 			},
-			include: ['src/**/*.test.ts', 'src/**/*.test.tsx'],
+			include: ['src/**/*.test.ts', 'src/**/*.test.tsx', 'scripts/**/*.test.ts'],
 			exclude: ['e2e/**', '**/*.spec.ts'],
 		},
 		resolve: {
