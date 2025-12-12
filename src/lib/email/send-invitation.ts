@@ -612,7 +612,7 @@ export function htmlToText(html: string): string {
 		.replace(/&gt;/g, '>')
 		.replace(/&quot;/g, '"')
 		.replace(/&#039;/g, "'")
-		.replace(/  +/g, ' ')
+		.replace(/ {2,}/g, ' ')
 		.split('\n')
 		.map(line => line.trim())
 		.filter(line => line.length > 0)

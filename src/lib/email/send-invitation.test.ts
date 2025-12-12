@@ -14,13 +14,13 @@
 
 import { describe, expect, it } from 'vitest'
 import {
+	type AcceptanceNotificationContext,
+	type DeclineNotificationContext,
 	htmlToText,
+	type InvitationEmailContext,
 	renderAcceptanceNotificationEmail,
 	renderDeclineNotificationEmail,
 	renderInvitationEmail,
-	type AcceptanceNotificationContext,
-	type DeclineNotificationContext,
-	type InvitationEmailContext,
 } from './send-invitation'
 
 describe('Feature: Invitation Email Templates', () => {
@@ -664,7 +664,7 @@ describe('Feature: Invitation Email Templates', () => {
 		it('should clean up whitespace', () => {
 			const html = '<p>   Multiple   spaces   </p>'
 			const text = htmlToText(html)
-			expect(text).not.toMatch(/  +/)
+			expect(text).not.toMatch(/ {2,}/)
 		})
 	})
 
