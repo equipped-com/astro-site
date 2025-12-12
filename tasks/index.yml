@@ -699,12 +699,10 @@ epics:
       - id: team-access
         name: Team Access Management
         file: settings/team-access.md
-        done: false
-        # original_commit: 1abfc48  # Implementation completed but tests failing
+        done: true
+        commit: 1abfc48  # Implementation
+        test_fix_commit: 97bcefe  # Test fixes
         complexity: medium
-        reason: "5 component tests failing - elements not rendering as expected"
-        failing_tests:
-          - src/components/settings/TeamAccessManager.test.tsx
         depends_on:
           - settings/organization-settings
           - bugs/fix-team-access-rendering
@@ -1184,7 +1182,8 @@ epics:
       - id: fix-team-access-rendering
         name: Fix Team Access Component Rendering
         file: bugs/fix-team-access-rendering.md
-        done: false
+        done: true
+        commit: 97bcefe
         complexity: medium
         depends_on:
           - testing/mock-browser-apis
