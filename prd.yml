@@ -35,7 +35,7 @@ files:
   workflow.md:
     status: complete
     location: documentation/PRDs/workflow.md
-    processed_at: 2024-12-12
-    notes: "Workflow & Process Improvement PRD - tasks created with automated planning"
+    processed_at: 2025-12-12
+    notes: "Workflow & Process Improvement PRD - all 6 task files generated successfully"
     epics_created:
       - workflow

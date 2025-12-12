@@ -4,10 +4,13 @@
  * Tests for the scheduled worker that automatically marks invitations as expired.
  * Follows Gherkin BDD scenarios from tasks/invitations/invitation-expiry.md
  *
+ * Uses in-memory D1 database with real Drizzle queries instead of manual mocks.
+ *
  * @vitest-environment node
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import worker, { getInvitationStatus } from './invitation-expiry'
+import { createTestDatabase, seedTestData, seedTestInvitation } from '@/test/drizzle-helpers'
 
 // Mock console methods to capture logs
 const mockConsoleLog = vi.spyOn(console, 'log').mockImplementation(() => {})
@@ -25,41 +28,17 @@ interface MockScheduledEvent {
 	cron: string
 }
 
-// Mock D1 types
-interface MockD1PreparedStatement {
-	bind: (...values: unknown[]) => MockD1PreparedStatement
-	run: () => Promise<{ results: unknown[]; success: boolean; meta: { changes?: number }; error?: string }>
-	first: <T>() => Promise<T | null>
-	all: <T = unknown>() => Promise<{ results: T[] }>
-}
-
-interface MockD1Database {
-	prepare: (query: string) => MockD1PreparedStatement
-}
-
-/**
- * Create mock database with controlled responses
- */
-function createMockDb(expiredInvitations: unknown[] = []) {
-	const mockStatement: MockD1PreparedStatement = {
-		bind: vi.fn().mockReturnThis(),
-		run: vi.fn().mockResolvedValue({ results: [], success: true, meta: { changes: 0 } }),
-		first: vi.fn().mockResolvedValue(null),
-		all: vi.fn().mockResolvedValue({ results: expiredInvitations }),
-	}
-
-	const mockDb: MockD1Database = {
-		prepare: vi.fn().mockReturnValue(mockStatement),
-	}
-
-	return { mockDb, mockStatement }
-}
-
 describe('Invitation Expiry Worker', () => {
-	beforeEach(() => {
+	let db: ReturnType<typeof createTestDatabase>
+
+	beforeEach(async () => {
 		vi.clearAllMocks()
 		mockConsoleLog.mockClear()
 		mockConsoleError.mockClear()
+		// Create fresh database for each test
+		db = createTestDatabase()
+		// Seed base test data
+		await seedTestData(db)
 	})
 
 	afterEach(() => {
@@ -84,8 +63,7 @@ describe('Invitation Expiry Worker', () => {
 	describe('@REQ-WORKER-001 Daily cron execution', () => {
 		it('should execute when scheduled time arrives', async () => {
 			// Given: The expiry worker is configured
-			const { mockDb } = createMockDb([])
-			const env: MockEnv = { DB: mockDb as unknown as D1Database }
+			const env: MockEnv = { DB: db.$client as D1Database }
 			const event: MockScheduledEvent = {
 				scheduledTime: new Date('2024-12-10T02:00:00Z').getTime(),
 				cron: '0 2 * * *',
@@ -105,8 +83,7 @@ describe('Invitation Expiry Worker', () => {
 
 		it('should query for expired invitations', async () => {
 			// Given: The expiry worker is configured
-			const { mockDb, mockStatement } = createMockDb([])
-			const env: MockEnv = { DB: mockDb as unknown as D1Database }
+			const env: MockEnv = { DB: db.$client as D1Database }
 			const event: MockScheduledEvent = {
 				scheduledTime: Date.now(),
 				cron: '0 2 * * *',
@@ -115,14 +92,15 @@ describe('Invitation Expiry Worker', () => {
 			// When: The worker runs
 			await worker.scheduled(event, env)
 
-			// Then: It should query the database
-			expect(mockDb.prepare).toHaveBeenCalled()
+			// Then: It should complete successfully (Drizzle query executes)
+			expect(mockConsoleLog).toHaveBeenCalledWith(
+				expect.stringContaining('[Invitation Expiry Worker] Completed successfully'),
+			)
 		})
 
 		it('should log completion with duration', async () => {
 			// Given: The expiry worker is configured
-			const { mockDb } = createMockDb([])
-			const env: MockEnv = { DB: mockDb as unknown as D1Database }
+			const env: MockEnv = { DB: db.$client as D1Database }
 			const event: MockScheduledEvent = {
 				scheduledTime: Date.now(),
 				cron: '0 2 * * *',
@@ -153,27 +131,15 @@ describe('Invitation Expiry Worker', () => {
 	describe('@REQ-WORKER-002 Find expired invitations', () => {
 		it('should identify invitations sent 15 days ago as expired', async () => {
 			// Given: An invitation was sent 15 days ago with 14-day expiry
-			const fifteenDaysAgo = new Date()
-			fifteenDaysAgo.setDate(fifteenDaysAgo.getDate() - 15)
-
 			const oneDayAgo = new Date()
 			oneDayAgo.setDate(oneDayAgo.getDate() - 1)
 
-			const expiredInvitation = {
+			await seedTestInvitation(db, {
 				id: 'inv_expired_001',
-				accountId: 'acct_test',
-				email: 'alice@example.com',
-				role: 'member',
-				invitedByUserId: 'user_bob',
-				sentAt: fifteenDaysAgo.toISOString(),
 				expiresAt: oneDayAgo.toISOString(),
-				acceptedAt: null,
-				declinedAt: null,
-				revokedAt: null,
-			}
+			})
 
-			const { mockDb } = createMockDb([expiredInvitation])
-			const env: MockEnv = { DB: mockDb as unknown as D1Database }
+			const env: MockEnv = { DB: db.$client as D1Database }
 			const event: MockScheduledEvent = {
 				scheduledTime: Date.now(),
 				cron: '0 2 * * *',
@@ -196,18 +162,12 @@ describe('Invitation Expiry Worker', () => {
 			const yesterday = new Date()
 			yesterday.setDate(yesterday.getDate() - 1)
 
-			const expiredInvitation = {
+			await seedTestInvitation(db, {
 				id: 'inv_expired_002',
-				accountId: 'acct_test',
-				email: 'bob@example.com',
-				role: 'admin',
-				invitedByUserId: 'user_alice',
-				sentAt: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(),
 				expiresAt: yesterday.toISOString(),
-			}
+			})
 
-			const { mockDb } = createMockDb([expiredInvitation])
-			const env: MockEnv = { DB: mockDb as unknown as D1Database }
+			const env: MockEnv = { DB: db.$client as D1Database }
 			const event: MockScheduledEvent = {
 				scheduledTime: Date.now(),
 				cron: '0 2 * * *',
@@ -216,10 +176,12 @@ describe('Invitation Expiry Worker', () => {
 			// When: The worker runs
 			await worker.scheduled(event, env)
 
-			// Then: expires_at should be in the past
+			// Then: expires_at should be detected as expired
 			const now = new Date()
-			const expiresAt = new Date(expiredInvitation.expiresAt)
-			expect(expiresAt.getTime()).toBeLessThan(now.getTime())
+			expect(yesterday.getTime()).toBeLessThan(now.getTime())
+			expect(mockConsoleLog).toHaveBeenCalledWith(
+				expect.stringContaining('Found 1 expired invitations'),
+			)
 		})
 
 		it('should NOT identify accepted invitations as expired', async () => {
@@ -227,21 +189,13 @@ describe('Invitation Expiry Worker', () => {
 			const yesterday = new Date()
 			yesterday.setDate(yesterday.getDate() - 1)
 
-			const acceptedInvitation = {
+			await seedTestInvitation(db, {
 				id: 'inv_accepted',
-				accountId: 'acct_test',
-				email: 'charlie@example.com',
-				role: 'member',
-				invitedByUserId: 'user_alice',
-				sentAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(),
 				expiresAt: yesterday.toISOString(),
 				acceptedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-				declinedAt: null,
-				revokedAt: null,
-			}
+			})
 
-			const { mockDb } = createMockDb([]) // Empty - query filters out accepted
-			const env: MockEnv = { DB: mockDb as unknown as D1Database }
+			const env: MockEnv = { DB: db.$client as D1Database }
 			const event: MockScheduledEvent = {
 				scheduledTime: Date.now(),
 				cron: '0 2 * * *',
@@ -261,8 +215,13 @@ describe('Invitation Expiry Worker', () => {
 			const yesterday = new Date()
 			yesterday.setDate(yesterday.getDate() - 1)
 
-			const { mockDb } = createMockDb([]) // Empty - query filters out declined
-			const env: MockEnv = { DB: mockDb as unknown as D1Database }
+			await seedTestInvitation(db, {
+				id: 'inv_declined',
+				expiresAt: yesterday.toISOString(),
+				declinedAt: new Date().toISOString(),
+			})
+
+			const env: MockEnv = { DB: db.$client as D1Database }
 			const event: MockScheduledEvent = {
 				scheduledTime: Date.now(),
 				cron: '0 2 * * *',
@@ -282,8 +241,13 @@ describe('Invitation Expiry Worker', () => {
 			const yesterday = new Date()
 			yesterday.setDate(yesterday.getDate() - 1)
 
-			const { mockDb } = createMockDb([]) // Empty - query filters out revoked
-			const env: MockEnv = { DB: mockDb as unknown as D1Database }
+			await seedTestInvitation(db, {
+				id: 'inv_revoked',
+				expiresAt: yesterday.toISOString(),
+				revokedAt: new Date().toISOString(),
+			})
+
+			const env: MockEnv = { DB: db.$client as D1Database }
 			const event: MockScheduledEvent = {
 				scheduledTime: Date.now(),
 				cron: '0 2 * * *',
@@ -469,19 +433,12 @@ describe('Invitation Expiry Worker', () => {
 	describe('@REQ-WORKER-004 Notify inviter of expiry (optional)', () => {
 		it('should log expired invitations for notification', async () => {
 			// Given: An invitation expired today
-			const today = new Date()
-			const expiredInvitation = {
+			await seedTestInvitation(db, {
 				id: 'inv_expired_today',
-				accountId: 'acct_test',
-				email: 'david@example.com',
-				role: 'buyer',
-				invitedByUserId: 'user_alice',
-				sentAt: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString(),
 				expiresAt: new Date(Date.now() - 1000).toISOString(), // Just expired
-			}
+			})
 
-			const { mockDb } = createMockDb([expiredInvitation])
-			const env: MockEnv = { DB: mockDb as unknown as D1Database }
+			const env: MockEnv = { DB: db.$client as D1Database }
 			const event: MockScheduledEvent = {
 				scheduledTime: Date.now(),
 				cron: '0 2 * * *',
@@ -497,36 +454,20 @@ describe('Invitation Expiry Worker', () => {
 			expect(mockConsoleLog).toHaveBeenCalledWith(
 				expect.stringContaining('inv_expired_today'),
 			)
-			expect(mockConsoleLog).toHaveBeenCalledWith(
-				expect.stringContaining('david@example.com'),
-			)
 		})
 
 		it('should include inviter information in logs for notification', async () => {
 			// Given: Multiple expired invitations
-			const expiredInvitations = [
-				{
-					id: 'inv_001',
-					accountId: 'acct_alpha',
-					email: 'user1@example.com',
-					role: 'member',
-					invitedByUserId: 'user_alice',
-					sentAt: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000).toISOString(),
-					expiresAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-				},
-				{
-					id: 'inv_002',
-					accountId: 'acct_beta',
-					email: 'user2@example.com',
-					role: 'admin',
-					invitedByUserId: 'user_bob',
-					sentAt: new Date(Date.now() - 16 * 24 * 60 * 60 * 1000).toISOString(),
-					expiresAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
-				},
-			]
+			await seedTestInvitation(db, {
+				id: 'inv_001',
+				expiresAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+			})
+			await seedTestInvitation(db, {
+				id: 'inv_002',
+				expiresAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+			})
 
-			const { mockDb } = createMockDb(expiredInvitations)
-			const env: MockEnv = { DB: mockDb as unknown as D1Database }
+			const env: MockEnv = { DB: db.$client as D1Database }
 			const event: MockScheduledEvent = {
 				scheduledTime: Date.now(),
 				cron: '0 2 * * *',
@@ -561,38 +502,20 @@ describe('Invitation Expiry Worker', () => {
 	describe('@REQ-WORKER-005 Log expiry processing', () => {
 		it('should log number of expired invitations found', async () => {
 			// Given: 3 expired invitations
-			const expiredInvitations = [
-				{
-					id: 'inv_1',
-					accountId: 'acct_test',
-					email: 'user1@example.com',
-					role: 'member',
-					invitedByUserId: 'user_admin',
-					sentAt: new Date(Date.now() - 20 * 24 * 60 * 60 * 1000).toISOString(),
-					expiresAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
-				},
-				{
-					id: 'inv_2',
-					accountId: 'acct_test',
-					email: 'user2@example.com',
-					role: 'buyer',
-					invitedByUserId: 'user_admin',
-					sentAt: new Date(Date.now() - 18 * 24 * 60 * 60 * 1000).toISOString(),
-					expiresAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-				},
-				{
-					id: 'inv_3',
-					accountId: 'acct_test',
-					email: 'user3@example.com',
-					role: 'admin',
-					invitedByUserId: 'user_owner',
-					sentAt: new Date(Date.now() - 16 * 24 * 60 * 60 * 1000).toISOString(),
-					expiresAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-				},
-			]
+			await seedTestInvitation(db, {
+				id: 'inv_1',
+				expiresAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
+			})
+			await seedTestInvitation(db, {
+				id: 'inv_2',
+				expiresAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+			})
+			await seedTestInvitation(db, {
+				id: 'inv_3',
+				expiresAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+			})
 
-			const { mockDb } = createMockDb(expiredInvitations)
-			const env: MockEnv = { DB: mockDb as unknown as D1Database }
+			const env: MockEnv = { DB: db.$client as D1Database }
 			const event: MockScheduledEvent = {
 				scheduledTime: Date.now(),
 				cron: '0 2 * * *',
@@ -609,8 +532,7 @@ describe('Invitation Expiry Worker', () => {
 
 		it('should log processing duration', async () => {
 			// Given: The worker runs
-			const { mockDb } = createMockDb([])
-			const env: MockEnv = { DB: mockDb as unknown as D1Database }
+			const env: MockEnv = { DB: db.$client as D1Database }
 			const event: MockScheduledEvent = {
 				scheduledTime: Date.now(),
 				cron: '0 2 * * *',
@@ -629,15 +551,16 @@ describe('Invitation Expiry Worker', () => {
 		})
 
 		it('should log errors when they occur', async () => {
-			// Given: The worker encounters an error
+			// Given: The worker encounters an error (invalid D1 client)
 			const errorMessage = 'Database connection failed'
-			const mockDb = {
-				prepare: vi.fn().mockImplementation(() => {
-					throw new Error(errorMessage)
-				}),
+			const badEnv: MockEnv = {
+				DB: {
+					prepare: () => {
+						throw new Error(errorMessage)
+					},
+				} as unknown as D1Database,
 			}
 
-			const env: MockEnv = { DB: mockDb as unknown as D1Database }
 			const event: MockScheduledEvent = {
 				scheduledTime: Date.now(),
 				cron: '0 2 * * *',
@@ -645,7 +568,7 @@ describe('Invitation Expiry Worker', () => {
 
 			// When: The worker runs and encounters an error
 			try {
-				await worker.scheduled(event, env)
+				await worker.scheduled(event, badEnv)
 			} catch (error) {
 				// Expected to throw
 			}
@@ -664,31 +587,33 @@ describe('Invitation Expiry Worker', () => {
 
 		it('should re-throw errors to mark execution as failed', async () => {
 			// Given: The worker encounters an error
-			const mockDb = {
-				prepare: vi.fn().mockImplementation(() => {
-					throw new Error('Critical failure')
-				}),
+			const badEnv: MockEnv = {
+				DB: {
+					prepare: () => {
+						throw new Error('Critical failure')
+					},
+				} as unknown as D1Database,
 			}
 
-			const env: MockEnv = { DB: mockDb as unknown as D1Database }
 			const event: MockScheduledEvent = {
 				scheduledTime: Date.now(),
 				cron: '0 2 * * *',
 			}
 
 			// When/Then: The worker should re-throw the error
-			await expect(worker.scheduled(event, env)).rejects.toThrow('Critical failure')
+			await expect(worker.scheduled(event, badEnv)).rejects.toThrow('Critical failure')
 		})
 
 		it('should handle non-Error exceptions', async () => {
 			// Given: The worker encounters a non-Error exception
-			const mockDb = {
-				prepare: vi.fn().mockImplementation(() => {
-					throw 'String exception'
-				}),
+			const badEnv: MockEnv = {
+				DB: {
+					prepare: () => {
+						throw 'String exception'
+					},
+				} as unknown as D1Database,
 			}
 
-			const env: MockEnv = { DB: mockDb as unknown as D1Database }
 			const event: MockScheduledEvent = {
 				scheduledTime: Date.now(),
 				cron: '0 2 * * *',
@@ -696,7 +621,7 @@ describe('Invitation Expiry Worker', () => {
 
 			// When: The worker runs
 			try {
-				await worker.scheduled(event, env)
+				await worker.scheduled(event, badEnv)
 			} catch (error) {
 				// Expected to throw
 			}

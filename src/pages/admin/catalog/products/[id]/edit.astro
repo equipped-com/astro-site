@@ -1,0 +1,26 @@
+---
+import { ClerkProvider } from '@clerk/clerk-react'
+import ProductForm from '@/components/admin/catalog/ProductForm'
+import AdminLayout from '@/layouts/AdminLayout.astro'
+
+const publishableKey = import.meta.env.PUBLIC_CLERK_PUBLISHABLE_KEY
+const { id } = Astro.params
+---
+
+<AdminLayout title="Edit Product - Equipped Admin">
+	<div class="space-y-6">
+		<div>
+			<h1 class="text-3xl font-bold">Edit Product</h1>
+			<p class="text-muted-foreground mt-2">
+				Update product information in the global catalog.
+			</p>
+		</div>
+
+		<ClerkProvider
+			publishableKey={publishableKey}
+			client:only="react"
+		>
+			<ProductForm productId={id} client:only="react" />
+		</ClerkProvider>
+	</div>
+</AdminLayout>

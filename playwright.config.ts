@@ -18,11 +18,11 @@ export default defineConfig({
 			name: 'setup',
 			testMatch: /global\.setup\.ts/,
 		},
-		// Browser projects depend on setup
-		{ name: 'chromium', use: { ...devices['Desktop Chrome'] }, dependencies: ['setup'] },
-		{ name: 'firefox', use: { ...devices['Desktop Firefox'] }, dependencies: ['setup'] },
-		{ name: 'webkit', use: { ...devices['Desktop Safari'] }, dependencies: ['setup'] },
-		{ name: 'mobile', use: { ...devices['iPhone 14'] }, dependencies: ['setup'] },
+		// Browser projects depend on setup and only run spec files
+		{ name: 'chromium', use: { ...devices['Desktop Chrome'] }, dependencies: ['setup'], testMatch: /.*\.spec\.ts/ },
+		{ name: 'firefox', use: { ...devices['Desktop Firefox'] }, dependencies: ['setup'], testMatch: /.*\.spec\.ts/ },
+		{ name: 'webkit', use: { ...devices['Desktop Safari'] }, dependencies: ['setup'], testMatch: /.*\.spec\.ts/ },
+		{ name: 'mobile', use: { ...devices['iPhone 14'] }, dependencies: ['setup'], testMatch: /.*\.spec\.ts/ },
 	],
 	webServer: {
 		command: 'bun run dev',

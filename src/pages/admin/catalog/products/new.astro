@@ -1,0 +1,25 @@
+---
+import { ClerkProvider } from '@clerk/clerk-react'
+import ProductForm from '@/components/admin/catalog/ProductForm'
+import AdminLayout from '@/layouts/AdminLayout.astro'
+
+const publishableKey = import.meta.env.PUBLIC_CLERK_PUBLISHABLE_KEY
+---
+
+<AdminLayout title="Add Product - Equipped Admin">
+	<div class="space-y-6">
+		<div>
+			<h1 class="text-3xl font-bold">Add New Product</h1>
+			<p class="text-muted-foreground mt-2">
+				Create a new product in the global catalog.
+			</p>
+		</div>
+
+		<ClerkProvider
+			publishableKey={publishableKey}
+			client:only="react"
+		>
+			<ProductForm client:only="react" />
+		</ClerkProvider>
+	</div>
+</AdminLayout>

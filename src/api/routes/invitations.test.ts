@@ -84,8 +84,14 @@ function createMockDb(
 				lastParams = params
 				return {
 					first: vi.fn(async () => {
-						// Handle requireAccountAccess middleware query
-						if (query.includes('account_access aa') && query.includes('JOIN users u ON u.id = aa.user_id')) {
+						// Handle requireAccountAccess middleware query (checks aa.user_id = ?)
+						// This is the query from auth middleware that checks current user's access
+						// Distinguished from business logic queries by the WHERE clause pattern
+						if (
+							query.includes('account_access aa') &&
+							query.includes('JOIN users u ON u.id = aa.user_id') &&
+							query.includes('WHERE aa.user_id = ?')
+						) {
 							return {
 								id: 'access-test',
 								user_id: 'user-123',

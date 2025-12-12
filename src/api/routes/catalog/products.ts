@@ -260,4 +260,277 @@ productsRouter.post('/', requireSysAdmin(), async c => {
 	}
 })
 
+/**
+ * GET /api/catalog/products/:id
+ *
+ * Get a single product by ID (requires auth only)
+ *
+ * Response: { product: Product }
+ */
+productsRouter.get('/:id', requireAuth(), async c => {
+	const productId = c.req.param('id')
+
+	if (!productId) {
+		return c.json(
+			{
+				error: 'Validation failed',
+				message: 'Missing product ID',
+			},
+			400,
+		)
+	}
+
+	const db = drizzle(c.env.DB)
+
+	const result = await db
+		.select({
+			id: products.id,
+			brandId: products.brandId,
+			brandName: brands.name,
+			name: products.name,
+			modelIdentifier: products.modelIdentifier,
+			modelNumber: products.modelNumber,
+			sku: products.sku,
+			productType: products.productType,
+			description: products.description,
+			specs: products.specs,
+			msrp: products.msrp,
+			imageUrl: products.imageUrl,
+			isActive: products.isActive,
+			createdAt: products.createdAt,
+			updatedAt: products.updatedAt,
+		})
+		.from(products)
+		.leftJoin(brands, eq(products.brandId, brands.id))
+		.where(eq(products.id, productId))
+		.get()
+
+	if (!result) {
+		return c.json(
+			{
+				error: 'Not found',
+				message: 'Product not found',
+			},
+			404,
+		)
+	}
+
+	return c.json({ product: result })
+})
+
+/**
+ * PUT /api/catalog/products/:id
+ *
+ * Update an existing product (sys_admin only)
+ *
+ * Request body:
+ *   - brand_id?: string
+ *   - name?: string
+ *   - sku?: string
+ *   - product_type?: string
+ *   - model_identifier?: string
+ *   - model_number?: string
+ *   - description?: string
+ *   - specs?: object
+ *   - msrp?: number
+ *   - image_url?: string
+ *   - is_active?: boolean
+ *
+ * Response: { product: Product }
+ */
+productsRouter.put('/:id', requireSysAdmin(), async c => {
+	const productId = c.req.param('id')
+	const body = await c.req.json()
+
+	if (!productId) {
+		return c.json(
+			{
+				error: 'Validation failed',
+				message: 'Missing product ID',
+			},
+			400,
+		)
+	}
+
+	const db = drizzle(c.env.DB)
+
+	// Verify product exists
+	const existingProduct = await db.select().from(products).where(eq(products.id, productId)).get()
+
+	if (!existingProduct) {
+		return c.json(
+			{
+				error: 'Not found',
+				message: 'Product not found',
+			},
+			404,
+		)
+	}
+
+	// If brand_id is being updated, verify it exists
+	if (body.brand_id) {
+		const brand = await db.select().from(brands).where(eq(brands.id, body.brand_id)).get()
+
+		if (!brand) {
+			return c.json(
+				{
+					error: 'Validation failed',
+					message: 'Invalid brand_id: brand does not exist',
+				},
+				400,
+			)
+		}
+	}
+
+	// Build update object with only provided fields
+	const updates: Partial<Product> = {}
+
+	if (body.brand_id !== undefined) {
+		updates.brandId = body.brand_id
+	}
+
+	if (body.name !== undefined) {
+		updates.name = body.name
+	}
+
+	if (body.model_identifier !== undefined) {
+		updates.modelIdentifier = body.model_identifier
+	}
+
+	if (body.model_number !== undefined) {
+		updates.modelNumber = body.model_number
+	}
+
+	if (body.sku !== undefined) {
+		updates.sku = body.sku
+	}
+
+	if (body.product_type !== undefined) {
+		updates.productType = body.product_type
+	}
+
+	if (body.description !== undefined) {
+		updates.description = body.description
+	}
+
+	if (body.specs !== undefined) {
+		updates.specs = body.specs ? JSON.stringify(body.specs) : null
+	}
+
+	if (body.msrp !== undefined) {
+		updates.msrp = body.msrp
+	}
+
+	if (body.image_url !== undefined) {
+		updates.imageUrl = body.image_url
+	}
+
+	if (body.is_active !== undefined) {
+		updates.isActive = body.is_active
+	}
+
+	try {
+		await db.update(products).set(updates).where(eq(products.id, productId))
+
+		// Fetch the updated product with brand info
+		const result = await db
+			.select({
+				id: products.id,
+				brandId: products.brandId,
+				brandName: brands.name,
+				name: products.name,
+				modelIdentifier: products.modelIdentifier,
+				modelNumber: products.modelNumber,
+				sku: products.sku,
+				productType: products.productType,
+				description: products.description,
+				specs: products.specs,
+				msrp: products.msrp,
+				imageUrl: products.imageUrl,
+				isActive: products.isActive,
+				createdAt: products.createdAt,
+				updatedAt: products.updatedAt,
+			})
+			.from(products)
+			.leftJoin(brands, eq(products.brandId, brands.id))
+			.where(eq(products.id, productId))
+			.get()
+
+		return c.json({ product: result })
+	} catch (error) {
+		console.error('Error updating product:', error)
+
+		// Handle unique constraint violations
+		if (error instanceof Error && error.message.includes('UNIQUE constraint failed')) {
+			return c.json(
+				{
+					error: 'Conflict',
+					message: 'A product with this SKU already exists',
+				},
+				409,
+			)
+		}
+
+		return c.json(
+			{
+				error: 'Internal server error',
+				message: 'Failed to update product',
+			},
+			500,
+		)
+	}
+})
+
+/**
+ * DELETE /api/catalog/products/:id
+ *
+ * Delete a product (sys_admin only)
+ *
+ * Response: { success: true }
+ */
+productsRouter.delete('/:id', requireSysAdmin(), async c => {
+	const productId = c.req.param('id')
+
+	if (!productId) {
+		return c.json(
+			{
+				error: 'Validation failed',
+				message: 'Missing product ID',
+			},
+			400,
+		)
+	}
+
+	const db = drizzle(c.env.DB)
+
+	// Verify product exists
+	const existingProduct = await db.select().from(products).where(eq(products.id, productId)).get()
+
+	if (!existingProduct) {
+		return c.json(
+			{
+				error: 'Not found',
+				message: 'Product not found',
+			},
+			404,
+		)
+	}
+
+	try {
+		await db.delete(products).where(eq(products.id, productId))
+
+		return c.json({ success: true })
+	} catch (error) {
+		console.error('Error deleting product:', error)
+
+		return c.json(
+			{
+				error: 'Internal server error',
+				message: 'Failed to delete product',
+			},
+			500,
+		)
+	}
+})
+
 export default productsRouter

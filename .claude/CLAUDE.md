@@ -345,7 +345,36 @@ This creates an audit trail:
   - `workflow.md` - Development workflow and process improvements
 - `documentation/*.md` - UX flows and integrations
 - `tasks/index.yml` - Task index with status tracking + dependencies + commit hashes
+- `prd.yml` - Tracks PRD processing status
 - `scripts/validate-task-dependencies.js` - Validation tool for task readiness
+
+### PRD-to-Task Generation Workflow
+
+**IMPORTANT:** When new PRD files are added or task files are missing, use `/prepare-prd`:
+
+```bash
+/prepare-prd
+```
+
+This command:
+1. Scans `documentation/PRDs/*.md` for unprocessed or incomplete PRDs
+2. Checks `prd.yml` for PRDs with status `pending` or `attention-needed`
+3. Launches parallel Sonnet agents to generate task files
+4. Creates `tasks/{epic}/` directories and `{task}.md` files
+5. Updates `prd.yml` with completion status
+
+**PRD Status Values in `prd.yml`:**
+- `complete` - All task files generated successfully
+- `in-progress` - Currently being processed
+- `pending` - Not yet processed
+- `attention-needed` - Failed generation, needs retry
+
+**When to use `/prepare-prd`:**
+- Adding a new PRD file to `documentation/PRDs/`
+- Task files are missing but epic exists in `tasks/index.yml`
+- PRD marked `attention-needed` in `prd.yml`
+
+**Do NOT manually create task files from PRDs** - always use `/prepare-prd` for consistency.
 
 ### Test Criteria Format
 
