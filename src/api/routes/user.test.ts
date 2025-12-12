@@ -8,9 +8,13 @@
  * that getAuth() reads, allowing full control over auth state in tests.
  */
 
+import { getAuth } from '@hono/clerk-auth'
 import { Hono } from 'hono'
-import { beforeEach, describe, expect, test, vi } from 'vitest'
+import { type Mock, beforeEach, describe, expect, test, vi } from 'vitest'
 import userRoutes from './user'
+
+// Get the mocked getAuth from global setup
+const mockedGetAuth = getAuth as Mock
 
 // Mock types
 interface MockEnv {
@@ -38,27 +42,23 @@ interface TestAppOptions {
 /**
  * Create test app with injected auth context.
  *
- * This mimics what clerkMiddleware() does - it sets c.clerkAuth
- * which getAuth() then reads. By injecting this ourselves, we can:
- * - Control auth state per-test
- * - Verify auth was checked
- * - Test unauthenticated scenarios
+ * This overrides the global getAuth mock to return our test-specific auth.
+ * The global mock in setup.ts returns 'user_test_default' by default.
  */
 function createTestApp({ db, auth = { userId: 'user_123', sessionId: 'session_123' } }: TestAppOptions) {
 	const authCallTracker = vi.fn()
+
+	// Override the globally mocked getAuth to return our test auth
+	mockedGetAuth.mockImplementation(() => {
+		authCallTracker()
+		return auth
+	})
 
 	const app = new Hono<{ Bindings: MockEnv }>()
 
 	app.use('*', async (c, next) => {
 		// Inject DB
 		c.env = { DB: db } as MockEnv
-
-		// Inject auth context - this is what clerkMiddleware() does
-		// getAuth(c) internally calls c.get('clerkAuth')()
-		c.set('clerkAuth', () => {
-			authCallTracker()
-			return auth
-		})
 
 		return next()
 	})

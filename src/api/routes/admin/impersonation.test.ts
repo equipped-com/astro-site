@@ -164,15 +164,16 @@ describe('Impersonation API Routes', () => {
 				body: JSON.stringify({ accountId: 'acc_123' }),
 			})
 
-			// Verify audit log was created
-			expect(mockDb.prepare).toHaveBeenCalledWith(expect.stringContaining('INSERT INTO audit_logs'))
+			// Verify audit log was created (using audit_log table, not audit_logs)
+			expect(mockDb.prepare).toHaveBeenCalledWith(expect.stringContaining('INSERT INTO audit_log'))
 			expect(mockDb.bind).toHaveBeenCalledWith(
 				expect.any(String), // id
 				'user_admin123', // user_id
 				'acc_123', // account_id
-				'impersonation_started', // action
-				expect.any(String), // details JSON
-				1, // is_impersonation
+				'impersonation_start', // action (not "started")
+				'account', // entity_type
+				'acc_123', // entity_id
+				expect.any(String), // changes JSON
 			)
 		})
 	})
@@ -228,9 +229,10 @@ describe('Impersonation API Routes', () => {
 				expect.any(String), // id
 				'user_admin123', // user_id
 				'acc_123', // account_id
-				'impersonation_ended', // action
-				expect.any(String), // details JSON
-				1, // is_impersonation
+				'impersonation_end', // action (not "ended")
+				'account', // entity_type
+				'acc_123', // entity_id
+				expect.any(String), // changes JSON
 			)
 		})
 	})
@@ -281,13 +283,15 @@ describe('Impersonation API Routes', () => {
 			})
 
 			// Verify the logged details include admin info
+			// The implementation uses 7 params: id, user_id, account_id, action, entity_type, entity_id, changes
 			const bindCall = mockDb.bind.mock.calls.find(call => call[3] === 'view_devices')
 			expect(bindCall).toBeDefined()
 
-			const details = JSON.parse(bindCall[4])
-			expect(details.admin_email).toBe('admin@tryequipped.com')
-			expect(details.admin_name).toBe('John Admin')
-			expect(details.count).toBe(10)
+			// Changes JSON is in 7th position (index 6)
+			const changes = JSON.parse(bindCall[6])
+			expect(changes.admin_email).toBe('admin@tryequipped.com')
+			expect(changes.admin_name).toBe('John Admin')
+			expect(changes.count).toBe(10)
 		})
 
 		it('should return 400 when required fields are missing', async () => {
