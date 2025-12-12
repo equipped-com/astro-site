@@ -973,7 +973,8 @@ epics:
       - id: fix-api-tests
         name: Fix Failing API Route Tests
         file: testing/fix-api-tests.md
-        done: false
+        done: true
+        commit: 025691c
         complexity: high
         depends_on:
           - testing/fix-database-tests
