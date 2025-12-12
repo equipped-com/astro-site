@@ -1,22 +1,19 @@
 import react from '@vitejs/plugin-react'
 import { getViteConfig } from 'astro/config'
+import { loadEnv } from 'vite'
 import { defineConfig } from 'vitest/config'
+
+// Load ALL environment variables from .env files (not just VITE_* prefixed)
+// This ensures Clerk, Stripe, and other test vars are available in tests
+const testEnv = loadEnv('test', process.cwd(), '')
 
 export default defineConfig(
 	getViteConfig({
 		plugins: [react()],
 		test: {
+			env: testEnv,
 			globals: true,
 			environment: 'happy-dom',
-			environmentOptions: {
-				happyDOM: {
-					settings: {
-						url: 'http://localhost:3000',
-						width: 1024,
-						height: 768,
-					},
-				},
-			},
 			setupFiles: ['./src/test/setup.ts', './src/test/dom-setup.ts'],
 			coverage: {
 				provider: 'v8',

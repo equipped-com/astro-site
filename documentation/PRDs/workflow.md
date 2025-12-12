@@ -143,6 +143,45 @@ Feature: Synthetic Test Data Isolation
       | Customer counts       | Email domain filter       |
 ```
 
+### REQ-WF-007: Environment Variable Management
+```gherkin
+Feature: Unified Environment Variable Strategy
+  As a developer
+  I want consistent environment variable handling across all test frameworks
+  So that tests have access to required configuration without manual setup
+
+  Scenario: Environment variables loaded in Vitest
+    Given I am running unit tests with Vitest
+    When Vitest initializes
+    Then it should load ALL environment variables from .env.test
+    And variables should include Clerk, Stripe, and other service credentials
+    And both PUBLIC_ and non-PUBLIC_ prefixed variables should be available
+
+  Scenario: Environment variables loaded in Playwright
+    Given I am running E2E tests with Playwright
+    When Playwright initializes
+    Then it should load environment variables from .env.test using dotenv
+    And CLERK_PUBLISHABLE_KEY should be available for @clerk/testing
+    And CLERK_SECRET_KEY should be available for @clerk/testing
+
+  Scenario: Environment variables in Astro
+    Given I am running the Astro dev server
+    When Astro loads
+    Then it should natively load .env.local for development
+    And PUBLIC_ prefixed variables should be exposed to client-side code
+    And non-PUBLIC_ variables should only be available server-side
+
+  Scenario: Dual Clerk keys for compatibility
+    Given I need Clerk authentication in tests
+    When I configure environment variables
+    Then .env files should include both:
+      | Variable                      | Purpose                           |
+      | PUBLIC_CLERK_PUBLISHABLE_KEY  | Astro client-side access          |
+      | CLERK_PUBLISHABLE_KEY         | @clerk/testing E2E setup          |
+      | CLERK_SECRET_KEY              | Server-side and test authentication |
+    And both publishable keys should have the same value
+```
+
 ## Task Breakdown
 
 Generate tasks for each workflow area:
@@ -153,6 +192,7 @@ Generate tasks for each workflow area:
 4. **workflow/testing-strategy** - Document decision tree for test types
 5. **workflow/rollback-procedures** - Create runbook for rollback scenarios
 6. **workflow/synthetic-isolation** - Document patterns for test data isolation
+7. **workflow/env-var-strategy** - Implement unified environment variable configuration
 
 ## Success Metrics
 
@@ -165,9 +205,49 @@ Generate tasks for each workflow area:
 | Rollback procedure documentation| Complete    |
 | Synthetic data leak incidents   | 0           |
 
+## Technical Implementation Notes
+
+### Environment Variable Strategy
+
+**Framework-Specific Behavior:**
+
+1. **Astro** (via Vite)
+   - Natively loads `.env`, `.env.local`, `.env.[mode]` files
+   - `PUBLIC_` prefix exposes variables to client-side code
+   - No dotenv package needed
+
+2. **Vitest** (via Vite)
+   - Inherits Vite's .env loading
+   - By default only loads `VITE_*` prefixed variables
+   - Configure `env: loadEnv('test', process.cwd(), '')` to load ALL variables
+   - Uses `.env.test` when mode is 'test'
+
+3. **Playwright**
+   - Does NOT auto-load .env files
+   - Requires explicit `dotenv.config()` in `playwright.config.ts`
+   - dotenv should be a devDependency (not runtime dependency)
+
+4. **Clerk Testing** (@clerk/testing)
+   - Requires `CLERK_PUBLISHABLE_KEY` (without PUBLIC_ prefix)
+   - Requires `CLERK_SECRET_KEY`
+   - Both needed for `clerkSetup()` function
+
+**File Structure:**
+```
+.env.example      # Template with documentation
+.env.local        # Development (gitignored, both PUBLIC_ and non-prefixed Clerk keys)
+.env.test         # Test environment (gitignored, all test credentials)
+.gitignore        # Excludes .env.* except .env.example
+```
+
 ## References
 
 - Existing script: `scripts/validate-task-dependencies.js`
 - Task index: `tasks/index.yml`
 - Product PRD: `documentation/PRDs/product.md`
 - Testing docs: `documentation/e2e-testing-with-clerk.md`
+- Astro env docs: https://docs.astro.build/en/guides/environment-variables/
+- Vitest env docs: https://vitest.dev/guide/features
+- Vite env docs: https://vite.dev/guide/env-and-mode
+- Playwright env guide: https://www.browserstack.com/guide/playwright-env-variables
+- Clerk testing docs: https://clerk.com/docs/testing/playwright/overview

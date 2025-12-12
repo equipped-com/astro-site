@@ -1,6 +1,14 @@
 import { defineConfig, devices } from '@playwright/test'
+import dotenv from 'dotenv'
+import { fileURLToPath } from 'node:url'
+import path from 'node:path'
 
-	export default defineConfig({
+// Load .env.test for E2E tests (Playwright doesn't auto-load .env files)
+// This makes CLERK_PUBLISHABLE_KEY and CLERK_SECRET_KEY available for @clerk/testing
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+dotenv.config({ path: path.resolve(__dirname, '.env.test') })
+
+export default defineConfig({
 		testDir: './e2e',
 		// Run Clerk test-mode setup once before all tests
 		globalSetup: './e2e/clerk-global-setup',
