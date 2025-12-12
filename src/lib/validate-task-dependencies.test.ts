@@ -424,9 +424,18 @@ describe('Task Dependency Validation', () => {
 			expect(status.reason).toBe('requires human action')
 		})
 
-		it('should mark tasks with no dependencies as ready (if not done)', () => {
-			const task = tasks.get('workflow/prd-preparation')
-			const status = isTaskReady(task, tasks)
+		it('should mark tasks with no dependencies and not done as ready', () => {
+			// Create a task with no dependencies and not done
+			const noDepsTask = {
+				id: 'no-deps',
+				name: 'No Deps Task',
+				complexity: 'low',
+				done: false,
+				depends_on: [],
+				epic: 'test',
+				fullId: 'test/no-deps',
+			}
+			const status = isTaskReady(noDepsTask, tasks)
 			expect(status.ready).toBe(true)
 		})
 
@@ -535,9 +544,9 @@ describe('Task Dependency Validation', () => {
 		 * Then all checks should pass and ready tasks should be identified
 		 */
 		it('should handle complex dependency chains', () => {
-			// Verify the chain: prd-preparation -> task-generation -> dependency-validation
+			// Verify the chain: prd-preparation (done) -> task-generation (done) -> dependency-validation (ready)
 			const prdReady = isTaskReady(tasks.get('workflow/prd-preparation'), tasks)
-			expect(prdReady.ready).toBe(true)
+			expect(prdReady.ready).toBe(false) // Already done
 
 			const taskGenReady = isTaskReady(tasks.get('workflow/task-generation'), tasks)
 			expect(taskGenReady.ready).toBe(false) // Already done
@@ -561,7 +570,11 @@ describe('Task Dependency Validation', () => {
 
 			const hasValidationErrors = depErrors.length > 0 || circularErrors.length > 0
 			expect(hasValidationErrors).toBe(false)
-			expect(ready.low.length).toBeGreaterThan(0)
+
+			// We have medium complexity ready tasks (device-crud, dependency-validation)
+			const totalReady = ready.low.length + ready.medium.length + ready.high.length
+			expect(totalReady).toBeGreaterThan(0)
+			expect(ready.medium.length).toBeGreaterThan(0)
 		})
 	})
 })
