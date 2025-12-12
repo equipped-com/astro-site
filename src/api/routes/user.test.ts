@@ -10,7 +10,7 @@
 
 import { getAuth } from '@hono/clerk-auth'
 import { Hono } from 'hono'
-import { type Mock, beforeEach, describe, expect, test, vi } from 'vitest'
+import { beforeEach, describe, expect, type Mock, test, vi } from 'vitest'
 import userRoutes from './user'
 
 // Get the mocked getAuth from global setup
