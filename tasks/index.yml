@@ -511,15 +511,11 @@ epics:
       - id: cart-management
         name: Cart Management
         file: commerce/cart-management.md
-        done: false
-        # original_commit: cb0bb8d  # Implementation completed but tests failing
+        done: true
+        commit: f303865
         complexity: medium
-        reason: "Cart tests failing"
-        failing_tests:
-          - src/components/cart/Cart.test.tsx
         depends_on:
           - api/auth-middleware
-          - bugs/fix-cart-tests
       - id: checkout-assignment
         name: "Checkout Stage 1: Assignment"
         file: commerce/checkout-assignment.md
