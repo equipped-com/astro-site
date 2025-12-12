@@ -343,6 +343,9 @@ This creates an audit trail:
 - `documentation/PRDs/*.md` - Product Requirements Documents (authoritative for features)
   - `product.md` - Core product features and capabilities
   - `workflow.md` - Development workflow and process improvements
+  - **Note:** Only actual PRDs go here, not templates or support files
+- `documentation/prd-template.md` - Template for new PRDs
+- `documentation/prd-preparation-checklist.md` - PRD scoping checklist
 - `documentation/*.md` - UX flows and integrations
 - `tasks/index.yml` - Task index with status tracking + dependencies + commit hashes
 - `prd.yml` - Tracks PRD processing status

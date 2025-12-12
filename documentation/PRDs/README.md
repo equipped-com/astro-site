@@ -81,8 +81,11 @@ files:
 1. Create PRD file: `documentation/PRDs/{scope}.md`
 2. Use Gherkin BDD format for acceptance criteria
 3. Tag requirements: `@REQ-{SCOPE}-###`
-4. Add to `prd.yml` tracking file
-5. Run task generation (when available)
+4. Use the template at `documentation/prd-template.md`
+5. Follow the checklist at `documentation/prd-preparation-checklist.md`
+6. Run `/prepare-prd` to generate tasks automatically
+
+**Important:** Only actual PRD files belong in this directory. Templates, checklists, and other support files go in `documentation/` directly.
 
 ## References
 

@@ -12,18 +12,18 @@ export default defineConfig({
 		trace: 'on-first-retry',
 		screenshot: 'only-on-failure',
 	},
-	projects: [
-		// Setup project runs first to configure Clerk testing token
-		{
-			name: 'setup',
-			testMatch: /global\.setup\.ts/,
-		},
-		// Browser projects depend on setup and only run spec files
-		{ name: 'chromium', use: { ...devices['Desktop Chrome'] }, dependencies: ['setup'], testMatch: /.*\.spec\.ts/ },
-		{ name: 'firefox', use: { ...devices['Desktop Firefox'] }, dependencies: ['setup'], testMatch: /.*\.spec\.ts/ },
-		{ name: 'webkit', use: { ...devices['Desktop Safari'] }, dependencies: ['setup'], testMatch: /.*\.spec\.ts/ },
-		{ name: 'mobile', use: { ...devices['iPhone 14'] }, dependencies: ['setup'], testMatch: /.*\.spec\.ts/ },
-	],
+		projects: [
+			// Browser projects depend on the setup project; setup will still run first because it's a dependency
+			{ name: 'chromium', use: { ...devices['Desktop Chrome'] }, dependencies: ['setup'] },
+			{ name: 'firefox', use: { ...devices['Desktop Firefox'] }, dependencies: ['setup'] },
+			{ name: 'webkit', use: { ...devices['Desktop Safari'] }, dependencies: ['setup'] },
+			{ name: 'mobile', use: { ...devices['iPhone 14'] }, dependencies: ['setup'] },
+			// Setup project runs once to configure Clerk testing token for all browser projects
+			{
+				name: 'setup',
+				testMatch: /global\.setup\.ts/,
+			},
+		],
 	webServer: {
 		command: 'bun run dev',
 		url: 'http://localhost:4321',

@@ -11,8 +11,11 @@ Scans for untracked PRD*.md files and launches 3-5 parallel Sonnet agents to gen
 
 ### Phase 1: Discovery
 1. Read `prd.yml` (create if missing with existing PRDs marked complete)
-2. Glob for PRD files in `documentation/PRDs/*.md` (exclude README.md)
-3. Identify files not in prd.yml or with status `pending`/`attention-needed`
+2. Glob for PRD files in `documentation/PRDs/*.md`
+3. Exclude non-PRD files: README.md, _*.md (files starting with underscore)
+4. Identify files not in prd.yml or with status `pending`/`attention-needed`
+
+**Note:** Only actual PRD files belong in `documentation/PRDs/`. Support files like templates and checklists should be in `documentation/` directly.
 
 ### Phase 2: Analysis (per PRD)
 For each new PRD:
