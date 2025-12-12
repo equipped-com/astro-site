@@ -1057,7 +1057,8 @@ epics:
       - id: prd-preparation
         name: PRD Preparation Checklist
         file: workflow/prd-preparation.md
-        done: false
+        done: true
+        commit: 92762eb
         complexity: low
         depends_on: []
       - id: task-generation
