@@ -7,17 +7,22 @@ export default defineConfig({
 	retries: process.env.CI ? 2 : 0,
 	workers: process.env.CI ? 1 : undefined,
 	reporter: [['html', { open: 'never' }], ['list']],
-	globalSetup: './global-setup.ts',
 	use: {
 		baseURL: 'http://localhost:4321',
 		trace: 'on-first-retry',
 		screenshot: 'only-on-failure',
 	},
 	projects: [
-		{ name: 'chromium', use: { ...devices['Desktop Chrome'] } },
-		{ name: 'firefox', use: { ...devices['Desktop Firefox'] } },
-		{ name: 'webkit', use: { ...devices['Desktop Safari'] } },
-		{ name: 'mobile', use: { ...devices['iPhone 14'] } },
+		// Setup project runs first to configure Clerk testing token
+		{
+			name: 'setup',
+			testMatch: /global\.setup\.ts/,
+		},
+		// Browser projects depend on setup
+		{ name: 'chromium', use: { ...devices['Desktop Chrome'] }, dependencies: ['setup'] },
+		{ name: 'firefox', use: { ...devices['Desktop Firefox'] }, dependencies: ['setup'] },
+		{ name: 'webkit', use: { ...devices['Desktop Safari'] }, dependencies: ['setup'] },
+		{ name: 'mobile', use: { ...devices['iPhone 14'] }, dependencies: ['setup'] },
 	],
 	webServer: {
 		command: 'bun run dev',

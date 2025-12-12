@@ -61,15 +61,40 @@ To make E2E testing robust and fast, avoid testing Clerk's internal implementati
 
 Clerk uses bot protection that can block automated browsers. The `@clerk/testing` package helps bypass this by generating a testing token.
 
-Configure this in your Playwright `global-setup.ts` (or equivalent):
+We use the **Project Dependencies** approach (recommended by Playwright and Clerk) which provides:
+- Full trace recording support
+- HTML report visibility
+- Playwright fixture support
+
+Configure this in `e2e/global.setup.ts`:
 
 ```typescript
-import { clerkSetup } from '@clerk/testing/playwright';
-import { test as setup } from '@playwright/test';
+import { clerkSetup } from '@clerk/testing/playwright'
+import { test as setup } from '@playwright/test'
+
+// Setup must be run serially when Playwright is configured to run fully parallel
+setup.describe.configure({ mode: 'serial' })
 
 setup('global setup', async ({}) => {
-  await clerkSetup();
-});
+  await clerkSetup()
+  console.log('✅ Clerk testing token generated')
+})
+```
+
+And in `playwright.config.ts`, add the setup project with dependencies:
+
+```typescript
+projects: [
+  // Setup project runs first
+  {
+    name: 'setup',
+    testMatch: /global\.setup\.ts/,
+  },
+  // Browser projects depend on setup
+  { name: 'chromium', use: { ...devices['Desktop Chrome'] }, dependencies: ['setup'] },
+  { name: 'firefox', use: { ...devices['Desktop Firefox'] }, dependencies: ['setup'] },
+  // ... other browsers
+]
 ```
 
 ### Authenticating in Tests
@@ -137,12 +162,11 @@ As of the latest setup, our E2E testing infrastructure includes:
 - Basic Playwright configuration with multi-browser support
 - Test directory structure (`e2e/` with fixtures, pages, specs)
 - Test user pattern using `+clerk_test` suffix
-- **@clerk/testing package v1.4.18** - Installed and configured in package.json
-- **Global setup with clerkSetup()** - Configured in `global-setup.ts`
+- **@clerk/testing package integration** - Bot protection bypass implemented
+- **Global setup with clerkSetup()** - Configured in `e2e/global.setup.ts` using Project Dependencies approach
 - **Programmatic authentication** - Fast sign-in using `clerk.signIn()` in `e2e/fixtures/auth.ts`
 - **Dual authentication methods** - Both programmatic (fast) and UI-based (thorough) approaches available
 - **Comprehensive test coverage** - Tests for all Clerk integration scenarios in `e2e/clerk-integration.spec.ts`
-- **Environment variables documented** - CLERK_PUBLISHABLE_KEY, CLERK_SECRET_KEY, E2E_TEST_PASSWORD in `.env.example`
 
 ### ⚠️ Needs Implementation
 The following best practices from this document are **not yet implemented**:
@@ -154,8 +178,8 @@ The following best practices from this document are **not yet implemented**:
 
 See `tasks/index.yml` for implementation tasks:
 - ✅ `testing/clerk-e2e-integration` - Integrate @clerk/testing package with Playwright (COMPLETED)
-- ⏳ `testing/e2e-auth-state` - Implement storage state reuse for authentication
-- ⏳ `testing/e2e-otp-flows` - Add tests for OTP verification with static code
+- `testing/e2e-auth-state` - Implement storage state reuse for authentication
+- `testing/e2e-otp-flows` - Add tests for OTP verification with static code
 
 ## When to Use Each Approach
 

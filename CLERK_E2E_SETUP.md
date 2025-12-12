@@ -67,10 +67,11 @@ bun run test:e2e:ui
 
 ### Files Created
 
-1. **`global-setup.ts`** - Clerk bot protection bypass
-   - Runs once before all tests
+1. **`e2e/global.setup.ts`** - Clerk bot protection bypass (Project Dependencies approach)
+   - Runs once before all tests as a separate Playwright project
    - Generates Clerk testing token
    - Prevents automated browsers from being blocked
+   - Benefits: Full trace support, HTML report visibility, fixture support
 
 2. **`e2e/clerk-integration.spec.ts`** - Comprehensive test suite
    - Tests for bot protection bypass
@@ -81,7 +82,9 @@ bun run test:e2e:ui
 ### Files Modified
 
 1. **`playwright.config.ts`**
-   - Added `globalSetup` reference to load Clerk testing token
+   - Uses Project Dependencies approach (recommended by Playwright and Clerk)
+   - Added `setup` project that runs `global.setup.ts`
+   - All browser projects depend on `setup` project
 
 2. **`e2e/fixtures/auth.ts`**
    - Added `signInProgrammatic()` - Fast programmatic sign-in
@@ -176,9 +179,10 @@ After this task is complete, consider these optimizations:
 ### Issue: "Clerk testing token not found"
 
 **Solution**:
-1. Verify `global-setup.ts` exists
-2. Verify `playwright.config.ts` has `globalSetup` configured
-3. Delete Playwright cache: `rm -rf playwright/.cache`
+1. Verify `e2e/global.setup.ts` exists
+2. Verify `playwright.config.ts` has the `setup` project configured with `testMatch: /global\.setup\.ts/`
+3. Verify all browser projects have `dependencies: ['setup']`
+4. Delete Playwright cache: `rm -rf playwright/.cache`
 
 ### Issue: Bot protection still blocking tests
 

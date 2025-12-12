@@ -74,29 +74,46 @@ Feature: Clerk Testing Integration
 bun add -d @clerk/testing
 ```
 
-### 2. Create global-setup.ts
+### 2. Create e2e/global.setup.ts (Project Dependencies approach)
+
+> **Note**: We use Project Dependencies instead of `globalSetup` config option. This provides
+> better features: HTML report visibility, trace recording, and fixture support.
 
 ```typescript
-// global-setup.ts
-import { clerkSetup } from '@clerk/testing/playwright';
-import { test as setup } from '@playwright/test';
+// e2e/global.setup.ts
+import { clerkSetup } from '@clerk/testing/playwright'
+import { test as setup } from '@playwright/test'
+
+// Setup must be run serially when Playwright is configured to run fully parallel
+setup.describe.configure({ mode: 'serial' })
 
 setup('global setup', async ({}) => {
-	await clerkSetup();
-	console.log('✅ Clerk testing token generated');
-});
+	await clerkSetup()
+	console.log('✅ Clerk testing token generated')
+})
 ```
 
 ### 3. Update playwright.config.ts
 
 ```typescript
-import { defineConfig, devices } from '@playwright/test';
+import { defineConfig, devices } from '@playwright/test'
 
 export default defineConfig({
-	// ... existing config
-	globalSetup: require.resolve('./global-setup'),
-	// ... rest of config
-});
+	testDir: './e2e',
+	// ... other config
+	projects: [
+		// Setup project runs first
+		{
+			name: 'setup',
+			testMatch: /global\.setup\.ts/,
+		},
+		// Browser projects depend on setup
+		{ name: 'chromium', use: { ...devices['Desktop Chrome'] }, dependencies: ['setup'] },
+		{ name: 'firefox', use: { ...devices['Desktop Firefox'] }, dependencies: ['setup'] },
+		{ name: 'webkit', use: { ...devices['Desktop Safari'] }, dependencies: ['setup'] },
+		{ name: 'mobile', use: { ...devices['iPhone 14'] }, dependencies: ['setup'] },
+	],
+})
 ```
 
 ### 4. Update e2e/fixtures/auth.ts
@@ -209,11 +226,11 @@ E2E_TEST_PASSWORD=your-test-password  # Password for e2e+clerk_test@example.com
 
 ## Files to Create
 
-- `global-setup.ts` - Clerk bot protection bypass
+- `e2e/global.setup.ts` - Clerk bot protection bypass (using Project Dependencies approach)
 
 ## Files to Modify
 
-- `playwright.config.ts` - Add globalSetup reference
+- `playwright.config.ts` - Add setup project and dependencies
 - `e2e/fixtures/auth.ts` - Add programmatic sign-in
 - `e2e/auth.spec.ts` - Update to use programmatic sign-in
 - `package.json` - Add @clerk/testing
