@@ -767,11 +767,15 @@ epics:
       - id: error-tracking
         name: Sentry Error Tracking
         file: monitoring/error-tracking.md
-        done: true
-        commit: 187288f
+        done: false
+        # original_commit: 187288f  # Implementation completed but tests failing
         complexity: medium
+        reason: "Sentry performance monitoring test failing - vi.fn() error"
+        failing_tests:
+          - src/lib/sentry.test.ts
         depends_on:
           - monitoring/health-check
+          - bugs/fix-sentry-tests
 
   dashboard:
     name: Dashboard UI
@@ -940,11 +944,18 @@ epics:
       - id: mock-browser-apis
         name: Mock Browser APIs in Test Environment
         file: testing/mock-browser-apis.md
-        done: true
-        commit: ad1dcdb
+        done: false
+        # original_commit: ad1dcdb  # Implementation completed but DOM setup broken
         complexity: low
+        reason: "DOM setup navigator property error blocking 4 test suites"
+        failing_tests:
+          - src/api/device-crud.integration.test.ts
+          - src/lib/tenant.integration.test.ts
+          - src/workers/invitation-expiry.test.ts
+          - src/lib/spark/client.test.ts
         depends_on:
           - testing/setup-vitest
+          - bugs/fix-dom-setup-navigator
       - id: reconcile-task-status
         name: Reconcile Task Status with Test Results
         file: testing/reconcile-task-status.md
@@ -1291,6 +1302,29 @@ epics:
         depends_on:
           - testing/fix-component-tests
           - bugs/fix-catalog-api-tests
+
+      - id: fix-dom-setup-navigator
+        name: Fix DOM Setup Navigator Read-Only Error
+        file: bugs/fix-dom-setup-navigator.md
+        done: false
+        complexity: low
+        failing_tests:
+          - src/api/device-crud.integration.test.ts
+          - src/lib/tenant.integration.test.ts
+          - src/workers/invitation-expiry.test.ts
+          - src/lib/spark/client.test.ts
+        depends_on:
+          - testing/setup-vitest
+
+      - id: fix-sentry-tests
+        name: Fix Sentry Performance Monitoring Tests
+        file: bugs/fix-sentry-tests.md
+        done: false
+        complexity: medium
+        failing_tests:
+          - src/lib/sentry.test.ts
+        depends_on:
+          - testing/setup-vitest
 
   workflow:
     name: Workflow & Process Improvements
