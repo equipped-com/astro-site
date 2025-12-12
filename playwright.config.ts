@@ -23,11 +23,47 @@ export default defineConfig({
 			screenshot: 'only-on-failure',
 		},
 		projects: [
-			// Standard multi-browser projects; Clerk is configured via globalSetup
-			{ name: 'chromium', use: { ...devices['Desktop Chrome'] } },
-			{ name: 'firefox', use: { ...devices['Desktop Firefox'] } },
-			{ name: 'webkit', use: { ...devices['Desktop Safari'] } },
-			{ name: 'mobile', use: { ...devices['iPhone 14'] } },
+			// Setup project - runs first and saves authentication state
+			// @REQ-STATE-001 - Setup project authenticates and saves state
+			{
+				name: 'setup',
+				testMatch: /.*\.setup\.ts/,
+			},
+
+			// Test projects - reuse authentication state from setup
+			// @REQ-STATE-002 - Test projects reuse authentication state
+			{
+				name: 'chromium',
+				use: {
+					...devices['Desktop Chrome'],
+					storageState: 'playwright/.clerk/user.json',
+				},
+				dependencies: ['setup'],
+			},
+			{
+				name: 'firefox',
+				use: {
+					...devices['Desktop Firefox'],
+					storageState: 'playwright/.clerk/user.json',
+				},
+				dependencies: ['setup'],
+			},
+			{
+				name: 'webkit',
+				use: {
+					...devices['Desktop Safari'],
+					storageState: 'playwright/.clerk/user.json',
+				},
+				dependencies: ['setup'],
+			},
+			{
+				name: 'mobile',
+				use: {
+					...devices['iPhone 14'],
+					storageState: 'playwright/.clerk/user.json',
+				},
+				dependencies: ['setup'],
+			},
 		],
 		webServer: {
 			command: 'bun run dev',

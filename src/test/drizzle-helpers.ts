@@ -86,9 +86,8 @@ export async function seedTestData(db: ReturnType<typeof createTestDatabase>) {
 	await db.insert(schema.accounts).values({
 		id: 'acct_test_primary',
 		name: 'Test Account',
-		subdomain: 'test',
-		ownerId: 'user_test_alice',
-		subscriptionStatus: 'active',
+		shortName: 'test',
+		billingEmail: 'billing@example.com',
 	})
 
 	// Insert test account access

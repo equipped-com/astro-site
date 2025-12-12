@@ -14,6 +14,28 @@ export default defineConfig(
 			env: testEnv,
 			globals: true,
 			environment: 'happy-dom',
+			environmentOptions: {
+				happyDOM: {
+					settings: {
+						disableJavaScriptEvaluation: false,
+						disableJavaScriptFileLoading: false,
+						disableCSSFileLoading: false,
+						disableIframePageLoading: false,
+						disableComputedStyleRendering: false,
+						enableFileSystemHttpRequests: false,
+						navigator: {
+							userAgent:
+								'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+						},
+						device: {
+							prefersColorScheme: 'light',
+						},
+					},
+					url: 'http://localhost:3000',
+					width: 1024,
+					height: 768,
+				},
+			},
 			setupFiles: ['./src/test/setup.ts', './src/test/dom-setup.ts'],
 			coverage: {
 				provider: 'v8',

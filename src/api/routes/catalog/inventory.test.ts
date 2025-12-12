@@ -11,8 +11,11 @@
  */
 
 import { Hono } from 'hono'
-import { beforeEach, describe, expect, test, vi } from 'vitest'
+import { beforeEach, describe, expect, test } from 'vitest'
 import inventoryRouter from './inventory'
+import { createTestDatabase, seedTestData } from '@/test/drizzle-helpers'
+import * as schema from '@/db/schema'
+import type { D1Database } from '@miniflare/d1'
 
 // Mock types
 interface MockEnv {
@@ -20,9 +23,11 @@ interface MockEnv {
 	CLERK_SECRET_KEY: string
 }
 
-// Helper to create test app with mocked DB and context
+let db: ReturnType<typeof createTestDatabase>
+let dbBinding: D1Database
+
+// Helper to create test app with real database and context
 function createTestApp(
-	mockDb: D1Database,
 	options: {
 		isSysAdmin?: boolean
 		userId?: string
@@ -48,7 +53,7 @@ function createTestApp(
 
 	app.use('*', async (c, next) => {
 		// @ts-expect-error - mocking env
-		c.env = { DB: mockDb, CLERK_SECRET_KEY: 'test_secret' }
+		c.env = { DB: dbBinding, CLERK_SECRET_KEY: 'test_secret' }
 		c.set('userId', userId)
 		c.set('sessionId', 'session_123')
 

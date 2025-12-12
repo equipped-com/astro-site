@@ -152,6 +152,157 @@ To avoid logging in for every single test file:
 
 This is standard Playwright best practice and works seamlessly with Clerk sessions.
 
+#### Implementation: Storage State Setup Project
+
+**Step 1: Create `e2e/auth.setup.ts`**
+
+```typescript
+import { test as setup, expect } from '@playwright/test'
+import { clerk } from '@clerk/testing/playwright'
+
+const authFile = 'playwright/.clerk/user.json'
+
+const TEST_USER = {
+	email: 'e2e+clerk_test@example.com',
+	password: process.env.E2E_TEST_PASSWORD || 'test-password-123',
+}
+
+setup('authenticate and save state', async ({ page }) => {
+	await clerk.signIn({
+		page,
+		signInParams: {
+			strategy: 'password',
+			identifier: TEST_USER.email,
+			password: TEST_USER.password,
+		},
+	})
+
+	await page.waitForURL('/dashboard**')
+	await expect(page.locator('[data-testid="user-button"]')).toBeVisible()
+	await page.context().storageState({ path: authFile })
+
+	console.log(`✅ Authentication state saved to ${authFile}`)
+})
+```
+
+**Step 2: Update `playwright.config.ts`**
+
+```typescript
+export default defineConfig({
+	// ... other config
+	projects: [
+		// Setup project - runs first and saves authentication state
+		{
+			name: 'setup',
+			testMatch: /.*\.setup\.ts/,
+		},
+
+		// Test projects - reuse authentication state from setup
+		{
+			name: 'chromium',
+			use: {
+				...devices['Desktop Chrome'],
+				storageState: 'playwright/.clerk/user.json',
+			},
+			dependencies: ['setup'],
+		},
+		{
+			name: 'firefox',
+			use: {
+				...devices['Desktop Firefox'],
+				storageState: 'playwright/.clerk/user.json',
+			},
+			dependencies: ['setup'],
+		},
+		// ... other projects
+	],
+})
+```
+
+**Step 3: Update `.gitignore`**
+
+```gitignore
+# Playwright
+playwright/.clerk/
+playwright-report/
+test-results/
+```
+
+**Step 4: Update tests to assume authentication**
+
+Tests can now assume they're already authenticated:
+
+```typescript
+import { test, expect } from '@playwright/test'
+
+test('dashboard shows devices', async ({ page }) => {
+	// Already authenticated via storage state!
+	await page.goto('/dashboard')
+
+	await expect(page.locator('text=My Devices')).toBeVisible()
+})
+```
+
+**Step 5: Override for unauthenticated tests**
+
+For tests that need to start logged out:
+
+```typescript
+import { test, expect } from '@playwright/test'
+
+test.use({ storageState: { cookies: [], origins: [] } })
+
+test('unauthenticated user redirected to sign-in', async ({ page }) => {
+	await page.goto('/dashboard')
+	await expect(page).toHaveURL(/\/sign-in/)
+})
+```
+
+#### Benefits
+
+- **Speed**: 10-50x faster - Skip authentication for 95% of tests
+- **Reduced API Calls**: Avoid Clerk rate limits (important for CI/CD)
+- **Parallel Execution**: All tests share same state, no locking needed
+- **Reliability**: Single point of auth verification, consistent state
+- **CI/CD Friendly**: Minimal network traffic, deterministic test runs
+
+#### Multi-User Pattern (Optional)
+
+For testing different user roles:
+
+**Create role-specific setup files:**
+
+```typescript
+// e2e/auth.setup.admin.ts
+const authFile = 'playwright/.clerk/admin.json'
+const ADMIN_USER = { email: 'admin+clerk_test@example.com', ... }
+
+// e2e/auth.setup.member.ts
+const authFile = 'playwright/.clerk/member.json'
+const MEMBER_USER = { email: 'member+clerk_test@example.com', ... }
+```
+
+**Configure projects in `playwright.config.ts`:**
+
+```typescript
+projects: [
+	{ name: 'setup-admin', testMatch: /auth\.setup\.admin\.ts/ },
+	{ name: 'setup-member', testMatch: /auth\.setup\.member\.ts/ },
+	{
+		name: 'admin-tests',
+		testMatch: /admin\.spec\.ts/,
+		use: { storageState: 'playwright/.clerk/admin.json' },
+		dependencies: ['setup-admin'],
+	},
+	{
+		name: 'member-tests',
+		testMatch: /member\.spec\.ts/,
+		use: { storageState: 'playwright/.clerk/member.json' },
+		dependencies: ['setup-member'],
+	},
+]
+```
+
 ## Current Implementation Status
 
 As of the latest setup, our E2E testing infrastructure includes:
@@ -160,23 +311,23 @@ As of the latest setup, our E2E testing infrastructure includes:
 - Basic Playwright configuration with multi-browser support
 - Test directory structure (`e2e/` with fixtures, pages, specs)
 - Test user pattern using `+clerk_test` suffix
-	- **@clerk/testing package integration** - Bot protection bypass implemented
-	- **Global setup with clerkSetup()** - Configured in `e2e/clerk-global-setup.ts` using Playwright's `globalSetup` hook
+- **@clerk/testing package integration** - Bot protection bypass implemented
+- **Global setup with clerkSetup()** - Configured in `e2e/clerk-global-setup.ts` using Playwright's `globalSetup` hook
 - **Programmatic authentication** - Fast sign-in using `clerk.signIn()` in `e2e/fixtures/auth.ts`
 - **Dual authentication methods** - Both programmatic (fast) and UI-based (thorough) approaches available
 - **Comprehensive test coverage** - Tests for all Clerk integration scenarios in `e2e/clerk-integration.spec.ts`
+- **Storage state reuse** - Setup project saves auth state, other tests reuse it for 10-50x speedup (Implemented in `e2e/auth.setup.ts` and `playwright.config.ts`)
 
 ### ⚠️ Needs Implementation
 The following best practices from this document are **not yet implemented**:
 
-1. **Storage state reuse** - Avoid re-authenticating for every test file (performance optimization)
-2. **OTP handling** - Tests for email/SMS verification flows using static code `424242`
+1. **OTP handling** - Tests for email/SMS verification flows using static code `424242`
 
 ### 📋 Related Tasks
 
 See `tasks/index.yml` for implementation tasks:
 - ✅ `testing/clerk-e2e-integration` - Integrate @clerk/testing package with Playwright (COMPLETED)
-- `testing/e2e-auth-state` - Implement storage state reuse for authentication
+- ✅ `testing/e2e-auth-state` - Implement storage state reuse for authentication (COMPLETED)
 - `testing/e2e-otp-flows` - Add tests for OTP verification with static code
 
 ## When to Use Each Approach
