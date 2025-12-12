@@ -354,12 +354,9 @@ epics:
       - id: invitation-ui
         name: Invitation UI Components
         file: invitations/invitation-ui.md
-        done: false
-        # original_commit: 654a9b6  # Implementation completed but tests failing
+        done: true
+        commit: 654a9b6
         complexity: medium
-        reason: "9 tests failing + 4 unhandled errors - confirm() not mocked, components not rendering"
-        failing_tests:
-          - src/components/settings/PendingInvitations.test.tsx
         depends_on:
           - invitations/invitation-api
           - settings/team-access
@@ -1205,7 +1202,8 @@ epics:
       - id: fix-invitation-ui-confirm
         name: Fix Invitation UI confirm() Error
         file: bugs/fix-invitation-ui-confirm.md
-        done: false
+        done: true
+        commit: 0ca7ce0
         complexity: low
         depends_on:
           - testing/mock-browser-apis
