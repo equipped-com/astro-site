@@ -767,12 +767,9 @@ epics:
       - id: error-tracking
         name: Sentry Error Tracking
         file: monitoring/error-tracking.md
-        done: false
-        # original_commit: 187288f  # Implementation completed but tests failing
+        done: true
+        commit: 187288f  # Original implementation
         complexity: medium
-        reason: "Sentry performance monitoring test failing - vi.fn() error"
-        failing_tests:
-          - src/lib/sentry.test.ts
         depends_on:
           - monitoring/health-check
           - bugs/fix-sentry-tests
@@ -1309,7 +1306,8 @@ epics:
       - id: fix-sentry-tests
         name: Fix Sentry Performance Monitoring Tests
         file: bugs/fix-sentry-tests.md
-        done: false
+        done: true
+        commit: 49fd7ec
         complexity: medium
         failing_tests:
           - src/lib/sentry.test.ts
