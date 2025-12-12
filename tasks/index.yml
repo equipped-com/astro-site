@@ -1068,7 +1068,8 @@ epics:
       - id: exclude-e2e-from-vitest
         name: Exclude Playwright E2E Tests from Vitest (3 failures)
         file: bugs/exclude-e2e-from-vitest.md
-        done: false
+        done: true
+        commit: 9084bed
         complexity: low
         depends_on:
           - testing/setup-playwright
