@@ -5,8 +5,8 @@
  * Validates that the schema migration properly renamed organization_id to account_id
  */
 
-import { describe, it, expect, beforeEach } from 'vitest'
 import { getTableConfig } from 'drizzle-orm/sqlite-core'
+import { beforeEach, describe, expect, it } from 'vitest'
 import { auditLog, type NewAuditLogEntry } from './schema'
 
 // Get table configuration using Drizzle's public API
@@ -93,15 +93,7 @@ describe('Audit Log Integration Tests', () => {
 		})
 
 		it('should preserve all required columns', () => {
-			const requiredColumns = [
-				'id',
-				'account_id',
-				'user_id',
-				'action',
-				'entity_type',
-				'entity_id',
-				'created_at',
-			]
+			const requiredColumns = ['id', 'account_id', 'user_id', 'action', 'entity_type', 'entity_id', 'created_at']
 			for (const col of requiredColumns) {
 				expect(columnNames).toContain(col)
 			}

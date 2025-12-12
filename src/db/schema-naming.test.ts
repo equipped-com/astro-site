@@ -13,8 +13,8 @@
  * - @REQ-SCHEMA-004 @Query: Queries work with new column name
  */
 
-import { describe, it, expect } from 'vitest'
 import { getTableConfig } from 'drizzle-orm/sqlite-core'
+import { describe, expect, it } from 'vitest'
 import { auditLog } from './schema'
 
 // Get table configuration using Drizzle's public API
