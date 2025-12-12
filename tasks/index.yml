@@ -422,12 +422,9 @@ epics:
       - id: catalog-schema
         name: Product Catalog Schema Migration
         file: catalog/catalog-schema.md
-        done: false
-        # original_commit: 0b87d74  # Implementation completed but tests failing
+        done: true
+        commit: 1a830f8
         complexity: medium
-        reason: "20 schema tests failing - test database setup broken"
-        failing_tests:
-          - src/db/catalog-schema.test.ts
         depends_on:
           - database/initial-schema
           - bugs/fix-catalog-schema-tests
@@ -1211,7 +1208,8 @@ epics:
       - id: fix-catalog-schema-tests
         name: Fix Catalog Schema Test Database Setup
         file: bugs/fix-catalog-schema-tests.md
-        done: false
+        done: true
+        commit: 1a830f8
         complexity: medium
         depends_on:
           - testing/fix-drizzle-mocking

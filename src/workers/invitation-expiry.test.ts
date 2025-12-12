@@ -444,11 +444,13 @@ describe('Invitation Expiry Worker', () => {
 		it('should include inviter information in logs for notification', async () => {
 			// Given: Multiple expired invitations
 			await seedTestInvitation(db, {
-				id: 'inv_001',
+				id: 'inv_multi_001',
+				email: 'user1@example.com',
 				expiresAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
 			})
 			await seedTestInvitation(db, {
-				id: 'inv_002',
+				id: 'inv_multi_002',
+				email: 'user2@example.com',
 				expiresAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
 			})
 
@@ -463,8 +465,8 @@ describe('Invitation Expiry Worker', () => {
 
 			// Then: Both invitations should be logged with inviter details
 			expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('Found 2 expired invitations'))
-			expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('inv_001'))
-			expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('inv_002'))
+			expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('inv_multi_001'))
+			expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('inv_multi_002'))
 		})
 	})
 
@@ -482,15 +484,18 @@ describe('Invitation Expiry Worker', () => {
 		it('should log number of expired invitations found', async () => {
 			// Given: 3 expired invitations
 			await seedTestInvitation(db, {
-				id: 'inv_1',
+				id: 'inv_log_1',
+				email: 'log1@example.com',
 				expiresAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
 			})
 			await seedTestInvitation(db, {
-				id: 'inv_2',
+				id: 'inv_log_2',
+				email: 'log2@example.com',
 				expiresAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
 			})
 			await seedTestInvitation(db, {
-				id: 'inv_3',
+				id: 'inv_log_3',
+				email: 'log3@example.com',
 				expiresAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
 			})
 

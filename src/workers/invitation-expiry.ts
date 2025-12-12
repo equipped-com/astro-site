@@ -77,7 +77,7 @@ export default {
 
 					console.log(
 						`  - ID: ${invitation.id}, Email: ${invitation.email}, Account: ${invitation.accountId}, ` +
-						`Expired: ${daysExpired} days ago (sent: ${sentDate.toISOString().split('T')[0]})`,
+							`Expired: ${daysExpired} days ago (sent: ${sentDate.toISOString().split('T')[0]})`,
 					)
 				}
 
