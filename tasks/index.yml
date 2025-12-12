@@ -944,15 +944,9 @@ epics:
       - id: mock-browser-apis
         name: Mock Browser APIs in Test Environment
         file: testing/mock-browser-apis.md
-        done: false
-        # original_commit: ad1dcdb  # Implementation completed but DOM setup broken
+        done: true
+        commit: 013c0b6
         complexity: low
-        reason: "DOM setup navigator property error blocking 4 test suites"
-        failing_tests:
-          - src/api/device-crud.integration.test.ts
-          - src/lib/tenant.integration.test.ts
-          - src/workers/invitation-expiry.test.ts
-          - src/lib/spark/client.test.ts
         depends_on:
           - testing/setup-vitest
           - bugs/fix-dom-setup-navigator
@@ -1306,13 +1300,9 @@ epics:
       - id: fix-dom-setup-navigator
         name: Fix DOM Setup Navigator Read-Only Error
         file: bugs/fix-dom-setup-navigator.md
-        done: false
+        done: true
+        commit: 013c0b6
         complexity: low
-        failing_tests:
-          - src/api/device-crud.integration.test.ts
-          - src/lib/tenant.integration.test.ts
-          - src/workers/invitation-expiry.test.ts
-          - src/lib/spark/client.test.ts
         depends_on:
           - testing/setup-vitest
 
