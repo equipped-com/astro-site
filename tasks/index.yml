@@ -863,6 +863,13 @@ epics:
         complexity: medium
         depends_on:
           - testing/clerk-e2e-integration
+      - id: fix-drizzle-mocking
+        name: Fix Drizzle ORM Test Mocking
+        file: testing/fix-drizzle-mocking.md
+        done: false
+        complexity: medium
+        depends_on:
+          - testing/setup-vitest
 
   integrations:
     name: External Integrations
@@ -1041,3 +1048,48 @@ epics:
         commit: 07a66d7
         complexity: low
         depends_on: []
+
+  workflow:
+    name: Workflow & Process Improvements
+    description: Development processes, automation, and decision frameworks
+    priority: medium
+    tasks:
+      - id: prd-preparation
+        name: PRD Preparation Checklist
+        file: workflow/prd-preparation.md
+        done: false
+        complexity: low
+        depends_on: []
+      - id: task-generation
+        name: Automated Task Generation from PRD
+        file: workflow/task-generation.md
+        done: false
+        complexity: medium
+        depends_on:
+          - workflow/prd-preparation
+      - id: dependency-validation
+        name: Enhanced Task Dependency Validation
+        file: workflow/dependency-validation.md
+        done: false
+        complexity: low
+        depends_on:
+          - workflow/task-generation
+      - id: testing-strategy
+        name: Testing Strategy Decision Tree
+        file: workflow/testing-strategy.md
+        done: false
+        complexity: low
+        depends_on: []
+      - id: rollback-procedures
+        name: Rollback and Recovery Runbook
+        file: workflow/rollback-procedures.md
+        done: false
+        complexity: medium
+        depends_on: []
+      - id: synthetic-isolation
+        name: Synthetic Test Data Isolation Patterns
+        file: workflow/synthetic-isolation.md
+        done: false
+        complexity: medium
+        depends_on:
+          - workflow/testing-strategy
