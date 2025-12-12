@@ -18,7 +18,14 @@ const window = new Window({ url: 'http://localhost:3000' })
 // Populate global scope with DOM APIs
 globalThis.window = window as any
 globalThis.document = window.document as any
-globalThis.navigator = window.navigator as any
+
+// Use Object.defineProperty for read-only properties
+Object.defineProperty(globalThis, 'navigator', {
+	value: window.navigator,
+	writable: true,
+	configurable: true
+})
+
 globalThis.localStorage = window.localStorage as any
 globalThis.sessionStorage = window.sessionStorage as any
 globalThis.HTMLElement = window.HTMLElement as any
