@@ -261,6 +261,7 @@ epics:
           - src/db/audit-log.integration.test.ts
         depends_on:
           - database/initial-schema
+          - bugs/fix-schema-naming-tests
 
   multi-tenancy:
     name: Multi-Tenancy Architecture
@@ -362,6 +363,7 @@ epics:
         depends_on:
           - invitations/invitation-api
           - settings/team-access
+          - bugs/fix-invitation-ui-confirm
       - id: invitation-emails
         name: Invitation Email Templates
         file: invitations/invitation-emails.md
@@ -381,6 +383,7 @@ epics:
           - src/workers/invitation-expiry.test.ts
         depends_on:
           - invitations/invitations-schema
+          - bugs/fix-worker-tests
 
   multi-account:
     name: Multi-Account Access
@@ -430,6 +433,7 @@ epics:
           - src/db/catalog-schema.test.ts
         depends_on:
           - database/initial-schema
+          - bugs/fix-catalog-schema-tests
       - id: catalog-seed-data
         name: Seed Brands and Products
         file: catalog/catalog-seed-data.md
@@ -452,6 +456,7 @@ epics:
         depends_on:
           - catalog/catalog-schema
           - api/auth-middleware
+          - bugs/fix-catalog-api-tests
       - id: catalog-admin-ui
         name: Catalog Admin UI (Sys Admin Only)
         file: catalog/catalog-admin-ui.md
@@ -466,6 +471,7 @@ epics:
         depends_on:
           - catalog/catalog-api
           - sysadmin/admin-dashboard
+          - bugs/fix-catalog-admin-tests
 
   api:
     name: API Layer
@@ -511,6 +517,7 @@ epics:
           - src/api/routes/user.test.ts
         depends_on:
           - api/auth-middleware
+          - bugs/fix-user-api-tests
 
   commerce:
     name: Commerce & Checkout
@@ -528,6 +535,7 @@ epics:
           - src/components/cart/Cart.test.tsx
         depends_on:
           - api/auth-middleware
+          - bugs/fix-cart-tests
       - id: checkout-assignment
         name: "Checkout Stage 1: Assignment"
         file: commerce/checkout-assignment.md
@@ -663,6 +671,7 @@ epics:
           - src/components/trade-in/ValueAdjustmentModal.test.tsx
         depends_on:
           - trade-in/device-valuation
+          - bugs/fix-trade-in-tests
 
   fleet:
     name: Fleet Management
@@ -710,6 +719,7 @@ epics:
           - src/components/settings/TeamAccessManager.test.tsx
         depends_on:
           - settings/organization-settings
+          - bugs/fix-team-access-rendering
 
   sysadmin:
     name: Sys Admin Tools
@@ -739,6 +749,7 @@ epics:
         depends_on:
           - sysadmin/admin-dashboard
           - api/auth-middleware
+          - bugs/fix-impersonation-tests
 
   monitoring:
     name: Monitoring & Observability
@@ -797,6 +808,7 @@ epics:
         depends_on:
           - dashboard/dashboard-layout
           - api/device-crud
+          - bugs/fix-dashboard-tests
       - id: loading-states
         name: Loading States
         file: dashboard/loading-states.md
@@ -1174,6 +1186,108 @@ epics:
         complexity: low
         depends_on:
           - testing/setup-playwright
+
+      # Test failure bug fixes (from testing/generate-bug-fix-tasks)
+      - id: fix-team-access-rendering
+        name: Fix Team Access Component Rendering
+        file: bugs/fix-team-access-rendering.md
+        done: false
+        complexity: medium
+        depends_on:
+          - testing/mock-browser-apis
+          - testing/fix-component-tests
+
+      - id: fix-invitation-ui-confirm
+        name: Fix Invitation UI confirm() Error
+        file: bugs/fix-invitation-ui-confirm.md
+        done: false
+        complexity: low
+        depends_on:
+          - testing/mock-browser-apis
+
+      - id: fix-catalog-schema-tests
+        name: Fix Catalog Schema Test Database Setup
+        file: bugs/fix-catalog-schema-tests.md
+        done: false
+        complexity: medium
+        depends_on:
+          - testing/fix-drizzle-mocking
+          - testing/fix-database-tests
+
+      - id: fix-catalog-api-tests
+        name: Fix Catalog API Endpoint Tests
+        file: bugs/fix-catalog-api-tests.md
+        done: false
+        complexity: medium
+        depends_on:
+          - bugs/fix-catalog-schema-tests
+          - testing/fix-api-tests
+
+      - id: fix-schema-naming-tests
+        name: Fix Schema Naming Test Failures
+        file: bugs/fix-schema-naming-tests.md
+        done: false
+        complexity: medium
+        depends_on:
+          - testing/fix-database-tests
+
+      - id: fix-impersonation-tests
+        name: Fix Customer Impersonation Test Failures
+        file: bugs/fix-impersonation-tests.md
+        done: false
+        complexity: high
+        depends_on:
+          - testing/fix-component-tests
+          - testing/fix-api-tests
+
+      - id: fix-user-api-tests
+        name: Fix User API Endpoint Tests
+        file: bugs/fix-user-api-tests.md
+        done: false
+        complexity: medium
+        depends_on:
+          - testing/fix-api-tests
+
+      - id: fix-cart-tests
+        name: Fix Cart Management Tests
+        file: bugs/fix-cart-tests.md
+        done: false
+        complexity: medium
+        depends_on:
+          - testing/fix-component-tests
+
+      - id: fix-worker-tests
+        name: Fix Invitation Expiry Worker Tests
+        file: bugs/fix-worker-tests.md
+        done: false
+        complexity: medium
+        depends_on:
+          - testing/setup-vitest
+
+      - id: fix-dashboard-tests
+        name: Fix Dashboard Component Tests
+        file: bugs/fix-dashboard-tests.md
+        done: false
+        complexity: medium
+        depends_on:
+          - testing/fix-component-tests
+
+      - id: fix-trade-in-tests
+        name: Fix Trade-In Component Tests
+        file: bugs/fix-trade-in-tests.md
+        done: false
+        complexity: medium
+        depends_on:
+          - testing/fix-component-tests
+
+      - id: fix-catalog-admin-tests
+        name: Fix Catalog Admin UI Tests
+        file: bugs/fix-catalog-admin-tests.md
+        done: false
+        complexity: medium
+        depends_on:
+          - testing/fix-component-tests
+          - bugs/fix-catalog-api-tests
 
   workflow:
     name: Workflow & Process Improvements
