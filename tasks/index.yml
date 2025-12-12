@@ -955,7 +955,8 @@ epics:
       - id: fix-component-tests
         name: Fix Failing Component Tests
         file: testing/fix-component-tests.md
-        done: false
+        done: true
+        commit: 97bcefe
         complexity: high
         depends_on:
           - testing/mock-browser-apis
