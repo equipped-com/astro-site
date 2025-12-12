@@ -414,6 +414,31 @@ test('sign-in shows error for invalid password', async ({ page }) => {
 
 Most test suites should aim for 95% programmatic, 5% UI-based tests.
 
+## Synthetic Data Isolation
+
+All E2E test accounts MUST use synthetic data conventions to prevent test data from polluting production analytics:
+
+- **Email domain**: `@test.tryequipped.com`
+- **Subdomain prefix**: `test-*` (e.g., `test-e2e.tryequipped.com`)
+- **Database flag**: `is_synthetic = 1`
+
+When creating test accounts in E2E tests, ensure they follow these conventions:
+
+```typescript
+const TEST_ACCOUNTS = {
+	default: {
+		email: 'test+e2e-default@test.tryequipped.com',
+		password: process.env.E2E_TEST_PASSWORD,
+		subdomain: 'test-e2e',
+		is_synthetic: true,
+	},
+};
+```
+
+**Note**: Clerk's `+clerk_test` suffix works for Clerk's test mode, but for production-like testing where we want to isolate from analytics, use `@test.tryequipped.com` domain instead.
+
+See `documentation/synthetic-data-guidelines.md` for complete isolation patterns and best practices.
+
 ## References
 
 - [Clerk Guide: Test emails and phones](https://clerk.com/docs/guides/development/testing/test-emails-and-phones)
@@ -421,3 +446,4 @@ Most test suites should aim for 95% programmatic, 5% UI-based tests.
 - **Internal**: tasks/testing/setup-playwright.md
 - **Internal**: tasks/testing/clerk-e2e-integration.md
 - **Internal**: PRD.md Section 13 (E2E Testing Requirements)
+- **Internal**: documentation/synthetic-data-guidelines.md (Synthetic Data Isolation)
