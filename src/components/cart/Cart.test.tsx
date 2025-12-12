@@ -173,7 +173,7 @@ describe('Cart Component', () => {
 			expect(screen.getByText('Subtotal')).toBeInTheDocument()
 			expect(screen.getAllByText(/2,?798\.00/).length).toBeGreaterThan(0)
 			expect(screen.getByText('Shipping')).toBeInTheDocument()
-			expect(screen.getByText('Calculated at checkout')).toBeInTheDocument()
+			expect(screen.getAllByText('Calculated at checkout').length).toBe(2) // Shipping and Taxes
 			expect(screen.getByText('Taxes')).toBeInTheDocument()
 		})
 	})
@@ -222,7 +222,7 @@ describe('Cart Component', () => {
 
 			// Should show discount applied
 			await waitFor(() => {
-				expect(screen.getByText(/FIRST10/i)).toBeInTheDocument()
+				expect(screen.getByText(/Discount \(FIRST10\)/i)).toBeInTheDocument()
 			})
 		})
 

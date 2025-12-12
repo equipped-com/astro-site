@@ -13,8 +13,8 @@ import { createTestDatabase, seedTestData, seedTestInvitation } from '@/test/dri
 import worker, { getInvitationStatus } from './invitation-expiry'
 
 // Mock console methods to capture logs
-const mockConsoleLog = vi.spyOn(console, 'log').mockImplementation(() => {})
-const mockConsoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
+let mockConsoleLog: ReturnType<typeof vi.spyOn>
+let mockConsoleError: ReturnType<typeof vi.spyOn>
 
 // Mock environment
 interface MockEnv {
@@ -33,9 +33,13 @@ describe('Invitation Expiry Worker', () => {
 	let dbBinding: D1Database
 
 	beforeEach(async () => {
+		// Reset mocks
 		vi.clearAllMocks()
-		mockConsoleLog.mockClear()
-		mockConsoleError.mockClear()
+
+		// Create fresh spies for each test
+		mockConsoleLog = vi.spyOn(console, 'log')
+		mockConsoleError = vi.spyOn(console, 'error')
+
 		// Create fresh database for each test
 		const dbResult = createTestDatabase()
 		db = dbResult.db
