@@ -74,6 +74,7 @@
 	"devDependencies": {
 		"@astrojs/check": "^0.9.6",
 		"@biomejs/biome": "^2.3.8",
+		"@clerk/testing": "^1.4.18",
 		"@cloudflare/workers-types": "^4.20251205.0",
 		"@playwright/test": "^1.57.0",
 		"@testing-library/jest-dom": "^6.9.1",

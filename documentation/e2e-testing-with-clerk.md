@@ -137,11 +137,12 @@ As of the latest setup, our E2E testing infrastructure includes:
 - Basic Playwright configuration with multi-browser support
 - Test directory structure (`e2e/` with fixtures, pages, specs)
 - Test user pattern using `+clerk_test` suffix
-- **@clerk/testing package integration** - Bot protection bypass implemented
+- **@clerk/testing package v1.4.18** - Installed and configured in package.json
 - **Global setup with clerkSetup()** - Configured in `global-setup.ts`
 - **Programmatic authentication** - Fast sign-in using `clerk.signIn()` in `e2e/fixtures/auth.ts`
 - **Dual authentication methods** - Both programmatic (fast) and UI-based (thorough) approaches available
 - **Comprehensive test coverage** - Tests for all Clerk integration scenarios in `e2e/clerk-integration.spec.ts`
+- **Environment variables documented** - CLERK_PUBLISHABLE_KEY, CLERK_SECRET_KEY, E2E_TEST_PASSWORD in `.env.example`
 
 ### ⚠️ Needs Implementation
 The following best practices from this document are **not yet implemented**:
@@ -153,8 +154,8 @@ The following best practices from this document are **not yet implemented**:
 
 See `tasks/index.yml` for implementation tasks:
 - ✅ `testing/clerk-e2e-integration` - Integrate @clerk/testing package with Playwright (COMPLETED)
-- `testing/e2e-auth-state` - Implement storage state reuse for authentication
-- `testing/e2e-otp-flows` - Add tests for OTP verification with static code
+- ⏳ `testing/e2e-auth-state` - Implement storage state reuse for authentication
+- ⏳ `testing/e2e-otp-flows` - Add tests for OTP verification with static code
 
 ## When to Use Each Approach
 
