@@ -243,10 +243,7 @@ export class InvitationService {
 	/**
 	 * Accept an invitation
 	 */
-	async acceptInvitation(
-		invitationId: string,
-		acceptingUserId: string,
-	): Promise<AcceptInvitationResult> {
+	async acceptInvitation(invitationId: string, acceptingUserId: string): Promise<AcceptInvitationResult> {
 		// Get the invitation
 		const invitation = await this.getInvitationById(invitationId)
 
@@ -353,10 +350,7 @@ export class InvitationService {
 	/**
 	 * Revoke an invitation (admin/owner only)
 	 */
-	async revokeInvitation(
-		invitationId: string,
-		accountId: string,
-	): Promise<{ success: boolean; error?: string }> {
+	async revokeInvitation(invitationId: string, accountId: string): Promise<{ success: boolean; error?: string }> {
 		const invitation = await this.getInvitationById(invitationId)
 
 		if (!invitation) {

@@ -82,6 +82,32 @@ This ensures `package.json` and `bun.lock` stay in sync and prevents version con
 - **STREAMING FOR LARGE DATA**: Use streaming patterns instead of accumulating arrays in memory
 - **COMMENTS ONLY FOR COMPLEXITY**: Use clear variable/function names; add comments only where logic isn't self-evident
 
+## Biome Linting - CRITICAL
+
+When Biome reports lint errors:
+
+1. **DO NOT run `biome check` repeatedly** - this only reports errors
+2. **Apply fixes immediately**:
+   ```bash
+   bunx biome check --write <files>           # Safe fixes
+   bunx biome check --write --unsafe <files>  # All fixes (use when safe)
+   ```
+3. **If stuck in a check loop** - STOP and apply fixes instead of checking again
+
+**Common pattern to avoid**:
+```bash
+bunx biome check file.ts  # Reports errors
+bunx biome check file.ts  # Still has errors (no progress!)
+bunx biome check file.ts  # Infinite loop...
+```
+
+**Correct pattern**:
+```bash
+bunx biome check file.ts                   # Identify errors
+bunx biome check --write --unsafe file.ts  # Fix them
+bunx biome check file.ts                   # Verify clean
+```
+
 ## Testing Strategy - MANDATORY
 
 **Tests are NOT optional. All code must be tested.**

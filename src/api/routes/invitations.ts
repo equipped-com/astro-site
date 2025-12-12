@@ -13,14 +13,10 @@
  */
 
 import { Hono } from 'hono'
-import {
-	formatInvitationResponse,
-	InvitationService,
-	isValidRole,
-} from '@/lib/invitations'
-import { getRole, getUser, requireAccountAccess, requireAuth, type Role } from '../middleware/auth'
-import { requireTenant } from '../middleware/tenant'
+import { formatInvitationResponse, InvitationService, isValidRole } from '@/lib/invitations'
 import { getTenantContext, tryGetTenantContext } from '@/lib/tenant-context'
+import { getRole, getUser, type Role, requireAccountAccess, requireAuth } from '../middleware/auth'
+import { requireTenant } from '../middleware/tenant'
 
 const invitations = new Hono<{ Bindings: Env }>()
 
@@ -111,10 +107,10 @@ invitations.post('/', requireTenant(), requireAccountAccess(), async c => {
 
 	return c.json(
 		{
-			id: result.invitation!.id,
-			email: result.invitation!.email,
-			role: result.invitation!.role,
-			expires_at: result.invitation!.expires_at,
+			id: result.invitation?.id,
+			email: result.invitation?.email,
+			role: result.invitation?.role,
+			expires_at: result.invitation?.expires_at,
 		},
 		201,
 	)
