@@ -1256,7 +1256,8 @@ epics:
       - id: fix-cart-tests
         name: Fix Cart Management Tests
         file: bugs/fix-cart-tests.md
-        done: false
+        done: true
+        commit: 5a5d8ad
         complexity: medium
         depends_on:
           - testing/fix-component-tests
@@ -1264,7 +1265,8 @@ epics:
       - id: fix-worker-tests
         name: Fix Invitation Expiry Worker Tests
         file: bugs/fix-worker-tests.md
-        done: false
+        done: true
+        commit: 5a5d8ad
         complexity: medium
         depends_on:
           - testing/setup-vitest
