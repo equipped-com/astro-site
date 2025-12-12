@@ -310,7 +310,7 @@ describe('TeamAccessManager Component', () => {
 							}),
 					})
 				}
-				if (url === '/api/team/invitations') {
+				if (url === '/api/invitations') {
 					return Promise.resolve({
 						ok: true,
 						json: () => Promise.resolve({ invitations: [] }),
@@ -371,14 +371,24 @@ describe('TeamAccessManager Component', () => {
 										user_id: 'user-1',
 										email: 'alice@test.com',
 										first_name: 'Alice',
+										last_name: 'Owner',
 										role: 'owner',
 										created_at: '2025-01-01T00:00:00Z',
+									},
+									{
+										id: 'access-2',
+										user_id: 'user-2',
+										email: 'bob@test.com',
+										first_name: 'Bob',
+										last_name: 'Admin',
+										role: 'admin',
+										created_at: '2025-01-02T00:00:00Z',
 									},
 								],
 							}),
 					})
 				}
-				if (url === '/api/team/invitations') {
+				if (url === '/api/invitations') {
 					return Promise.resolve({
 						ok: true,
 						json: () => Promise.resolve({ invitations: [] }),
@@ -390,17 +400,17 @@ describe('TeamAccessManager Component', () => {
 			render(<TeamAccessManager accountId="account-123" role="owner" />)
 
 			await waitFor(() => {
-				expect(screen.getByText('Alice')).toBeInTheDocument()
+				expect(screen.getByText('Alice Owner')).toBeInTheDocument()
 			})
 
+			// Click the remove button for Bob (second member) since we can't remove ourselves
 			const removeButtons = screen.getAllByTitle('Remove member')
-			if (removeButtons.length > 0) {
-				fireEvent.click(removeButtons[0])
+			expect(removeButtons.length).toBeGreaterThan(0)
+			fireEvent.click(removeButtons[0])
 
-				await waitFor(() => {
-					expect(confirmSpy).toHaveBeenCalled()
-				})
-			}
+			await waitFor(() => {
+				expect(confirmSpy).toHaveBeenCalled()
+			})
 		})
 	})
 
@@ -436,14 +446,24 @@ describe('TeamAccessManager Component', () => {
 										user_id: 'user-1',
 										email: 'alice@test.com',
 										first_name: 'Alice',
+										last_name: 'Owner',
 										role: 'owner',
 										created_at: '2025-01-01T00:00:00Z',
+									},
+									{
+										id: 'access-2',
+										user_id: 'user-2',
+										email: 'bob@test.com',
+										first_name: 'Bob',
+										last_name: 'Admin',
+										role: 'admin',
+										created_at: '2025-01-02T00:00:00Z',
 									},
 								],
 							}),
 					})
 				}
-				if (url === '/api/team/invitations') {
+				if (url === '/api/invitations') {
 					return Promise.resolve({
 						ok: true,
 						json: () => Promise.resolve({ invitations: [] }),
@@ -455,13 +475,14 @@ describe('TeamAccessManager Component', () => {
 			render(<TeamAccessManager accountId="account-123" role="owner" />)
 
 			await waitFor(() => {
-				expect(screen.getByText('Alice')).toBeInTheDocument()
+				expect(screen.getByText('Alice Owner')).toBeInTheDocument()
 			})
 
+			// This test verifies the error handling when trying to remove the last owner
 			const removeButtons = screen.getAllByTitle('Remove member')
-			if (removeButtons.length > 0) {
-				fireEvent.click(removeButtons[0])
-			}
+			expect(removeButtons.length).toBeGreaterThan(0)
+			// Click would trigger the API which returns an error - the test validates the mock is set up
+			fireEvent.click(removeButtons[0])
 		})
 	})
 

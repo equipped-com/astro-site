@@ -1,8 +1,8 @@
 /**
  * @REQ-UI-002 @Brands - Manage brands
  */
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
-import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { beforeEach, describe, expect, it, type Mock, vi } from 'vitest'
 import BrandTable from './BrandTable'
 
 describe('BrandTable', () => {
@@ -40,7 +40,7 @@ describe('BrandTable', () => {
 	 *   Then I should see all brands in a table
 	 */
 	it('should display all brands in a table', async () => {
-		(global.fetch as Mock).mockResolvedValueOnce({
+		;(global.fetch as Mock).mockResolvedValueOnce({
 			ok: true,
 			json: async () => ({ brands: mockBrands }),
 		} as Response)
@@ -58,15 +58,18 @@ describe('BrandTable', () => {
 	 * Scenario: Manage brands
 	 *   And I should see "Add Brand" button
 	 */
-	it('should display add brand button', () => {
-		(global.fetch as Mock).mockResolvedValueOnce({
+	it('should display add brand button', async () => {
+		;(global.fetch as Mock).mockResolvedValueOnce({
 			ok: true,
 			json: async () => ({ brands: [] }),
 		} as Response)
 
 		render(<BrandTable />)
 
-		expect(screen.getByTestId('add-brand-button')).toBeInTheDocument()
+		// Wait for loading to finish (button appears after loading)
+		await waitFor(() => {
+			expect(screen.getByTestId('add-brand-button')).toBeInTheDocument()
+		})
 	})
 
 	/**
@@ -76,12 +79,17 @@ describe('BrandTable', () => {
 	 *   Then I should see a form with fields
 	 */
 	it('should show form when clicking add brand', async () => {
-		(global.fetch as Mock).mockResolvedValueOnce({
+		;(global.fetch as Mock).mockResolvedValueOnce({
 			ok: true,
 			json: async () => ({ brands: [] }),
 		} as Response)
 
 		render(<BrandTable />)
+
+		// Wait for loading to finish
+		await waitFor(() => {
+			expect(screen.getByTestId('add-brand-button')).toBeInTheDocument()
+		})
 
 		const addButton = screen.getByTestId('add-brand-button')
 		fireEvent.click(addButton)
@@ -100,7 +108,7 @@ describe('BrandTable', () => {
 	 *   Then the brand should be created
 	 */
 	it('should create brand when submitting form', async () => {
-		(global.fetch as Mock)
+		;(global.fetch as Mock)
 			.mockResolvedValueOnce({
 				ok: true,
 				json: async () => ({ brands: [] }),
@@ -115,6 +123,11 @@ describe('BrandTable', () => {
 			} as Response)
 
 		render(<BrandTable />)
+
+		// Wait for loading to finish
+		await waitFor(() => {
+			expect(screen.getByTestId('add-brand-button')).toBeInTheDocument()
+		})
 
 		// Open form
 		const addButton = screen.getByTestId('add-brand-button')
@@ -148,7 +161,7 @@ describe('BrandTable', () => {
 	 * Scenario: Edit brand
 	 */
 	it('should allow editing a brand', async () => {
-		(global.fetch as Mock).mockResolvedValueOnce({
+		;(global.fetch as Mock).mockResolvedValueOnce({
 			ok: true,
 			json: async () => ({ brands: mockBrands }),
 		} as Response)
@@ -173,7 +186,7 @@ describe('BrandTable', () => {
 	 * Scenario: Delete brand
 	 */
 	it('should allow deleting a brand', async () => {
-		(global.fetch as Mock)
+		;(global.fetch as Mock)
 			.mockResolvedValueOnce({
 				ok: true,
 				json: async () => ({ brands: mockBrands }),

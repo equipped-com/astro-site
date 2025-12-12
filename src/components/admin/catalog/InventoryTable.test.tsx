@@ -2,8 +2,8 @@
  * @REQ-UI-006 @Inventory - Manage inventory
  * @REQ-UI-007 @Inventory @QuickEdit - Quick edit inventory status
  */
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
-import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { beforeEach, describe, expect, it, type Mock, vi } from 'vitest'
 import InventoryTable from './InventoryTable'
 
 describe('InventoryTable', () => {
@@ -41,7 +41,7 @@ describe('InventoryTable', () => {
 	 *   Then I should see all inventory items
 	 */
 	it('should display all inventory items', async () => {
-		(global.fetch as Mock)
+		;(global.fetch as Mock)
 			.mockResolvedValueOnce({
 				ok: true,
 				json: async () => ({ products: mockProducts, pagination: { page: 1, limit: 1000, total: 2 } }),
@@ -54,7 +54,8 @@ describe('InventoryTable', () => {
 		render(<InventoryTable />)
 
 		await waitFor(() => {
-			expect(screen.getByText('MacBook Pro 14-inch M3')).toBeInTheDocument()
+			// Text may appear in both dropdown and table, so use getAllByText
+			expect(screen.getAllByText('MacBook Pro 14-inch M3').length).toBeGreaterThan(0)
 			expect(screen.getByText('ABC123456')).toBeInTheDocument()
 		})
 	})
@@ -71,7 +72,7 @@ describe('InventoryTable', () => {
 	 *     | Location       | Yes     |
 	 */
 	it('should show all required fields for each item', async () => {
-		(global.fetch as Mock)
+		;(global.fetch as Mock)
 			.mockResolvedValueOnce({
 				ok: true,
 				json: async () => ({ products: mockProducts, pagination: { page: 1, limit: 1000, total: 2 } }),
@@ -84,10 +85,12 @@ describe('InventoryTable', () => {
 		render(<InventoryTable />)
 
 		await waitFor(() => {
-			expect(screen.getByText('MacBook Pro 14-inch M3')).toBeInTheDocument()
+			// Text may appear in both dropdown and table, so use getAllByText
+			expect(screen.getAllByText('MacBook Pro 14-inch M3').length).toBeGreaterThan(0)
 			expect(screen.getByText('ABC123456')).toBeInTheDocument()
-			expect(screen.getByText('New')).toBeInTheDocument()
-			expect(screen.getByText('Available')).toBeInTheDocument()
+			// New and Available also appear in filter dropdowns, so use getAllBy
+			expect(screen.getAllByText('New').length).toBeGreaterThan(0)
+			expect(screen.getAllByText('Available').length).toBeGreaterThan(0)
 			expect(screen.getByText('A-1-2')).toBeInTheDocument()
 		})
 	})
@@ -101,7 +104,7 @@ describe('InventoryTable', () => {
 	 *   Then the status should update immediately
 	 */
 	it('should allow quick editing of inventory status', async () => {
-		(global.fetch as Mock)
+		;(global.fetch as Mock)
 			.mockResolvedValueOnce({
 				ok: true,
 				json: async () => ({ products: mockProducts, pagination: { page: 1, limit: 1000, total: 2 } }),
@@ -122,7 +125,8 @@ describe('InventoryTable', () => {
 		render(<InventoryTable />)
 
 		await waitFor(() => {
-			expect(screen.getByText('Available')).toBeInTheDocument()
+			// Available appears in both filter dropdown and table, so use getAllBy
+			expect(screen.getAllByText('Available').length).toBeGreaterThan(0)
 		})
 
 		// Click status to edit
@@ -130,11 +134,14 @@ describe('InventoryTable', () => {
 		fireEvent.click(statusButton)
 
 		await waitFor(() => {
-			expect(screen.getByRole('combobox')).toBeInTheDocument()
+			// Multiple comboboxes exist (filters + status edit)
+			const comboboxes = screen.getAllByRole('combobox')
+			expect(comboboxes.length).toBeGreaterThan(3) // 3 filters + 1 edit
 		})
 
-		// Change status
-		const statusSelect = screen.getByRole('combobox') as HTMLSelectElement
+		// Change status - get the last combobox which is the inline edit
+		const comboboxes = screen.getAllByRole('combobox')
+		const statusSelect = comboboxes[comboboxes.length - 1] as HTMLSelectElement
 		fireEvent.change(statusSelect, { target: { value: 'sold' } })
 
 		// Save
@@ -157,7 +164,7 @@ describe('InventoryTable', () => {
 	 * Scenario: Filter inventory
 	 */
 	it('should allow filtering by product', async () => {
-		(global.fetch as Mock)
+		;(global.fetch as Mock)
 			.mockResolvedValueOnce({
 				ok: true,
 				json: async () => ({ products: mockProducts, pagination: { page: 1, limit: 1000, total: 2 } }),
@@ -181,9 +188,7 @@ describe('InventoryTable', () => {
 		fireEvent.change(productSelect, { target: { value: '1' } })
 
 		await waitFor(() => {
-			expect(global.fetch).toHaveBeenCalledWith(
-				expect.stringContaining('product_id=1'),
-			)
+			expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('product_id=1'))
 		})
 	})
 
@@ -192,7 +197,7 @@ describe('InventoryTable', () => {
 	 * Scenario: Filter inventory by status
 	 */
 	it('should allow filtering by status', async () => {
-		(global.fetch as Mock)
+		;(global.fetch as Mock)
 			.mockResolvedValueOnce({
 				ok: true,
 				json: async () => ({ products: mockProducts, pagination: { page: 1, limit: 1000, total: 2 } }),
@@ -216,9 +221,7 @@ describe('InventoryTable', () => {
 		fireEvent.change(statusSelect, { target: { value: 'available' } })
 
 		await waitFor(() => {
-			expect(global.fetch).toHaveBeenCalledWith(
-				expect.stringContaining('status=available'),
-			)
+			expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('status=available'))
 		})
 	})
 
@@ -227,7 +230,7 @@ describe('InventoryTable', () => {
 	 * Scenario: Filter inventory by condition
 	 */
 	it('should allow filtering by condition', async () => {
-		(global.fetch as Mock)
+		;(global.fetch as Mock)
 			.mockResolvedValueOnce({
 				ok: true,
 				json: async () => ({ products: mockProducts, pagination: { page: 1, limit: 1000, total: 2 } }),
@@ -251,9 +254,7 @@ describe('InventoryTable', () => {
 		fireEvent.change(conditionSelect, { target: { value: 'new' } })
 
 		await waitFor(() => {
-			expect(global.fetch).toHaveBeenCalledWith(
-				expect.stringContaining('condition=new'),
-			)
+			expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('condition=new'))
 		})
 	})
 })

@@ -64,10 +64,11 @@ describe('InviteMemberModal Component', () => {
 			render(<InviteMemberModal isOpen={true} onClose={mockOnClose} onInvite={mockOnInvite} canAssignOwner={true} />)
 
 			const emailInput = screen.getByPlaceholderText('colleague@company.com')
-			const submitButton = screen.getByText('Send Invitation')
+			const form = emailInput.closest('form')!
 
 			fireEvent.change(emailInput, { target: { value: 'notanemail' } })
-			fireEvent.click(submitButton)
+			// Use fireEvent.submit to bypass HTML5 validation in jsdom
+			fireEvent.submit(form)
 
 			await waitFor(() => {
 				expect(screen.getByText('Please enter a valid email address')).toBeInTheDocument()
@@ -104,10 +105,11 @@ describe('InviteMemberModal Component', () => {
 				)
 
 				const emailInput = screen.getByPlaceholderText('colleague@company.com')
-				const submitButton = screen.getByText('Send Invitation')
+				const form = emailInput.closest('form')!
 
 				fireEvent.change(emailInput, { target: { value: invalidEmail } })
-				fireEvent.click(submitButton)
+				// Use fireEvent.submit to bypass HTML5 validation in jsdom
+				fireEvent.submit(form)
 
 				await waitFor(() => {
 					expect(screen.getByText('Please enter a valid email address')).toBeInTheDocument()

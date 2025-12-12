@@ -6,40 +6,37 @@
  */
 import { act, renderHook, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import * as impersonationLib from '@/lib/impersonation'
 import { useImpersonation } from './useImpersonation'
 
 // Mock fetch
 global.fetch = vi.fn()
 
-// Mock localStorage
-const mockStorage: Record<string, string> = {}
-const mockLocalStorage = {
-	getItem: vi.fn((key: string) => mockStorage[key] || null),
-	setItem: vi.fn((key: string, value: string) => {
-		mockStorage[key] = value
-	}),
-	removeItem: vi.fn((key: string) => {
-		delete mockStorage[key]
-	}),
-	clear: vi.fn(() => {
-		for (const key of Object.keys(mockStorage)) {
-			delete mockStorage[key]
-		}
-	}),
-}
+// Mock the impersonation library
+vi.mock('@/lib/impersonation', async importOriginal => {
+	const original = await importOriginal<typeof impersonationLib>()
+	return {
+		...original,
+		getImpersonationSession: vi.fn(() => null),
+		endImpersonationSession: vi.fn(),
+		getAdminDashboardUrl: vi.fn(() => '/admin'),
+	}
+})
 
 // Store original location
 const originalLocation = window.location
 
 beforeEach(() => {
 	vi.clearAllMocks()
-	mockLocalStorage.clear()
-	Object.defineProperty(window, 'localStorage', { value: mockLocalStorage })
+
+	// Reset the mock to default behavior (return null)
+	vi.mocked(impersonationLib.getImpersonationSession).mockReturnValue(null)
 
 	// Mock window.location
 	Object.defineProperty(window, 'location', {
 		value: { href: '' },
 		writable: true,
+		configurable: true,
 	})
 
 	// Mock addEventListener and removeEventListener
@@ -51,6 +48,7 @@ afterEach(() => {
 	Object.defineProperty(window, 'location', {
 		value: originalLocation,
 		writable: true,
+		configurable: true,
 	})
 })
 
@@ -73,12 +71,16 @@ describe('useImpersonation Hook', () => {
 			expect(result.current.session).toBeNull()
 		})
 
-		it('should return isImpersonating=true when session exists', () => {
-			mockStorage.equipped_impersonation_session = JSON.stringify(mockSession)
+		it('should return isImpersonating=true when session exists', async () => {
+			// Mock the lib function to return a session
+			vi.mocked(impersonationLib.getImpersonationSession).mockReturnValue(mockSession)
 
 			const { result } = renderHook(() => useImpersonation())
 
-			expect(result.current.isImpersonating).toBe(true)
+			// Wait for useEffect to load session from localStorage
+			await waitFor(() => {
+				expect(result.current.isImpersonating).toBe(true)
+			})
 			expect(result.current.session).toEqual(mockSession)
 		})
 	})
@@ -94,20 +96,30 @@ describe('useImpersonation Hook', () => {
 			expect(result.current.checkRestricted('delete_account')).toBe(false)
 		})
 
-		it('should return true for restricted actions when impersonating', () => {
-			mockStorage.equipped_impersonation_session = JSON.stringify(mockSession)
+		it('should return true for restricted actions when impersonating', async () => {
+			vi.mocked(impersonationLib.getImpersonationSession).mockReturnValue(mockSession)
 
 			const { result } = renderHook(() => useImpersonation())
+
+			// Wait for useEffect to load session from localStorage
+			await waitFor(() => {
+				expect(result.current.isImpersonating).toBe(true)
+			})
 
 			expect(result.current.checkRestricted('delete_account')).toBe(true)
 			expect(result.current.checkRestricted('change_billing')).toBe(true)
 			expect(result.current.checkRestricted('remove_owner')).toBe(true)
 		})
 
-		it('should return false for allowed actions when impersonating', () => {
-			mockStorage.equipped_impersonation_session = JSON.stringify(mockSession)
+		it('should return false for allowed actions when impersonating', async () => {
+			vi.mocked(impersonationLib.getImpersonationSession).mockReturnValue(mockSession)
 
 			const { result } = renderHook(() => useImpersonation())
+
+			// Wait for session to load
+			await waitFor(() => {
+				expect(result.current.isImpersonating).toBe(true)
+			})
 
 			expect(result.current.checkRestricted('view_devices')).toBe(false)
 			expect(result.current.checkRestricted('add_device')).toBe(false)
@@ -121,20 +133,30 @@ describe('useImpersonation Hook', () => {
 			expect(result.current.getRestrictionMessage('delete_account')).toBeNull()
 		})
 
-		it('should return message for restricted actions when impersonating', () => {
-			mockStorage.equipped_impersonation_session = JSON.stringify(mockSession)
+		it('should return message for restricted actions when impersonating', async () => {
+			vi.mocked(impersonationLib.getImpersonationSession).mockReturnValue(mockSession)
 
 			const { result } = renderHook(() => useImpersonation())
+
+			// Wait for useEffect to load session from localStorage
+			await waitFor(() => {
+				expect(result.current.isImpersonating).toBe(true)
+			})
 
 			const message = result.current.getRestrictionMessage('delete_account')
 			expect(message).toContain('Action restricted in admin mode')
 			expect(message).toContain('Delete the account')
 		})
 
-		it('should return null for allowed actions when impersonating', () => {
-			mockStorage.equipped_impersonation_session = JSON.stringify(mockSession)
+		it('should return null for allowed actions when impersonating', async () => {
+			vi.mocked(impersonationLib.getImpersonationSession).mockReturnValue(mockSession)
 
 			const { result } = renderHook(() => useImpersonation())
+
+			// Wait for session to load
+			await waitFor(() => {
+				expect(result.current.isImpersonating).toBe(true)
+			})
 
 			expect(result.current.getRestrictionMessage('view_devices')).toBeNull()
 		})
@@ -142,7 +164,7 @@ describe('useImpersonation Hook', () => {
 
 	describe('exitImpersonation()', () => {
 		beforeEach(() => {
-			mockStorage.equipped_impersonation_session = JSON.stringify(mockSession)
+			vi.mocked(impersonationLib.getImpersonationSession).mockReturnValue(mockSession)
 			;(global.fetch as any).mockResolvedValue({
 				ok: true,
 				json: async () => ({ success: true }),
@@ -151,6 +173,11 @@ describe('useImpersonation Hook', () => {
 
 		it('should call API to end impersonation', async () => {
 			const { result } = renderHook(() => useImpersonation())
+
+			// Wait for useEffect to load session from localStorage
+			await waitFor(() => {
+				expect(result.current.isImpersonating).toBe(true)
+			})
 
 			await act(async () => {
 				await result.current.exitImpersonation()
@@ -166,15 +193,25 @@ describe('useImpersonation Hook', () => {
 		it('should clear localStorage', async () => {
 			const { result } = renderHook(() => useImpersonation())
 
+			// Wait for useEffect to load session from localStorage
+			await waitFor(() => {
+				expect(result.current.isImpersonating).toBe(true)
+			})
+
 			await act(async () => {
 				await result.current.exitImpersonation()
 			})
 
-			expect(mockLocalStorage.removeItem).toHaveBeenCalledWith('equipped_impersonation_session')
+			expect(impersonationLib.endImpersonationSession).toHaveBeenCalled()
 		})
 
 		it('should redirect to admin dashboard', async () => {
 			const { result } = renderHook(() => useImpersonation())
+
+			// Wait for useEffect to load session from localStorage
+			await waitFor(() => {
+				expect(result.current.isImpersonating).toBe(true)
+			})
 
 			await act(async () => {
 				await result.current.exitImpersonation()
@@ -184,7 +221,7 @@ describe('useImpersonation Hook', () => {
 		})
 
 		it('should do nothing when not impersonating', async () => {
-			mockLocalStorage.clear()
+			vi.mocked(impersonationLib.getImpersonationSession).mockReturnValue(null)
 
 			const { result } = renderHook(() => useImpersonation())
 
@@ -198,7 +235,7 @@ describe('useImpersonation Hook', () => {
 
 	describe('logAction()', () => {
 		beforeEach(() => {
-			mockStorage.equipped_impersonation_session = JSON.stringify(mockSession)
+			vi.mocked(impersonationLib.getImpersonationSession).mockReturnValue(mockSession)
 			;(global.fetch as any).mockResolvedValue({
 				ok: true,
 				json: async () => ({ success: true }),
@@ -207,6 +244,11 @@ describe('useImpersonation Hook', () => {
 
 		it('should call API to log action', async () => {
 			const { result } = renderHook(() => useImpersonation())
+
+			// Wait for useEffect to load session from localStorage
+			await waitFor(() => {
+				expect(result.current.isImpersonating).toBe(true)
+			})
 
 			await act(async () => {
 				await result.current.logAction('view_devices', { count: 10 })
@@ -224,7 +266,7 @@ describe('useImpersonation Hook', () => {
 		})
 
 		it('should do nothing when not impersonating', async () => {
-			mockLocalStorage.clear()
+			vi.mocked(impersonationLib.getImpersonationSession).mockReturnValue(null)
 
 			const { result } = renderHook(() => useImpersonation())
 

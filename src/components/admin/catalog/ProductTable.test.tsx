@@ -1,8 +1,8 @@
 /**
  * @REQ-UI-003 @Products - Browse products
  */
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
-import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { beforeEach, describe, expect, it, type Mock, vi } from 'vitest'
 import ProductTable from './ProductTable'
 
 describe('ProductTable', () => {
@@ -43,7 +43,7 @@ describe('ProductTable', () => {
 	 *   Then I should see all products in a data table
 	 */
 	it('should display all products in a table', async () => {
-		(global.fetch as Mock)
+		;(global.fetch as Mock)
 			.mockResolvedValueOnce({
 				ok: true,
 				json: async () => ({ brands: mockBrands }),
@@ -69,7 +69,7 @@ describe('ProductTable', () => {
 	 *     | Filter by brand| Yes       |
 	 */
 	it('should allow filtering by brand', async () => {
-		(global.fetch as Mock)
+		;(global.fetch as Mock)
 			.mockResolvedValueOnce({
 				ok: true,
 				json: async () => ({ brands: mockBrands }),
@@ -94,9 +94,7 @@ describe('ProductTable', () => {
 		fireEvent.change(brandSelect, { target: { value: '1' } })
 
 		await waitFor(() => {
-			expect(global.fetch).toHaveBeenCalledWith(
-				expect.stringContaining('brand=1'),
-			)
+			expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('brand=1'))
 		})
 	})
 
@@ -108,7 +106,7 @@ describe('ProductTable', () => {
 	 *     | Filter by type | Yes       |
 	 */
 	it('should allow filtering by type', async () => {
-		(global.fetch as Mock)
+		;(global.fetch as Mock)
 			.mockResolvedValueOnce({
 				ok: true,
 				json: async () => ({ brands: mockBrands }),
@@ -132,9 +130,7 @@ describe('ProductTable', () => {
 		fireEvent.change(typeSelect, { target: { value: 'laptop' } })
 
 		await waitFor(() => {
-			expect(global.fetch).toHaveBeenCalledWith(
-				expect.stringContaining('type=laptop'),
-			)
+			expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('type=laptop'))
 		})
 	})
 
@@ -146,7 +142,7 @@ describe('ProductTable', () => {
 	 *     | Search by name | Yes       |
 	 */
 	it('should allow searching by name', async () => {
-		(global.fetch as Mock)
+		;(global.fetch as Mock)
 			.mockResolvedValueOnce({
 				ok: true,
 				json: async () => ({ brands: mockBrands }),
@@ -170,9 +166,7 @@ describe('ProductTable', () => {
 		fireEvent.change(searchInput, { target: { value: 'MacBook' } })
 
 		await waitFor(() => {
-			expect(global.fetch).toHaveBeenCalledWith(
-				expect.stringContaining('search=MacBook'),
-			)
+			expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('search=MacBook'))
 		})
 	})
 
@@ -184,7 +178,7 @@ describe('ProductTable', () => {
 	 *     | Paginate       | Yes       |
 	 */
 	it('should allow pagination', async () => {
-		(global.fetch as Mock)
+		;(global.fetch as Mock)
 			.mockResolvedValueOnce({
 				ok: true,
 				json: async () => ({ brands: mockBrands }),
@@ -208,9 +202,7 @@ describe('ProductTable', () => {
 		fireEvent.click(nextButton)
 
 		await waitFor(() => {
-			expect(global.fetch).toHaveBeenCalledWith(
-				expect.stringContaining('page=2'),
-			)
+			expect(global.fetch).toHaveBeenCalledWith(expect.stringContaining('page=2'))
 		})
 	})
 
@@ -219,7 +211,7 @@ describe('ProductTable', () => {
 	 * Scenario: Delete product
 	 */
 	it('should allow deleting a product', async () => {
-		(global.fetch as Mock)
+		;(global.fetch as Mock)
 			.mockResolvedValueOnce({
 				ok: true,
 				json: async () => ({ brands: mockBrands }),

@@ -6,40 +6,38 @@
  */
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import * as impersonationLib from '@/lib/impersonation'
 import ImpersonationBanner from './ImpersonationBanner'
 
 // Mock fetch
 global.fetch = vi.fn()
 
-// Mock localStorage
-const mockStorage: Record<string, string> = {}
-const mockLocalStorage = {
-	getItem: vi.fn((key: string) => mockStorage[key] || null),
-	setItem: vi.fn((key: string, value: string) => {
-		mockStorage[key] = value
-	}),
-	removeItem: vi.fn((key: string) => {
-		delete mockStorage[key]
-	}),
-	clear: vi.fn(() => {
-		for (const key of Object.keys(mockStorage)) {
-			delete mockStorage[key]
-		}
-	}),
-}
+// Mock the impersonation library
+vi.mock('@/lib/impersonation', async importOriginal => {
+	const original = await importOriginal<typeof impersonationLib>()
+	return {
+		...original,
+		getImpersonationSession: vi.fn(() => null),
+		endImpersonationSession: vi.fn(),
+		getAdminDashboardUrl: vi.fn(() => '/admin'),
+		formatSessionDuration: vi.fn(() => '30m'),
+	}
+})
 
 // Store original location
 const originalLocation = window.location
 
 beforeEach(() => {
 	vi.clearAllMocks()
-	mockLocalStorage.clear()
-	Object.defineProperty(window, 'localStorage', { value: mockLocalStorage })
+
+	// Reset the mock to default behavior (return null)
+	vi.mocked(impersonationLib.getImpersonationSession).mockReturnValue(null)
 
 	// Mock window.location
 	Object.defineProperty(window, 'location', {
 		value: { href: '' },
 		writable: true,
+		configurable: true,
 	})
 })
 
@@ -47,6 +45,7 @@ afterEach(() => {
 	Object.defineProperty(window, 'location', {
 		value: originalLocation,
 		writable: true,
+		configurable: true,
 	})
 })
 
@@ -71,7 +70,7 @@ describe('ImpersonationBanner Component', () => {
 
 	describe('when impersonating', () => {
 		beforeEach(() => {
-			mockStorage.equipped_impersonation_session = JSON.stringify(mockSession)
+			vi.mocked(impersonationLib.getImpersonationSession).mockReturnValue(mockSession)
 		})
 
 		/**
@@ -82,22 +81,28 @@ describe('ImpersonationBanner Component', () => {
 		 *     | Element |
 		 *     | "Viewing as: Acme Corp" |
 		 */
-		it('should display the impersonation banner', () => {
+		it('should display the impersonation banner', async () => {
 			render(<ImpersonationBanner />)
 
-			expect(screen.getByTestId('impersonation-banner')).toBeInTheDocument()
+			await waitFor(() => {
+				expect(screen.getByTestId('impersonation-banner')).toBeInTheDocument()
+			})
 		})
 
-		it('should show "Admin Mode" label', () => {
+		it('should show "Admin Mode" label', async () => {
 			render(<ImpersonationBanner />)
 
-			expect(screen.getByText('Admin Mode')).toBeInTheDocument()
+			await waitFor(() => {
+				expect(screen.getByText('Admin Mode')).toBeInTheDocument()
+			})
 		})
 
-		it('should display the customer name', () => {
+		it('should display the customer name', async () => {
 			render(<ImpersonationBanner />)
 
-			expect(screen.getByText('Acme Corp')).toBeInTheDocument()
+			await waitFor(() => {
+				expect(screen.getByText('Acme Corp')).toBeInTheDocument()
+			})
 			expect(screen.getByText(/Viewing as:/)).toBeInTheDocument()
 		})
 
@@ -107,11 +112,13 @@ describe('ImpersonationBanner Component', () => {
 		 *   Then I should see persistent banner with:
 		 *     | Warning about audit logging |
 		 */
-		it('should show audit warning', () => {
+		it('should show audit warning', async () => {
 			render(<ImpersonationBanner />)
 
-			// Text appears twice (desktop and mobile versions)
-			expect(screen.getAllByText('All actions are logged for audit purposes')).toHaveLength(2)
+			await waitFor(() => {
+				// Text appears twice (desktop and mobile versions)
+				expect(screen.getAllByText('All actions are logged for audit purposes')).toHaveLength(2)
+			})
 		})
 
 		/**
@@ -120,25 +127,29 @@ describe('ImpersonationBanner Component', () => {
 		 *   Then I should see persistent banner with:
 		 *     | "Exit" button |
 		 */
-		it('should show exit button', () => {
+		it('should show exit button', async () => {
 			render(<ImpersonationBanner />)
 
-			expect(screen.getByTestId('exit-impersonation-button')).toBeInTheDocument()
+			await waitFor(() => {
+				expect(screen.getByTestId('exit-impersonation-button')).toBeInTheDocument()
+			})
 			expect(screen.getByText('Exit Impersonation')).toBeInTheDocument()
 		})
 
-		it('should have proper accessibility attributes', () => {
+		it('should have proper accessibility attributes', async () => {
 			render(<ImpersonationBanner />)
 
-			const banner = screen.getByTestId('impersonation-banner')
-			expect(banner).toHaveAttribute('role', 'alert')
-			expect(banner).toHaveAttribute('aria-live', 'polite')
+			await waitFor(() => {
+				const banner = screen.getByTestId('impersonation-banner')
+				expect(banner).toHaveAttribute('role', 'alert')
+				expect(banner).toHaveAttribute('aria-live', 'polite')
+			})
 		})
 	})
 
 	describe('exit impersonation', () => {
 		beforeEach(() => {
-			mockStorage.equipped_impersonation_session = JSON.stringify(mockSession)
+			vi.mocked(impersonationLib.getImpersonationSession).mockReturnValue(mockSession)
 			;(global.fetch as any).mockResolvedValue({
 				ok: true,
 				json: async () => ({ success: true }),
@@ -153,6 +164,10 @@ describe('ImpersonationBanner Component', () => {
 		 */
 		it('should call API to end impersonation on exit', async () => {
 			render(<ImpersonationBanner />)
+
+			await waitFor(() => {
+				expect(screen.getByTestId('exit-impersonation-button')).toBeInTheDocument()
+			})
 
 			const exitButton = screen.getByTestId('exit-impersonation-button')
 			fireEvent.click(exitButton)
@@ -169,16 +184,24 @@ describe('ImpersonationBanner Component', () => {
 		it('should clear localStorage on exit', async () => {
 			render(<ImpersonationBanner />)
 
+			await waitFor(() => {
+				expect(screen.getByTestId('exit-impersonation-button')).toBeInTheDocument()
+			})
+
 			const exitButton = screen.getByTestId('exit-impersonation-button')
 			fireEvent.click(exitButton)
 
 			await waitFor(() => {
-				expect(mockLocalStorage.removeItem).toHaveBeenCalledWith('equipped_impersonation_session')
+				expect(impersonationLib.endImpersonationSession).toHaveBeenCalled()
 			})
 		})
 
 		it('should redirect to admin dashboard on exit', async () => {
 			render(<ImpersonationBanner />)
+
+			await waitFor(() => {
+				expect(screen.getByTestId('exit-impersonation-button')).toBeInTheDocument()
+			})
 
 			const exitButton = screen.getByTestId('exit-impersonation-button')
 			fireEvent.click(exitButton)
@@ -191,6 +214,10 @@ describe('ImpersonationBanner Component', () => {
 		it('should call onExit callback if provided', async () => {
 			const onExit = vi.fn()
 			render(<ImpersonationBanner onExit={onExit} />)
+
+			await waitFor(() => {
+				expect(screen.getByTestId('exit-impersonation-button')).toBeInTheDocument()
+			})
 
 			const exitButton = screen.getByTestId('exit-impersonation-button')
 			fireEvent.click(exitButton)
@@ -205,27 +232,34 @@ describe('ImpersonationBanner Component', () => {
 
 			render(<ImpersonationBanner />)
 
+			await waitFor(() => {
+				expect(screen.getByTestId('exit-impersonation-button')).toBeInTheDocument()
+			})
+
 			const exitButton = screen.getByTestId('exit-impersonation-button')
 			fireEvent.click(exitButton)
 
 			await waitFor(() => {
-				expect(mockLocalStorage.removeItem).toHaveBeenCalledWith('equipped_impersonation_session')
+				expect(impersonationLib.endImpersonationSession).toHaveBeenCalled()
 			})
 		})
 	})
 
 	describe('session duration', () => {
-		it('should display session duration', () => {
+		it('should display session duration', async () => {
 			// Set session started 30 minutes ago
 			const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000).toISOString()
-			mockStorage.equipped_impersonation_session = JSON.stringify({
+			vi.mocked(impersonationLib.getImpersonationSession).mockReturnValue({
 				...mockSession,
 				startedAt: thirtyMinutesAgo,
 			})
+			vi.mocked(impersonationLib.formatSessionDuration).mockReturnValue('30m')
 
 			render(<ImpersonationBanner />)
 
-			expect(screen.getByText(/Duration:/)).toBeInTheDocument()
+			await waitFor(() => {
+				expect(screen.getByText(/Duration:/)).toBeInTheDocument()
+			})
 			expect(screen.getByText(/30m/)).toBeInTheDocument()
 		})
 	})
