@@ -980,7 +980,8 @@ epics:
       - id: generate-bug-fix-tasks
         name: Generate Bug Fix Task Files from Test Failures
         file: testing/generate-bug-fix-tasks.md
-        done: false
+        done: true
+        commit: 3eff161
         complexity: medium
         depends_on:
           - testing/reconcile-task-status
