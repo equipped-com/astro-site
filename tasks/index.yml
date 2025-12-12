@@ -1124,7 +1124,7 @@ epics:
         name: Environment Variable Management Strategy
         file: workflow/env-var-strategy.md
         done: true
-        commit: TBD
+        commit: c70cc52
         complexity: medium
         depends_on:
           - workflow/testing-strategy
