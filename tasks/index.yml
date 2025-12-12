@@ -928,7 +928,8 @@ epics:
       - id: mock-browser-apis
         name: Mock Browser APIs in Test Environment
         file: testing/mock-browser-apis.md
-        done: false
+        done: true
+        commit: ad1dcdb
         complexity: low
         depends_on:
           - testing/setup-vitest
