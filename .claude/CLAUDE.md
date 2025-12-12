@@ -41,6 +41,19 @@ bun run test:ui              # Visual UI dashboard
 
 **IMPORTANT:** Use `bun` instead of `npm` for faster execution. Falls back to `npm` if bun not available.
 
+## Dependency Management
+
+**NEVER modify `package.json` directly.** Always use package manager commands:
+
+```bash
+bun add <package>       # Add dependency
+bun add -d <package>    # Add dev dependency
+bun remove <package>    # Remove dependency
+bun install             # Install after git pull
+```
+
+This ensures `package.json` and `bun.lock` stay in sync and prevents version conflicts.
+
 ## Design Guidelines
 
 - **Colors:** Black primary, pastel accents, clean whites (oklch color system)
