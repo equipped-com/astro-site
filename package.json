@@ -25,7 +25,9 @@
 		"test:e2e:headed": "playwright test --headed",
 		"test:e2e:debug": "playwright test --debug",
 		"test:e2e:chromium": "playwright test --project=chromium",
-		"generate:tasks": "bun scripts/generate-tasks-from-prd.ts"
+		"generate:tasks": "bun scripts/generate-tasks-from-prd.ts",
+		"tasks:validate": "bun scripts/validate-task-dependencies.js",
+		"tasks:check": "bun scripts/validate-task-dependencies.js"
 	},
 	"keywords": [],
 	"author": "",

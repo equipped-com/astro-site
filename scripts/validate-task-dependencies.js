@@ -3,7 +3,8 @@
 /**
  * Task Dependency Validator
  *
- * Validates that all task dependencies are satisfied before assigning tasks to agents.
+ * Enhanced validation tool that validates task dependencies, detects circular
+ * dependencies, and provides clear readiness reporting.
  *
  * Usage:
  *   node scripts/validate-task-dependencies.js                    # Check all tasks
@@ -13,203 +14,316 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import yaml from 'js-yaml'
+import yaml from 'yaml'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
-// Load tasks/index.yml
-const indexPath = path.join(__dirname, '..', 'tasks', 'index.yml')
-const indexContent = fs.readFileSync(indexPath, 'utf8')
-const index = yaml.load(indexContent)
-
-// Build lookup map: {epic}/{task-id} -> task
-const taskMap = new Map()
-for (const [epicId, epic] of Object.entries(index.epics)) {
-	for (const task of epic.tasks) {
-		const taskKey = `${epicId}/${task.id}`
-		taskMap.set(taskKey, { ...task, epicId })
-	}
+const COLORS = {
+	reset: '\x1b[0m',
+	red: '\x1b[31m',
+	green: '\x1b[32m',
+	yellow: '\x1b[33m',
+	blue: '\x1b[34m',
+	gray: '\x1b[90m',
 }
 
-function validateTask(taskKey) {
-	const task = taskMap.get(taskKey)
-	if (!task) {
-		return { valid: false, error: `Task not found: ${taskKey}` }
+/**
+ * Load task index from YAML file
+ */
+function loadTaskIndex() {
+	const indexPath = path.join(__dirname, '..', 'tasks', 'index.yml')
+	const content = fs.readFileSync(indexPath, 'utf-8')
+	return yaml.parse(content)
+}
+
+/**
+ * Flatten all tasks with epic prefix and create lookup map
+ */
+function flattenTasks(index) {
+	const tasks = new Map()
+
+	for (const [epicName, epic] of Object.entries(index.epics)) {
+		for (const task of epic.tasks || []) {
+			const fullId = `${epicName}/${task.id}`
+			tasks.set(fullId, {
+				...task,
+				epic: epicName,
+				fullId,
+			})
+		}
 	}
 
-	const issues = []
+	return tasks
+}
 
-	// Check if task is already done
+/**
+ * Validate that all declared dependencies exist
+ */
+function validateDependenciesExist(tasks) {
+	const errors = []
+
+	for (const [taskId, task] of tasks) {
+		for (const depId of task.depends_on || []) {
+			if (!tasks.has(depId)) {
+				errors.push({
+					task: taskId,
+					error: `Dependency not found: ${depId}`,
+				})
+			}
+		}
+	}
+
+	return errors
+}
+
+/**
+ * Detect circular dependencies using depth-first search
+ */
+function detectCircularDependencies(tasks) {
+	const errors = []
+	const visiting = new Set()
+	const visited = new Set()
+
+	function visit(taskId, path = []) {
+		if (visiting.has(taskId)) {
+			errors.push({
+				task: taskId,
+				error: `Circular dependency: ${path.join(' → ')} → ${taskId}`,
+			})
+			return
+		}
+
+		if (visited.has(taskId)) {
+			return
+		}
+
+		visiting.add(taskId)
+		const task = tasks.get(taskId)
+
+		if (task) {
+			for (const depId of task.depends_on || []) {
+				visit(depId, [...path, taskId])
+			}
+		}
+
+		visiting.delete(taskId)
+		visited.add(taskId)
+	}
+
+	for (const taskId of tasks.keys()) {
+		visit(taskId)
+	}
+
+	return errors
+}
+
+/**
+ * Check if a task is ready to work on
+ */
+function isTaskReady(task, tasks) {
+	// Already complete
 	if (task.done) {
-		return { valid: true, message: `✓ Task ${taskKey} is already completed` }
+		return { ready: false, reason: 'already complete' }
 	}
 
-	// Check if task requires human action
+	// Requires manual action
 	if (task.requires === 'human') {
-		return {
-			valid: false,
-			blocking: true,
-			error: `Task requires human action: ${taskKey}`,
-			message: `Manual steps needed before agent can work on this task`,
+		return { ready: false, reason: 'requires human action' }
+	}
+
+	// Check all dependencies
+	const blockedBy = []
+
+	for (const depId of task.depends_on || []) {
+		const dep = tasks.get(depId)
+		if (!dep) {
+			blockedBy.push(`${depId} (NOT FOUND)`)
+		} else if (!dep.done) {
+			blockedBy.push(depId)
 		}
 	}
 
-	// Check dependencies
+	if (blockedBy.length > 0) {
+		return {
+			ready: false,
+			reason: 'blocked by dependencies',
+			blockedBy,
+		}
+	}
+
+	return { ready: true }
+}
+
+/**
+ * Find all ready tasks grouped by complexity
+ */
+function findReadyTasks(tasks) {
+	const ready = {
+		low: [],
+		medium: [],
+		high: [],
+	}
+
+	for (const [taskId, task] of tasks) {
+		const status = isTaskReady(task, tasks)
+		if (status.ready) {
+			const complexity = task.complexity || 'medium'
+			ready[complexity].push(taskId)
+		}
+	}
+
+	return ready
+}
+
+/**
+ * Check and display status for a specific task
+ */
+function checkTask(taskId, tasks) {
+	const task = tasks.get(taskId)
+
+	if (!task) {
+		console.log(`${COLORS.red}Error: Task not found: ${taskId}${COLORS.reset}\n`)
+		return false
+	}
+
+	console.log(`${COLORS.blue}Task: ${taskId}${COLORS.reset}`)
+	console.log(`  Name: ${task.name || 'N/A'}`)
+	console.log(`  Complexity: ${task.complexity || 'medium'}`)
+	console.log(`  Done: ${task.done ? 'Yes' : 'No'}`)
+
+	if (task.requires === 'human') {
+		console.log(`  ${COLORS.yellow}Requires: Human action${COLORS.reset}`)
+	}
+
+	console.log(`\nDependencies:`)
 	if (!task.depends_on || task.depends_on.length === 0) {
-		return { valid: true, message: `✓ Task ${taskKey} has no dependencies` }
-	}
-
-	const blockedDependencies = []
-	const completedDependencies = []
-
-	for (const depKey of task.depends_on) {
-		const depTask = taskMap.get(depKey)
-		if (!depTask) {
-			issues.push(`Unknown dependency: ${depKey}`)
-			blockedDependencies.push(depKey)
-		} else if (!depTask.done) {
-			blockedDependencies.push(depKey)
-		} else {
-			completedDependencies.push(depKey)
+		console.log(`  ${COLORS.gray}None${COLORS.reset}`)
+	} else {
+		for (const depId of task.depends_on) {
+			const dep = tasks.get(depId)
+			if (!dep) {
+				console.log(`  ${COLORS.red}✗ ${depId} (NOT FOUND)${COLORS.reset}`)
+			} else if (dep.done) {
+				console.log(`  ${COLORS.green}✓ ${depId}${COLORS.reset}`)
+			} else {
+				console.log(`  ${COLORS.yellow}○ ${depId} (pending)${COLORS.reset}`)
+			}
 		}
 	}
 
-	if (blockedDependencies.length > 0) {
-		return {
-			valid: false,
-			blocking: true,
-			error: `Task ${taskKey} has ${blockedDependencies.length} incomplete dependencies:`,
-			dependencies: {
-				blocked: blockedDependencies,
-				completed: completedDependencies,
-			},
-			escalation_reason: task.escalation_reason,
+	const status = isTaskReady(task, tasks)
+	console.log(`\nStatus:`)
+
+	if (task.done) {
+		console.log(`  ${COLORS.green}✓ Complete${COLORS.reset}`)
+		if (task.commit) {
+			console.log(`  Commit: ${task.commit}`)
+		}
+	} else if (status.ready) {
+		console.log(`  ${COLORS.green}✓ Ready to work on${COLORS.reset}`)
+	} else {
+		console.log(`  ${COLORS.yellow}○ ${status.reason}${COLORS.reset}`)
+		if (status.blockedBy) {
+			console.log(`\nBlocked by:`)
+			for (const blocker of status.blockedBy) {
+				console.log(`  - ${blocker}`)
+			}
 		}
 	}
 
-	return {
-		valid: true,
-		message: `✓ Task ${taskKey} can be started (all dependencies satisfied)`,
-		dependencies: completedDependencies,
-	}
+	console.log()
+	return status.ready
 }
 
-function listReadyTasks(complexity = null) {
-	const ready = []
-	const blocked = []
+/**
+ * Main validation and reporting
+ */
+function main() {
+	const args = process.argv.slice(2)
 
-	for (const [taskKey, task] of taskMap) {
-		if (task.done || task.requires === 'human') continue
-		if (complexity && task.complexity !== complexity) continue
+	console.log('Loading tasks/index.yml...\n')
+	const index = loadTaskIndex()
+	const tasks = flattenTasks(index)
 
-		const validation = validateTask(taskKey)
-		if (validation.valid) {
-			ready.push({ taskKey, task, validation })
-		} else {
-			blocked.push({ taskKey, task, validation })
-		}
+	console.log(`Found ${tasks.size} tasks across ${Object.keys(index.epics).length} epics\n`)
+
+	// If specific task requested, check it
+	if (args.length > 0) {
+		const taskId = args[0]
+		const ready = checkTask(taskId, tasks)
+		process.exit(ready ? 0 : 1)
 	}
 
-	return { ready, blocked }
-}
+	// Validate dependencies exist
+	console.log('Validating dependencies...')
+	const depErrors = validateDependenciesExist(tasks)
 
-function formatOutput(validation, _taskKey) {
-	const lines = []
-
-	if (validation.message) {
-		lines.push(validation.message)
+	if (depErrors.length > 0) {
+		console.log(`${COLORS.red}✗ Found ${depErrors.length} dependency errors:${COLORS.reset}\n`)
+		for (const err of depErrors) {
+			console.log(`  ${err.task}: ${err.error}`)
+		}
+		console.log()
+	} else {
+		console.log(`${COLORS.green}✓ All dependencies exist${COLORS.reset}\n`)
 	}
 
-	if (validation.error) {
-		lines.push(`✗ ${validation.error}`)
+	// Check for circular dependencies
+	console.log('Checking for circular dependencies...')
+	const circularErrors = detectCircularDependencies(tasks)
+
+	if (circularErrors.length > 0) {
+		console.log(`${COLORS.red}✗ Found ${circularErrors.length} circular dependencies:${COLORS.reset}\n`)
+		for (const err of circularErrors) {
+			console.log(`  ${err.error}`)
+		}
+		console.log()
+	} else {
+		console.log(`${COLORS.green}✓ No circular dependencies${COLORS.reset}\n`)
 	}
 
-	if (validation.dependencies) {
-		const { blocked, completed } = validation.dependencies
+	// Find ready tasks
+	const ready = findReadyTasks(tasks)
+	const totalReady = ready.low.length + ready.medium.length + ready.high.length
 
-		if (completed && completed.length > 0) {
-			lines.push(`  ✓ Completed dependencies (${completed.length}):`)
-			for (const dep of completed) {
-				lines.push(`    - ${dep}`)
-			}
-		}
+	console.log(`${COLORS.green}Ready tasks: ${totalReady}${COLORS.reset}\n`)
 
-		if (blocked && blocked.length > 0) {
-			lines.push(`  ✗ Blocked dependencies (${blocked.length}):`)
-			for (const dep of blocked) {
-				lines.push(`    - ${dep}`)
-			}
+	if (ready.low.length > 0) {
+		console.log(`${COLORS.green}Low complexity (${ready.low.length}):${COLORS.reset}`)
+		for (const taskId of ready.low) {
+			console.log(`  - ${taskId}`)
 		}
+		console.log()
 	}
 
-	if (validation.escalation_reason) {
-		lines.push(`  Escalation reason: ${validation.escalation_reason}`)
+	if (ready.medium.length > 0) {
+		console.log(`${COLORS.blue}Medium complexity (${ready.medium.length}):${COLORS.reset}`)
+		for (const taskId of ready.medium) {
+			console.log(`  - ${taskId}`)
+		}
+		console.log()
 	}
 
-	return lines.join('\n')
-}
-
-// Main execution
-const args = process.argv.slice(2)
-
-if (args.length === 0) {
-	// Show summary
-	console.log('📋 Task Dependency Validation\n')
-
-	const { ready, blocked } = listReadyTasks()
-
-	console.log(`📊 Summary:`)
-	console.log(`  Total tasks: ${taskMap.size}`)
-	console.log(`  Ready to assign: ${ready.length}`)
-	console.log(`  Blocked by dependencies: ${blocked.length}`)
-
-	if (ready.length > 0) {
-		console.log(`\n✅ Ready tasks by complexity:`)
-		const byComplexity = {}
-		for (const { taskKey, task } of ready) {
-			if (!byComplexity[task.complexity]) byComplexity[task.complexity] = []
-			byComplexity[task.complexity].push(taskKey)
+	if (ready.high.length > 0) {
+		console.log(`${COLORS.yellow}High complexity (${ready.high.length}):${COLORS.reset}`)
+		for (const taskId of ready.high) {
+			console.log(`  - ${taskId}`)
 		}
-
-		for (const complexity of ['low', 'medium', 'high']) {
-			if (byComplexity[complexity]) {
-				console.log(`\n  ${complexity.toUpperCase()}:`)
-				for (const taskKey of byComplexity[complexity]) {
-					const task = taskMap.get(taskKey)
-					console.log(`    - ${taskKey} (${task.name})`)
-				}
-			}
-		}
+		console.log()
 	}
 
-	if (blocked.length > 0) {
-		console.log(`\n❌ Blocked tasks:`)
-		for (const { taskKey, validation } of blocked.slice(0, 10)) {
-			console.log(`  - ${taskKey}`)
-			if (validation.dependencies?.blocked) {
-				for (const dep of validation.dependencies.blocked) {
-					console.log(`    └─ waiting for: ${dep}`)
-				}
-			}
-		}
-		if (blocked.length > 10) {
-			console.log(`  ... and ${blocked.length - 10} more`)
-		}
-	}
-} else {
-	// Validate specific task
-	const taskKey = args[0]
-	const validation = validateTask(taskKey)
-
-	console.log(`\n🔍 Task: ${taskKey}\n`)
-	console.log(formatOutput(validation, taskKey))
-
-	if (!validation.valid && validation.blocking) {
-		console.log(`\n⚠️  ESCALATION NEEDED: ${taskKey}`)
-		console.log(`   Reason: ${validation.error}`)
+	// Summary
+	const hasErrors = depErrors.length > 0 || circularErrors.length > 0
+	if (hasErrors) {
+		console.log(`${COLORS.red}✗ Validation failed${COLORS.reset}`)
 		process.exit(1)
+	} else {
+		console.log(`${COLORS.green}✓ Validation passed${COLORS.reset}`)
+		console.log(`\nUsage:`)
+		console.log(`  bun scripts/validate-task-dependencies.js                 # Show all ready tasks`)
+		console.log(`  bun scripts/validate-task-dependencies.js workflow/prd-preparation  # Check specific task`)
 	}
-
-	process.exit(validation.valid ? 0 : 1)
 }
+
+main()

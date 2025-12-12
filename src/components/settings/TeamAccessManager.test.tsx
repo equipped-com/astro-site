@@ -17,8 +17,10 @@ describe('TeamAccessManager Component', () => {
 		vi.clearAllMocks()
 
 		// Mock window.confirm to be available - define it globally if not present
-		if (typeof window.confirm === 'undefined') {
-			;(globalThis as any).confirm = vi.fn(() => true)
+		if (typeof globalThis.window === 'undefined') {
+			;(globalThis as any).window = { confirm: vi.fn(() => true) }
+		} else if (typeof globalThis.window.confirm === 'undefined') {
+			;(globalThis.window as any).confirm = vi.fn(() => true)
 		}
 		// Default mock responses
 		;(global.fetch as ReturnType<typeof vi.fn>).mockImplementation((url: string) => {
@@ -50,7 +52,7 @@ describe('TeamAccessManager Component', () => {
 						}),
 				})
 			}
-			if (url === '/api/team/invitations') {
+			if (url === '/api/invitations') {
 				return Promise.resolve({
 					ok: true,
 					json: () => Promise.resolve({ invitations: [] }),
@@ -113,7 +115,7 @@ describe('TeamAccessManager Component', () => {
 
 		it('should send invitation when form is submitted', async () => {
 			;(global.fetch as ReturnType<typeof vi.fn>).mockImplementation((url: string, options?: RequestInit) => {
-				if (url === '/api/team/invite' && options?.method === 'POST') {
+				if (url === '/api/invitations' && options?.method === 'POST') {
 					return Promise.resolve({
 						ok: true,
 						json: () => Promise.resolve({ success: true }),
@@ -138,7 +140,7 @@ describe('TeamAccessManager Component', () => {
 							}),
 					})
 				}
-				if (url === '/api/team/invitations') {
+				if (url === '/api/invitations') {
 					return Promise.resolve({
 						ok: true,
 						json: () => Promise.resolve({ invitations: [] }),
@@ -163,12 +165,67 @@ describe('TeamAccessManager Component', () => {
 
 			await waitFor(() => {
 				expect(global.fetch).toHaveBeenCalledWith(
-					'/api/team/invite',
+					'/api/invitations',
 					expect.objectContaining({
 						method: 'POST',
 						body: expect.stringContaining('newuser@company.com'),
 					}),
 				)
+			})
+		})
+
+		it('should show success message after sending invitation', async () => {
+			;(global.fetch as ReturnType<typeof vi.fn>).mockImplementation((url: string, options?: RequestInit) => {
+				if (url === '/api/invitations' && options?.method === 'POST') {
+					return Promise.resolve({
+						ok: true,
+						json: () => Promise.resolve({ id: 'inv-1', email: 'newuser@company.com' }),
+					})
+				}
+				// Default mocks
+				if (url === '/api/team') {
+					return Promise.resolve({
+						ok: true,
+						json: () =>
+							Promise.resolve({
+								members: [
+									{
+										id: 'access-1',
+										user_id: 'user-1',
+										email: 'alice@test.com',
+										first_name: 'Alice',
+										role: 'owner',
+										created_at: '2025-01-01T00:00:00Z',
+									},
+								],
+							}),
+					})
+				}
+				if (url === '/api/invitations') {
+					return Promise.resolve({
+						ok: true,
+						json: () => Promise.resolve({ invitations: [] }),
+					})
+				}
+				return Promise.reject(new Error('Unknown URL'))
+			})
+
+			render(<TeamAccessManager accountId="account-123" role="owner" />)
+
+			await waitFor(() => {
+				expect(screen.getByText('Invite Member')).toBeInTheDocument()
+			})
+
+			fireEvent.click(screen.getByText('Invite Member'))
+
+			const emailInput = await waitFor(() => screen.getByPlaceholderText('colleague@company.com'))
+			fireEvent.change(emailInput, { target: { value: 'newuser@company.com' } })
+
+			const sendButton = screen.getByText('Send Invitation')
+			fireEvent.click(sendButton)
+
+			await waitFor(() => {
+				expect(screen.getByText(/Invitation sent to newuser@company.com/i)).toBeInTheDocument()
 			})
 		})
 	})
@@ -405,6 +462,170 @@ describe('TeamAccessManager Component', () => {
 			if (removeButtons.length > 0) {
 				fireEvent.click(removeButtons[0])
 			}
+		})
+	})
+
+	/**
+	 * @REQ-UI-004
+	 * Scenario: View pending invitations
+	 */
+	describe('View pending invitations', () => {
+		it('should display pending invitations list', async () => {
+			;(global.fetch as ReturnType<typeof vi.fn>).mockImplementation((url: string) => {
+				if (url === '/api/team') {
+					return Promise.resolve({
+						ok: true,
+						json: () =>
+							Promise.resolve({
+								members: [
+									{
+										id: 'access-1',
+										user_id: 'user-1',
+										email: 'alice@test.com',
+										first_name: 'Alice',
+										role: 'owner',
+										created_at: '2025-01-01T00:00:00Z',
+									},
+								],
+							}),
+					})
+				}
+				if (url === '/api/invitations') {
+					return Promise.resolve({
+						ok: true,
+						json: () =>
+							Promise.resolve({
+								invitations: [
+									{
+										id: 'inv-1',
+										email: 'pending@example.com',
+										role: 'admin',
+										invited_by: 'alice@test.com',
+										created_at: '2025-01-05T00:00:00Z',
+										status: 'pending',
+									},
+								],
+							}),
+					})
+				}
+				return Promise.reject(new Error('Unknown URL'))
+			})
+
+			render(<TeamAccessManager accountId="account-123" role="owner" />)
+
+			await waitFor(() => {
+				expect(screen.getByText('pending@example.com')).toBeInTheDocument()
+			})
+		})
+
+		it('should show empty state when no pending invitations', async () => {
+			render(<TeamAccessManager accountId="account-123" role="owner" />)
+
+			await waitFor(() => {
+				expect(screen.getByText('No pending invitations')).toBeInTheDocument()
+			})
+		})
+	})
+
+	/**
+	 * @REQ-UI-005 & @REQ-UI-006
+	 * Scenario: Revoke and resend invitations
+	 */
+	describe('Invitation actions', () => {
+		it('should show resend button for pending invitations', async () => {
+			;(global.fetch as ReturnType<typeof vi.fn>).mockImplementation((url: string) => {
+				if (url === '/api/team') {
+					return Promise.resolve({
+						ok: true,
+						json: () =>
+							Promise.resolve({
+								members: [
+									{
+										id: 'access-1',
+										user_id: 'user-1',
+										email: 'alice@test.com',
+										first_name: 'Alice',
+										role: 'owner',
+										created_at: '2025-01-01T00:00:00Z',
+									},
+								],
+							}),
+					})
+				}
+				if (url === '/api/invitations') {
+					return Promise.resolve({
+						ok: true,
+						json: () =>
+							Promise.resolve({
+								invitations: [
+									{
+										id: 'inv-1',
+										email: 'pending@example.com',
+										role: 'admin',
+										invited_by: 'alice@test.com',
+										created_at: '2025-01-05T00:00:00Z',
+										status: 'pending',
+									},
+								],
+							}),
+					})
+				}
+				return Promise.reject(new Error('Unknown URL'))
+			})
+
+			render(<TeamAccessManager accountId="account-123" role="owner" />)
+
+			await waitFor(() => {
+				expect(screen.getByTitle('Resend invitation')).toBeInTheDocument()
+			})
+		})
+
+		it('should show revoke button for pending invitations', async () => {
+			;(global.fetch as ReturnType<typeof vi.fn>).mockImplementation((url: string) => {
+				if (url === '/api/team') {
+					return Promise.resolve({
+						ok: true,
+						json: () =>
+							Promise.resolve({
+								members: [
+									{
+										id: 'access-1',
+										user_id: 'user-1',
+										email: 'alice@test.com',
+										first_name: 'Alice',
+										role: 'owner',
+										created_at: '2025-01-01T00:00:00Z',
+									},
+								],
+							}),
+					})
+				}
+				if (url === '/api/invitations') {
+					return Promise.resolve({
+						ok: true,
+						json: () =>
+							Promise.resolve({
+								invitations: [
+									{
+										id: 'inv-1',
+										email: 'pending@example.com',
+										role: 'admin',
+										invited_by: 'alice@test.com',
+										created_at: '2025-01-05T00:00:00Z',
+										status: 'pending',
+									},
+								],
+							}),
+					})
+				}
+				return Promise.reject(new Error('Unknown URL'))
+			})
+
+			render(<TeamAccessManager accountId="account-123" role="owner" />)
+
+			await waitFor(() => {
+				expect(screen.getByTitle('Revoke invitation')).toBeInTheDocument()
+			})
 		})
 	})
 })

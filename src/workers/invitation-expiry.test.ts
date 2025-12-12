@@ -9,8 +9,8 @@
  * @vitest-environment node
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import worker, { getInvitationStatus } from './invitation-expiry'
 import { createTestDatabase, seedTestData, seedTestInvitation } from '@/test/drizzle-helpers'
+import worker, { getInvitationStatus } from './invitation-expiry'
 
 // Mock console methods to capture logs
 const mockConsoleLog = vi.spyOn(console, 'log').mockImplementation(() => {})
@@ -29,14 +29,17 @@ interface MockScheduledEvent {
 }
 
 describe('Invitation Expiry Worker', () => {
-	let db: ReturnType<typeof createTestDatabase>
+	let db: ReturnType<typeof createTestDatabase>['db']
+	let dbBinding: D1Database
 
 	beforeEach(async () => {
 		vi.clearAllMocks()
 		mockConsoleLog.mockClear()
 		mockConsoleError.mockClear()
 		// Create fresh database for each test
-		db = createTestDatabase()
+		const dbResult = createTestDatabase()
+		db = dbResult.db
+		dbBinding = dbResult.d1
 		// Seed base test data
 		await seedTestData(db)
 	})
@@ -63,7 +66,7 @@ describe('Invitation Expiry Worker', () => {
 	describe('@REQ-WORKER-001 Daily cron execution', () => {
 		it('should execute when scheduled time arrives', async () => {
 			// Given: The expiry worker is configured
-			const env: MockEnv = { DB: db.$client as D1Database }
+			const env: MockEnv = { DB: dbBinding }
 			const event: MockScheduledEvent = {
 				scheduledTime: new Date('2024-12-10T02:00:00Z').getTime(),
 				cron: '0 2 * * *',
@@ -73,17 +76,13 @@ describe('Invitation Expiry Worker', () => {
 			await worker.scheduled(event, env)
 
 			// Then: The worker should execute and log start
-			expect(mockConsoleLog).toHaveBeenCalledWith(
-				expect.stringContaining('[Invitation Expiry Worker] Started at'),
-			)
-			expect(mockConsoleLog).toHaveBeenCalledWith(
-				expect.stringContaining('Cron schedule: 0 2 * * *'),
-			)
+			expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('[Invitation Expiry Worker] Started at'))
+			expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('Cron schedule: 0 2 * * *'))
 		})
 
 		it('should query for expired invitations', async () => {
 			// Given: The expiry worker is configured
-			const env: MockEnv = { DB: db.$client as D1Database }
+			const env: MockEnv = { DB: dbBinding }
 			const event: MockScheduledEvent = {
 				scheduledTime: Date.now(),
 				cron: '0 2 * * *',
@@ -100,7 +99,7 @@ describe('Invitation Expiry Worker', () => {
 
 		it('should log completion with duration', async () => {
 			// Given: The expiry worker is configured
-			const env: MockEnv = { DB: db.$client as D1Database }
+			const env: MockEnv = { DB: dbBinding }
 			const event: MockScheduledEvent = {
 				scheduledTime: Date.now(),
 				cron: '0 2 * * *',
@@ -113,9 +112,7 @@ describe('Invitation Expiry Worker', () => {
 			expect(mockConsoleLog).toHaveBeenCalledWith(
 				expect.stringContaining('[Invitation Expiry Worker] Completed successfully'),
 			)
-			expect(mockConsoleLog).toHaveBeenCalledWith(
-				expect.stringMatching(/Processing duration: \d+ms/),
-			)
+			expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringMatching(/Processing duration: \d+ms/))
 		})
 	})
 
@@ -139,7 +136,7 @@ describe('Invitation Expiry Worker', () => {
 				expiresAt: oneDayAgo.toISOString(),
 			})
 
-			const env: MockEnv = { DB: db.$client as D1Database }
+			const env: MockEnv = { DB: dbBinding }
 			const event: MockScheduledEvent = {
 				scheduledTime: Date.now(),
 				cron: '0 2 * * *',
@@ -149,12 +146,8 @@ describe('Invitation Expiry Worker', () => {
 			await worker.scheduled(event, env)
 
 			// Then: It should identify the invitation as expired
-			expect(mockConsoleLog).toHaveBeenCalledWith(
-				expect.stringContaining('Found 1 expired invitations'),
-			)
-			expect(mockConsoleLog).toHaveBeenCalledWith(
-				expect.stringContaining('Expired invitation details:'),
-			)
+			expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('Found 1 expired invitations'))
+			expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('Expired invitation details:'))
 		})
 
 		it('should verify expires_at is in the past', async () => {
@@ -167,7 +160,7 @@ describe('Invitation Expiry Worker', () => {
 				expiresAt: yesterday.toISOString(),
 			})
 
-			const env: MockEnv = { DB: db.$client as D1Database }
+			const env: MockEnv = { DB: dbBinding }
 			const event: MockScheduledEvent = {
 				scheduledTime: Date.now(),
 				cron: '0 2 * * *',
@@ -179,9 +172,7 @@ describe('Invitation Expiry Worker', () => {
 			// Then: expires_at should be detected as expired
 			const now = new Date()
 			expect(yesterday.getTime()).toBeLessThan(now.getTime())
-			expect(mockConsoleLog).toHaveBeenCalledWith(
-				expect.stringContaining('Found 1 expired invitations'),
-			)
+			expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('Found 1 expired invitations'))
 		})
 
 		it('should NOT identify accepted invitations as expired', async () => {
@@ -195,7 +186,7 @@ describe('Invitation Expiry Worker', () => {
 				acceptedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(),
 			})
 
-			const env: MockEnv = { DB: db.$client as D1Database }
+			const env: MockEnv = { DB: dbBinding }
 			const event: MockScheduledEvent = {
 				scheduledTime: Date.now(),
 				cron: '0 2 * * *',
@@ -205,9 +196,7 @@ describe('Invitation Expiry Worker', () => {
 			await worker.scheduled(event, env)
 
 			// Then: No expired invitations should be found
-			expect(mockConsoleLog).toHaveBeenCalledWith(
-				expect.stringContaining('Found 0 expired invitations'),
-			)
+			expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('Found 0 expired invitations'))
 		})
 
 		it('should NOT identify declined invitations as expired', async () => {
@@ -221,7 +210,7 @@ describe('Invitation Expiry Worker', () => {
 				declinedAt: new Date().toISOString(),
 			})
 
-			const env: MockEnv = { DB: db.$client as D1Database }
+			const env: MockEnv = { DB: dbBinding }
 			const event: MockScheduledEvent = {
 				scheduledTime: Date.now(),
 				cron: '0 2 * * *',
@@ -231,9 +220,7 @@ describe('Invitation Expiry Worker', () => {
 			await worker.scheduled(event, env)
 
 			// Then: No expired invitations should be found
-			expect(mockConsoleLog).toHaveBeenCalledWith(
-				expect.stringContaining('Found 0 expired invitations'),
-			)
+			expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('Found 0 expired invitations'))
 		})
 
 		it('should NOT identify revoked invitations as expired', async () => {
@@ -247,7 +234,7 @@ describe('Invitation Expiry Worker', () => {
 				revokedAt: new Date().toISOString(),
 			})
 
-			const env: MockEnv = { DB: db.$client as D1Database }
+			const env: MockEnv = { DB: dbBinding }
 			const event: MockScheduledEvent = {
 				scheduledTime: Date.now(),
 				cron: '0 2 * * *',
@@ -257,9 +244,7 @@ describe('Invitation Expiry Worker', () => {
 			await worker.scheduled(event, env)
 
 			// Then: No expired invitations should be found
-			expect(mockConsoleLog).toHaveBeenCalledWith(
-				expect.stringContaining('Found 0 expired invitations'),
-			)
+			expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('Found 0 expired invitations'))
 		})
 	})
 
@@ -438,7 +423,7 @@ describe('Invitation Expiry Worker', () => {
 				expiresAt: new Date(Date.now() - 1000).toISOString(), // Just expired
 			})
 
-			const env: MockEnv = { DB: db.$client as D1Database }
+			const env: MockEnv = { DB: dbBinding }
 			const event: MockScheduledEvent = {
 				scheduledTime: Date.now(),
 				cron: '0 2 * * *',
@@ -448,12 +433,8 @@ describe('Invitation Expiry Worker', () => {
 			await worker.scheduled(event, env)
 
 			// Then: Details should be logged (for future notification implementation)
-			expect(mockConsoleLog).toHaveBeenCalledWith(
-				expect.stringContaining('Expired invitation details:'),
-			)
-			expect(mockConsoleLog).toHaveBeenCalledWith(
-				expect.stringContaining('inv_expired_today'),
-			)
+			expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('Expired invitation details:'))
+			expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('inv_expired_today'))
 		})
 
 		it('should include inviter information in logs for notification', async () => {
@@ -467,7 +448,7 @@ describe('Invitation Expiry Worker', () => {
 				expiresAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
 			})
 
-			const env: MockEnv = { DB: db.$client as D1Database }
+			const env: MockEnv = { DB: dbBinding }
 			const event: MockScheduledEvent = {
 				scheduledTime: Date.now(),
 				cron: '0 2 * * *',
@@ -477,15 +458,9 @@ describe('Invitation Expiry Worker', () => {
 			await worker.scheduled(event, env)
 
 			// Then: Both invitations should be logged with inviter details
-			expect(mockConsoleLog).toHaveBeenCalledWith(
-				expect.stringContaining('Found 2 expired invitations'),
-			)
-			expect(mockConsoleLog).toHaveBeenCalledWith(
-				expect.stringContaining('inv_001'),
-			)
-			expect(mockConsoleLog).toHaveBeenCalledWith(
-				expect.stringContaining('inv_002'),
-			)
+			expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('Found 2 expired invitations'))
+			expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('inv_001'))
+			expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('inv_002'))
 		})
 	})
 
@@ -515,7 +490,7 @@ describe('Invitation Expiry Worker', () => {
 				expiresAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
 			})
 
-			const env: MockEnv = { DB: db.$client as D1Database }
+			const env: MockEnv = { DB: dbBinding }
 			const event: MockScheduledEvent = {
 				scheduledTime: Date.now(),
 				cron: '0 2 * * *',
@@ -525,14 +500,12 @@ describe('Invitation Expiry Worker', () => {
 			await worker.scheduled(event, env)
 
 			// Then: It should log the number of expired invitations found
-			expect(mockConsoleLog).toHaveBeenCalledWith(
-				expect.stringContaining('Found 3 expired invitations'),
-			)
+			expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringContaining('Found 3 expired invitations'))
 		})
 
 		it('should log processing duration', async () => {
 			// Given: The worker runs
-			const env: MockEnv = { DB: db.$client as D1Database }
+			const env: MockEnv = { DB: dbBinding }
 			const event: MockScheduledEvent = {
 				scheduledTime: Date.now(),
 				cron: '0 2 * * *',
@@ -542,12 +515,8 @@ describe('Invitation Expiry Worker', () => {
 			await worker.scheduled(event, env)
 
 			// Then: It should log processing duration
-			expect(mockConsoleLog).toHaveBeenCalledWith(
-				expect.stringMatching(/Processing duration: \d+ms/),
-			)
-			expect(mockConsoleLog).toHaveBeenCalledWith(
-				expect.stringMatching(/Completed successfully in \d+ms/),
-			)
+			expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringMatching(/Processing duration: \d+ms/))
+			expect(mockConsoleLog).toHaveBeenCalledWith(expect.stringMatching(/Completed successfully in \d+ms/))
 		})
 
 		it('should log errors when they occur', async () => {
@@ -577,12 +546,8 @@ describe('Invitation Expiry Worker', () => {
 			expect(mockConsoleError).toHaveBeenCalledWith(
 				expect.stringContaining('[Invitation Expiry Worker] Error occurred:'),
 			)
-			expect(mockConsoleError).toHaveBeenCalledWith(
-				expect.stringMatching(/Duration: \d+ms/),
-			)
-			expect(mockConsoleError).toHaveBeenCalledWith(
-				expect.stringContaining(errorMessage),
-			)
+			expect(mockConsoleError).toHaveBeenCalledWith(expect.stringMatching(/Duration: \d+ms/))
+			expect(mockConsoleError).toHaveBeenCalledWith(expect.stringContaining(errorMessage))
 		})
 
 		it('should re-throw errors to mark execution as failed', async () => {
@@ -627,9 +592,7 @@ describe('Invitation Expiry Worker', () => {
 			}
 
 			// Then: It should log the exception as string
-			expect(mockConsoleError).toHaveBeenCalledWith(
-				expect.stringContaining('String exception'),
-			)
+			expect(mockConsoleError).toHaveBeenCalledWith(expect.stringContaining('String exception'))
 		})
 	})
 

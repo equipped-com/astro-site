@@ -11,12 +11,8 @@
 
 import { Window } from 'happy-dom'
 
-// Create happy-dom window instance
-const window = new Window({
-	url: 'http://localhost:3000',
-	width: 1024,
-	height: 768,
-})
+// Create happy-dom window instance with standard options
+const window = new Window({ url: 'http://localhost:3000' })
 
 // Populate global scope with DOM APIs
 globalThis.window = window as any

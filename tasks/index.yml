@@ -871,10 +871,10 @@ epics:
       - id: fix-drizzle-mocking
         name: Fix Drizzle ORM Test Mocking
         file: testing/fix-drizzle-mocking.md
-        done: false  # Infrastructure complete, ~15-20 test files remaining
+        done: false  # Infrastructure complete, migrated 4 test files, ~12 remaining
         commit: e03686d  # Core infrastructure + 2 example migrations
         complexity: medium
-        progress: "Infrastructure complete. Migrated 2/20 test files. See MIGRATION_GUIDE.md"
+        progress: "Infrastructure complete. Migrated 4/16 test files: brands.test.ts, invitation-expiry.test.ts (plus 2 prior). See MIGRATION_GUIDE.md for checklist."
         depends_on:
           - testing/setup-vitest
 

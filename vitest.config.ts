@@ -14,15 +14,6 @@ export default defineConfig(
 			env: testEnv,
 			globals: true,
 			environment: 'happy-dom',
-			environmentOptions: {
-				happyDOM: {
-					settings: {
-						url: 'http://localhost:3000',
-						width: 1024,
-						height: 768,
-					},
-				},
-			},
 			setupFiles: ['./src/test/setup.ts', './src/test/dom-setup.ts'],
 			coverage: {
 				provider: 'v8',

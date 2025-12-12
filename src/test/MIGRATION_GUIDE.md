@@ -294,13 +294,13 @@ Based on test failures, these files need updating:
 ### High Priority (Catalog API)
 - ✅ `src/api/routes/catalog/inventory.test.ts` - DONE
 - ✅ `src/api/routes/catalog/products.test.ts` - DONE
-- ⬜ `src/api/routes/catalog/brands.test.ts`
+- ✅ `src/api/routes/catalog/brands.test.ts` - DONE
 
 ### Integration Tests
 - ⬜ `src/api/device-crud.integration.test.ts`
 - ⬜ `src/db/account-invitations-schema.test.ts`
 - ⬜ `src/lib/tenant.integration.test.ts`
-- ⬜ `src/workers/invitation-expiry.test.ts`
+- ✅ `src/workers/invitation-expiry.test.ts` - DONE
 - ⬜ `src/db/audit-log.integration.test.ts`
 - ⬜ `src/db/catalog-schema.test.ts`
 

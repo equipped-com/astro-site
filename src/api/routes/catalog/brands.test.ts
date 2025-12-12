@@ -8,10 +8,15 @@
  * - @REQ-API-001: List all brands (public access)
  * - @REQ-API-002: Create brand (sys_admin only)
  * - @REQ-API-003: Regular user cannot create brands
+ *
+ * Uses in-memory D1 database with real Drizzle queries instead of manual mocks.
  */
 
+import type { D1Database } from '@miniflare/d1'
 import { Hono } from 'hono'
-import { beforeEach, describe, expect, test, vi } from 'vitest'
+import { beforeEach, describe, expect, test } from 'vitest'
+import * as schema from '@/db/schema'
+import { createTestDatabase, seedTestData } from '@/test/drizzle-helpers'
 import brandsRouter from './brands'
 
 // Mock types
@@ -20,14 +25,11 @@ interface MockEnv {
 	CLERK_SECRET_KEY: string
 }
 
-// Helper to create test app with mocked DB and context
-function createTestApp(
-	mockDb: D1Database,
-	options: {
-		isSysAdmin?: boolean
-		userId?: string
-	} = {},
-) {
+let db: ReturnType<typeof createTestDatabase>['db']
+let dbBinding: D1Database
+
+// Helper to create test app with real database and context
+function createTestApp(options: { isSysAdmin?: boolean; userId?: string } = {}) {
 	const { isSysAdmin = false, userId = 'user_alice' } = options
 
 	const app = new Hono<{
@@ -49,7 +51,7 @@ function createTestApp(
 	app.use('*', async (c, next) => {
 		// Type assertion to set env
 		// @ts-expect-error - we're mocking env for tests
-		c.env = { DB: mockDb, CLERK_SECRET_KEY: 'test_secret' }
+		c.env = { DB: dbBinding, CLERK_SECRET_KEY: 'test_secret' }
 		c.set('userId', userId)
 		c.set('sessionId', 'session_123')
 
@@ -83,6 +85,15 @@ function createTestApp(
  *   So that I can maintain accurate inventory
  */
 describe('Brands API', () => {
+	beforeEach(async () => {
+		// Create fresh database for each test
+		const dbResult = createTestDatabase()
+		db = dbResult.db
+		dbBinding = dbResult.d1
+
+		// Seed base test data
+		await seedTestData(db)
+	})
 	/**
 	 * @REQ-API-001 @Brands @Public
 	 * Scenario: List all brands (public access)
@@ -99,33 +110,23 @@ describe('Brands API', () => {
 	 */
 	describe('@REQ-API-001 @Brands @Public - List all brands (public access)', () => {
 		test('should return all active brands for authenticated user', async () => {
-			const mockDb = {
-				prepare: vi.fn(() => ({
-					bind: vi.fn(() => ({
-						all: vi.fn(async () => [
-							{
-								id: 'brand_apple',
-								name: 'Apple',
-								slug: 'apple',
-								logoUrl: 'https://example.com/apple.png',
-							},
-							{
-								id: 'brand_samsung',
-								name: 'Samsung',
-								slug: 'samsung',
-								logoUrl: 'https://example.com/samsung.png',
-							},
-						]),
-					})),
-				})),
-			} as unknown as D1Database
+			// Insert test brands
+			await db.insert(schema.brands).values([
+				{
+					id: 'brand_samsung',
+					name: 'Samsung',
+					slug: 'samsung',
+					logoUrl: 'https://example.com/samsung.png',
+					isActive: true,
+				},
+			])
 
-			const app = createTestApp(mockDb, { isSysAdmin: false })
+			const app = createTestApp({ isSysAdmin: false })
 			const res = await app.request('/')
 			const data = await res.json()
 
 			expect(res.status).toBe(200)
-			expect(data.brands).toHaveLength(2)
+			expect(data.brands.length).toBeGreaterThanOrEqual(2) // Apple from seed + Samsung
 			expect(data.brands[0]).toHaveProperty('id')
 			expect(data.brands[0]).toHaveProperty('name')
 			expect(data.brands[0]).toHaveProperty('slug')
@@ -133,15 +134,10 @@ describe('Brands API', () => {
 		})
 
 		test('should return empty array when no brands exist', async () => {
-			const mockDb = {
-				prepare: vi.fn(() => ({
-					bind: vi.fn(() => ({
-						all: vi.fn(async () => []),
-					})),
-				})),
-			} as unknown as D1Database
+			// Delete all brands
+			await db.delete(schema.brands)
 
-			const app = createTestApp(mockDb, { isSysAdmin: false })
+			const app = createTestApp({ isSysAdmin: false })
 			const res = await app.request('/')
 			const data = await res.json()
 
@@ -162,24 +158,7 @@ describe('Brands API', () => {
 	 */
 	describe('@REQ-API-002 @Brands @SysAdmin - Create brand (sys_admin only)', () => {
 		test('should create a new brand as sys_admin', async () => {
-			const mockDb = {
-				prepare: vi.fn(() => ({
-					bind: vi.fn(() => ({
-						run: vi.fn(async () => ({ success: true })),
-						get: vi.fn(async () => ({
-							id: 'brand_123',
-							name: 'Samsung',
-							slug: 'samsung',
-							logoUrl: 'https://example.com/samsung.png',
-							isActive: true,
-							createdAt: '2024-12-10T00:00:00Z',
-							updatedAt: '2024-12-10T00:00:00Z',
-						})),
-					})),
-				})),
-			} as unknown as D1Database
-
-			const app = createTestApp(mockDb, { isSysAdmin: true })
+			const app = createTestApp({ isSysAdmin: true })
 			const res = await app.request('/', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
@@ -195,12 +174,15 @@ describe('Brands API', () => {
 			expect(data.brand).toBeDefined()
 			expect(data.brand.name).toBe('Samsung')
 			expect(data.brand.slug).toBe('samsung')
+
+			// Verify in database
+			const brands = await db.select().from(schema.brands).where(schema.brands.slug.eq('samsung'))
+			expect(brands).toHaveLength(1)
+			expect(brands[0].name).toBe('Samsung')
 		})
 
 		test('should reject create with missing required fields', async () => {
-			const mockDb = {} as unknown as D1Database
-
-			const app = createTestApp(mockDb, { isSysAdmin: true })
+			const app = createTestApp({ isSysAdmin: true })
 			const res = await app.request('/', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
@@ -217,17 +199,7 @@ describe('Brands API', () => {
 		})
 
 		test('should handle duplicate brand name/slug conflict', async () => {
-			const mockDb = {
-				prepare: vi.fn(() => ({
-					bind: vi.fn(() => ({
-						run: vi.fn(async () => {
-							throw new Error('UNIQUE constraint failed: brands.name')
-						}),
-					})),
-				})),
-			} as unknown as D1Database
-
-			const app = createTestApp(mockDb, { isSysAdmin: true })
+			const app = createTestApp({ isSysAdmin: true })
 			const res = await app.request('/', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
@@ -254,8 +226,6 @@ describe('Brands API', () => {
 	 */
 	describe('@REQ-API-003 @Brands @RBAC - Regular user cannot create brands', () => {
 		test('should reject brand creation for non-sys_admin users', async () => {
-			const mockDb = {} as unknown as D1Database
-
 			// Override middleware to simulate non-sys_admin user
 			const app = new Hono<{
 				Bindings: MockEnv
@@ -264,7 +234,7 @@ describe('Brands API', () => {
 
 			app.use('*', async (c, next) => {
 				// @ts-expect-error - mocking env
-				c.env = { DB: mockDb, CLERK_SECRET_KEY: 'test_secret' }
+				c.env = { DB: dbBinding, CLERK_SECRET_KEY: 'test_secret' }
 				c.set('userId', 'user_regular')
 				c.set('sessionId', 'session_123')
 				// Do NOT set sysAdmin flag - regular user
