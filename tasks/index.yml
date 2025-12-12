@@ -252,9 +252,13 @@ epics:
       - id: fix-schema-naming
         name: Fix Schema Naming Consistency
         file: database/fix-schema-naming.md
-        done: true
-        commit: 11362b8
+        done: false
+        # original_commit: 11362b8  # Implementation completed but tests failing
         complexity: low
+        reason: "16 schema naming tests failing - validation not passing"
+        failing_tests:
+          - src/db/schema-naming.test.ts
+          - src/db/audit-log.integration.test.ts
         depends_on:
           - database/initial-schema
 
@@ -349,9 +353,12 @@ epics:
       - id: invitation-ui
         name: Invitation UI Components
         file: invitations/invitation-ui.md
-        done: true
-        commit: 654a9b6
+        done: false
+        # original_commit: 654a9b6  # Implementation completed but tests failing
         complexity: medium
+        reason: "9 tests failing + 4 unhandled errors - confirm() not mocked, components not rendering"
+        failing_tests:
+          - src/components/settings/PendingInvitations.test.tsx
         depends_on:
           - invitations/invitation-api
           - settings/team-access
@@ -366,9 +373,12 @@ epics:
       - id: invitation-expiry
         name: Invitation Expiry Worker
         file: invitations/invitation-expiry.md
-        done: true
-        commit: 632f34d
+        done: false
+        # original_commit: 632f34d  # Implementation completed but tests failing
         complexity: medium
+        reason: "Worker tests failing"
+        failing_tests:
+          - src/workers/invitation-expiry.test.ts
         depends_on:
           - invitations/invitations-schema
 
@@ -412,9 +422,12 @@ epics:
       - id: catalog-schema
         name: Product Catalog Schema Migration
         file: catalog/catalog-schema.md
-        done: true
-        commit: 0b87d74
+        done: false
+        # original_commit: 0b87d74  # Implementation completed but tests failing
         complexity: medium
+        reason: "20 schema tests failing - test database setup broken"
+        failing_tests:
+          - src/db/catalog-schema.test.ts
         depends_on:
           - database/initial-schema
       - id: catalog-seed-data
@@ -428,18 +441,28 @@ epics:
       - id: catalog-api
         name: Catalog CRUD API Endpoints
         file: catalog/catalog-api.md
-        done: true
-        commit: 2beacaf
+        done: false
+        # original_commit: 2beacaf  # Implementation completed but tests failing
         complexity: medium
+        reason: "~15 API tests failing - catalog endpoints not working as expected"
+        failing_tests:
+          - src/api/routes/catalog/brands.test.ts
+          - src/api/routes/catalog/products.test.ts
+          - src/api/routes/catalog/inventory.test.ts
         depends_on:
           - catalog/catalog-schema
           - api/auth-middleware
       - id: catalog-admin-ui
         name: Catalog Admin UI (Sys Admin Only)
         file: catalog/catalog-admin-ui.md
-        done: true
-        commit: 654d3be
+        done: false
+        # original_commit: 654d3be  # Implementation completed but tests failing
         complexity: medium
+        reason: "Catalog admin component tests failing"
+        failing_tests:
+          - src/components/admin/catalog/BrandTable.test.tsx
+          - src/components/admin/catalog/InventoryTable.test.tsx
+          - src/components/admin/catalog/ProductTable.test.tsx
         depends_on:
           - catalog/catalog-api
           - sysadmin/admin-dashboard
@@ -480,9 +503,12 @@ epics:
       - id: user-endpoints
         name: User Profile Endpoints
         file: api/user-endpoints.md
-        done: true
-        commit: 337a2b5
+        done: false
+        # original_commit: 337a2b5  # Implementation completed but tests failing
         complexity: medium
+        reason: "User API tests failing"
+        failing_tests:
+          - src/api/routes/user.test.ts
         depends_on:
           - api/auth-middleware
 
@@ -494,9 +520,12 @@ epics:
       - id: cart-management
         name: Cart Management
         file: commerce/cart-management.md
-        done: true
-        commit: cb0bb8d
+        done: false
+        # original_commit: cb0bb8d  # Implementation completed but tests failing
         complexity: medium
+        reason: "Cart tests failing"
+        failing_tests:
+          - src/components/cart/Cart.test.tsx
         depends_on:
           - api/auth-middleware
       - id: checkout-assignment
@@ -625,9 +654,13 @@ epics:
       - id: return-shipping
         name: Return Shipping & Labels
         file: trade-in/return-shipping.md
-        done: true
-        commit: 3174704
+        done: false
+        # original_commit: 3174704  # Implementation completed but tests failing
         complexity: medium
+        reason: "Trade-in component tests failing"
+        failing_tests:
+          - src/components/trade-in/ReturnLabel.test.tsx
+          - src/components/trade-in/ValueAdjustmentModal.test.tsx
         depends_on:
           - trade-in/device-valuation
 
@@ -669,9 +702,12 @@ epics:
       - id: team-access
         name: Team Access Management
         file: settings/team-access.md
-        done: true
-        commit: 1abfc48
+        done: false
+        # original_commit: 1abfc48  # Implementation completed but tests failing
         complexity: medium
+        reason: "5 component tests failing - elements not rendering as expected"
+        failing_tests:
+          - src/components/settings/TeamAccessManager.test.tsx
         depends_on:
           - settings/organization-settings
 
@@ -691,9 +727,15 @@ epics:
       - id: customer-impersonation
         name: Customer Impersonation
         file: sysadmin/customer-impersonation.md
-        done: true
-        commit: cc49b6c
+        done: false
+        # original_commit: cc49b6c  # Implementation completed but tests failing
         complexity: high  # Security-sensitive, audit logging
+        reason: "~10 impersonation tests failing - mock expectations not met"
+        failing_tests:
+          - src/api/routes/admin/impersonation.test.ts
+          - src/components/admin/useImpersonation.test.ts
+          - src/components/admin/ImpersonationBanner.test.tsx
+          - src/components/admin/RestrictedAction.test.tsx
         depends_on:
           - sysadmin/admin-dashboard
           - api/auth-middleware
@@ -744,9 +786,14 @@ epics:
       - id: dashboard-home
         name: Dashboard Home Page
         file: dashboard/dashboard-home.md
-        done: true
-        commit: 183f066
+        done: false
+        # original_commit: 183f066  # Implementation completed but tests failing
         complexity: medium
+        reason: "Dashboard tests failing"
+        failing_tests:
+          - src/test/pages/dashboard/index.test.tsx
+          - src/components/dashboard/QuickStats.test.tsx
+          - src/components/dashboard/AccountSwitcher.test.tsx
         depends_on:
           - dashboard/dashboard-layout
           - api/device-crud
