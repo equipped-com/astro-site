@@ -935,7 +935,8 @@ epics:
       - id: reconcile-task-status
         name: Reconcile Task Status with Test Results
         file: testing/reconcile-task-status.md
-        done: false
+        done: true
+        commit: 5c8ca95
         complexity: low
         depends_on: []
       - id: fix-component-tests
