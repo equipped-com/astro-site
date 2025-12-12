@@ -854,7 +854,8 @@ epics:
       - id: e2e-auth-state
         name: E2E Authentication State Reuse
         file: testing/e2e-auth-state.md
-        done: false
+        done: true
+        commit: 558018b
         complexity: low
         depends_on:
           - testing/clerk-e2e-integration
