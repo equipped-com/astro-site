@@ -10,6 +10,7 @@
  */
 
 import { Window } from 'happy-dom'
+import { beforeEach, vi } from 'vitest'
 
 // Create happy-dom window instance with standard options
 const window = new Window({ url: 'http://localhost:3000' })
@@ -35,3 +36,16 @@ globalThis.Event = window.Event as any
 globalThis.MouseEvent = window.MouseEvent as any
 globalThis.KeyboardEvent = window.KeyboardEvent as any
 globalThis.CustomEvent = window.CustomEvent as any
+
+// Mock browser dialog APIs (confirm, alert, prompt)
+// These are missing in JSDOM/happy-dom environments
+globalThis.confirm = vi.fn(() => true)
+globalThis.alert = vi.fn()
+globalThis.prompt = vi.fn(() => '')
+
+// Reset mocks before each test for isolation
+beforeEach(() => {
+	vi.mocked(global.confirm).mockReturnValue(true)
+	vi.mocked(global.alert).mockClear()
+	vi.mocked(global.prompt).mockReturnValue('')
+})

@@ -45,15 +45,6 @@ describe('PendingInvitations Component', () => {
 
 	beforeEach(() => {
 		vi.clearAllMocks()
-
-		// Mock window.confirm
-		if (typeof globalThis.window === 'undefined') {
-			;(globalThis as any).window = { confirm: vi.fn(() => true) }
-		} else if (typeof globalThis.window.confirm === 'undefined') {
-			;(globalThis.window as any).confirm = vi.fn(() => true)
-		} else {
-			vi.spyOn(window, 'confirm').mockReturnValue(true)
-		}
 	})
 
 	/**
@@ -134,18 +125,18 @@ describe('PendingInvitations Component', () => {
 		})
 
 		it('should show confirmation dialog before revoking', async () => {
-			const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true)
+			vi.mocked(global.confirm).mockReturnValue(true)
 
 			render(<PendingInvitations invitations={mockInvitations} onRevoke={mockOnRevoke} onResend={mockOnResend} />)
 
 			const revokeButtons = screen.getAllByTitle('Revoke invitation')
 			fireEvent.click(revokeButtons[0])
 
-			expect(confirmSpy).toHaveBeenCalledWith('Are you sure you want to revoke this invitation?')
+			expect(vi.mocked(global.confirm)).toHaveBeenCalledWith('Are you sure you want to revoke this invitation?')
 		})
 
 		it('should not revoke if confirmation is cancelled', async () => {
-			vi.spyOn(window, 'confirm').mockReturnValue(false)
+			vi.mocked(global.confirm).mockReturnValue(false)
 
 			render(<PendingInvitations invitations={mockInvitations} onRevoke={mockOnRevoke} onResend={mockOnResend} />)
 
