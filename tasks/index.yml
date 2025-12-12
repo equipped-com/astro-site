@@ -1060,7 +1060,8 @@ epics:
       - id: fix-vitest-api-changes
         name: Update Tests for Vitest 4.x API Changes (75 failures)
         file: bugs/fix-vitest-api-changes.md
-        done: false
+        done: true
+        commit: 9084bed
         complexity: low
         depends_on:
           - testing/setup-vitest
