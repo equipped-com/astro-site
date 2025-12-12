@@ -8,7 +8,16 @@ export default defineConfig(
 		test: {
 			globals: true,
 			environment: 'happy-dom',
-			setupFiles: ['./src/test/setup.ts'],
+			environmentOptions: {
+				happyDOM: {
+					settings: {
+						url: 'http://localhost:3000',
+						width: 1024,
+						height: 768,
+					},
+				},
+			},
+			setupFiles: ['./src/test/setup.ts', './src/test/dom-setup.ts'],
 			coverage: {
 				provider: 'v8',
 				reporter: ['text', 'html', 'json'],
