@@ -1126,7 +1126,8 @@ epics:
       - id: synthetic-isolation
         name: Synthetic Test Data Isolation Patterns
         file: workflow/synthetic-isolation.md
-        done: false
+        done: true
+        commit: 7f80bc0
         complexity: medium
         depends_on:
           - workflow/testing-strategy
