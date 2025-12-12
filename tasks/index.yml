@@ -252,13 +252,9 @@ epics:
       - id: fix-schema-naming
         name: Fix Schema Naming Consistency
         file: database/fix-schema-naming.md
-        done: false
-        # original_commit: 11362b8  # Implementation completed but tests failing
+        done: true
+        commit: 0d5eee9
         complexity: low
-        reason: "16 schema naming tests failing - validation not passing"
-        failing_tests:
-          - src/db/schema-naming.test.ts
-          - src/db/audit-log.integration.test.ts
         depends_on:
           - database/initial-schema
           - bugs/fix-schema-naming-tests
