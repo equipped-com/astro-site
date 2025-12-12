@@ -340,7 +340,8 @@ epics:
       - id: invitation-api
         name: Invitation API Endpoints
         file: invitations/invitation-api.md
-        done: false
+        done: true
+        commit: 15425a3
         complexity: high  # Security, lifecycle management
         depends_on:
           - invitations/invitations-schema
