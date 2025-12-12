@@ -35,17 +35,17 @@ This task creates the foundation for all future testing (unit, integration, E2E)
 Feature: Vitest Setup
   Scenario: Tests execute successfully
     Given Vitest is installed
-    When running `npm run test`
+	    When running `bun run test`
     Then all tests pass without errors
     And coverage report is generated
 
   Scenario: Watch mode works for development
-    When running `npm run test:watch`
+	    When running `bun run test:watch`
     Then tests re-run on file changes
     And failures are reported clearly
 
   Scenario: Coverage thresholds enforced
-    When running `npm run test:coverage`
+	    When running `bun run test:coverage`
     Then coverage report shows percentages
     And warnings appear if below thresholds
 

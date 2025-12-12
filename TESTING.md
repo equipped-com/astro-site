@@ -27,9 +27,30 @@ bun run test:coverage
 
 # Visual test UI
 bun run test:ui
-```
+	```
 
-## Test Categories
+	### E2E Tests (Playwright)
+
+	End-to-end tests live in the `e2e/` directory and use Playwright with the Astro dev server.
+
+	```bash
+	# Run all E2E tests (headless)
+	bun run test:e2e
+
+	# Visual E2E test runner with debugging
+	bun run test:e2e:ui
+
+	# Run E2E tests with visible browser
+	bun run test:e2e:headed
+
+	# Debug E2E tests with Playwright Inspector
+	bun run test:e2e:debug
+
+	# Run only Chromium E2E tests
+	bun run test:e2e:chromium
+	```
+
+	## Test Categories
 
 ### ✅ Passing Test Suites (66 files)
 

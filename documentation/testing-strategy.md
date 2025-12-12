@@ -239,14 +239,19 @@ describe('[Component/Feature] [REGRESSION]', () => {
 
 ## Coverage Requirements
 
-| Test Type      | Minimum | Target  | Examples                   |
-|----------------|---------|---------|----------------------------|
-| Unit           | 85%     | 100%    | Utils, validation, pricing |
-| Component      | 70%     | 80%     | React components           |
-| Integration    | 85%     | 90%+    | API endpoints              |
-| E2E            | N/A     | 5-10    | Critical user flows        |
+**Global minimums (enforced in CI/CD):**
 
-**Overall project minimum: 85% statement coverage**
+- Functions: **90%**
+- Lines: **85%**
+- Branches: **80%**
+- Statements: **85%**
+
+| Test Type      | Target        | Examples                   |
+|----------------|--------------|----------------------------|
+| Unit           | 100%         | Utils, validation, pricing |
+| Component      | 80%+         | React components           |
+| Integration    | 90%+         | API endpoints              |
+| E2E            | 5-10 key flows | Critical user flows      |
 
 ## Quick Reference
 

@@ -6,8 +6,8 @@ Verify that the build and deploy pipeline works correctly with the Hono worker s
 
 ## Acceptance Criteria
 
-- [ ] `npm run build` completes without errors
-- [ ] `npm run deploy` completes without errors
+	- [ ] `bun run build` completes without errors
+	- [ ] `bun run deploy` completes without errors
 - [ ] Worker deployed to CloudFlare
 - [ ] Custom domain works (tryequipped.preview.frst.dev)
 - [ ] Both static assets and API routes accessible
@@ -24,7 +24,7 @@ Feature: Deploy Pipeline
 
   @REQ-DEPLOY-001
   Scenario: Build succeeds
-    When I run "npm run build"
+	    When I run "bun run build"
     Then exit code should be 0
     And dist/ directory should contain HTML files
     And no TypeScript errors should occur
@@ -32,7 +32,7 @@ Feature: Deploy Pipeline
   @REQ-DEPLOY-002
   Scenario: Deploy succeeds
     Given build has completed
-    When I run "npm run deploy"
+	    When I run "bun run deploy"
     Then exit code should be 0
     And CloudFlare should confirm deployment
     And deployment URL should be returned
@@ -82,9 +82,9 @@ Feature: Deploy Pipeline
 
 ## Verification Commands
 
-```bash
-# Full deploy cycle
-npm run build && npm run deploy
+	```bash
+	# Full deploy cycle
+	bun run build && bun run deploy
 
 # Verify static site
 curl -I https://tryequipped.preview.frst.dev/
@@ -107,9 +107,9 @@ wrangler tail
     "dev": "astro dev",
     "build": "astro build",
     "preview": "wrangler dev",
-    "deploy": "npm run build && wrangler deploy",
-    "deploy:staging": "npm run build && wrangler deploy --env staging",
-    "deploy:production": "npm run build && wrangler deploy --env production",
+	    "deploy": "bun run build && wrangler deploy",
+	    "deploy:staging": "bun run build && wrangler deploy --env staging",
+	    "deploy:production": "bun run build && wrangler deploy --env production",
     "logs": "wrangler tail"
   }
 }
@@ -117,9 +117,9 @@ wrangler tail
 
 ## Troubleshooting
 
-| Issue | Solution |
-|-------|----------|
-| Build fails with TS errors | Run `npm run check` to identify issues |
+	| Issue | Solution |
+	|-------|----------|
+	| Build fails with TS errors | Run `bun run check` to identify issues |
 | Deploy fails with auth error | Run `wrangler login` |
 | API returns 500 | Check `wrangler tail` for error logs |
 | Static assets 404 | Verify dist/ directory exists after build |
