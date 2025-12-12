@@ -878,6 +878,50 @@ epics:
         complexity: medium
         depends_on:
           - testing/setup-vitest
+      - id: mock-browser-apis
+        name: Mock Browser APIs in Test Environment
+        file: testing/mock-browser-apis.md
+        done: false
+        complexity: low
+        depends_on:
+          - testing/setup-vitest
+      - id: reconcile-task-status
+        name: Reconcile Task Status with Test Results
+        file: testing/reconcile-task-status.md
+        done: false
+        complexity: low
+        depends_on: []
+      - id: fix-component-tests
+        name: Fix Failing Component Tests
+        file: testing/fix-component-tests.md
+        done: false
+        complexity: high
+        depends_on:
+          - testing/mock-browser-apis
+          - testing/setup-vitest
+      - id: fix-database-tests
+        name: Fix Failing Database Tests
+        file: testing/fix-database-tests.md
+        done: false
+        complexity: high
+        depends_on:
+          - testing/setup-vitest
+          - testing/fix-drizzle-mocking
+      - id: fix-api-tests
+        name: Fix Failing API Route Tests
+        file: testing/fix-api-tests.md
+        done: false
+        complexity: high
+        depends_on:
+          - testing/fix-database-tests
+          - testing/setup-vitest
+      - id: generate-bug-fix-tasks
+        name: Generate Bug Fix Task Files from Test Failures
+        file: testing/generate-bug-fix-tasks.md
+        done: false
+        complexity: medium
+        depends_on:
+          - testing/reconcile-task-status
 
   integrations:
     name: External Integrations
