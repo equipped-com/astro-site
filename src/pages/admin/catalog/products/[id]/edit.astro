@@ -3,6 +3,11 @@ import { ClerkProvider } from '@clerk/clerk-react'
 import ProductForm from '@/components/admin/catalog/ProductForm'
 import AdminLayout from '@/layouts/AdminLayout.astro'
 
+export function getStaticPaths() {
+	// Return empty array for build - actual products are loaded client-side
+	return []
+}
+
 const publishableKey = import.meta.env.PUBLIC_CLERK_PUBLISHABLE_KEY
 const { id } = Astro.params
 ---
