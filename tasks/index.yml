@@ -503,12 +503,9 @@ epics:
       - id: user-endpoints
         name: User Profile Endpoints
         file: api/user-endpoints.md
-        done: false
-        # original_commit: 337a2b5  # Implementation completed but tests failing
+        done: true
+        commit: ab03f64
         complexity: medium
-        reason: "User API tests failing"
-        failing_tests:
-          - src/api/routes/user.test.ts
         depends_on:
           - api/auth-middleware
           - bugs/fix-user-api-tests
@@ -1244,7 +1241,8 @@ epics:
       - id: fix-user-api-tests
         name: Fix User API Endpoint Tests
         file: bugs/fix-user-api-tests.md
-        done: false
+        done: true
+        commit: ab03f64
         complexity: medium
         depends_on:
           - testing/fix-api-tests
