@@ -358,7 +358,8 @@ epics:
       - id: invitation-emails
         name: Invitation Email Templates
         file: invitations/invitation-emails.md
-        done: false
+        done: true
+        commit: a35f0b7
         complexity: low
         depends_on:
           - invitations/invitation-api
