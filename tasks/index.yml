@@ -349,7 +349,8 @@ epics:
       - id: invitation-ui
         name: Invitation UI Components
         file: invitations/invitation-ui.md
-        done: false
+        done: true
+        commit: 654a9b6
         complexity: medium
         depends_on:
           - invitations/invitation-api
