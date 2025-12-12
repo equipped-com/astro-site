@@ -951,7 +951,8 @@ epics:
       - id: fix-database-tests
         name: Fix Failing Database Tests
         file: testing/fix-database-tests.md
-        done: false
+        done: true
+        commit: b77eac4
         complexity: high
         depends_on:
           - testing/setup-vitest
