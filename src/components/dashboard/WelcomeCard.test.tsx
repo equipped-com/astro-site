@@ -9,7 +9,7 @@
  */
 
 import { render, screen } from '@testing-library/react'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest'
 import { WelcomeCard } from './WelcomeCard'
 
 // Mock Clerk's useUser hook
@@ -32,7 +32,7 @@ describe('WelcomeCard', () => {
 	 *   Then a loading indicator should be displayed
 	 */
 	it('should show loading state when user data is not loaded', () => {
-		vi.mocked(useUser).mockReturnValue({
+		(useUser as Mock).mockReturnValue({
 			isLoaded: false,
 			user: null,
 			isSignedIn: false,
@@ -52,7 +52,7 @@ describe('WelcomeCard', () => {
 	 *   Then I should see "Good morning, Alice"
 	 */
 	it('should display morning greeting with user first name', () => {
-		vi.mocked(useUser).mockReturnValue({
+		(useUser as Mock).mockReturnValue({
 			isLoaded: true,
 			user: {
 				firstName: 'Alice',
@@ -82,7 +82,7 @@ describe('WelcomeCard', () => {
 	 *   Then I should see "Good afternoon"
 	 */
 	it('should display afternoon greeting between 12 PM and 6 PM', () => {
-		vi.mocked(useUser).mockReturnValue({
+		(useUser as Mock).mockReturnValue({
 			isLoaded: true,
 			user: {
 				firstName: 'Bob',
@@ -110,7 +110,7 @@ describe('WelcomeCard', () => {
 	 *   Then I should see "Good evening"
 	 */
 	it('should display evening greeting after 6 PM', () => {
-		vi.mocked(useUser).mockReturnValue({
+		(useUser as Mock).mockReturnValue({
 			isLoaded: true,
 			user: {
 				firstName: 'Charlie',
@@ -137,7 +137,7 @@ describe('WelcomeCard', () => {
 	 *   Then I should see their full name in the greeting
 	 */
 	it('should use full name when first name is not available', () => {
-		vi.mocked(useUser).mockReturnValue({
+		(useUser as Mock).mockReturnValue({
 			isLoaded: true,
 			user: {
 				firstName: null,
@@ -164,7 +164,7 @@ describe('WelcomeCard', () => {
 	 *   Then I should see "Good [time], there"
 	 */
 	it('should use generic greeting when no name is available', () => {
-		vi.mocked(useUser).mockReturnValue({
+		(useUser as Mock).mockReturnValue({
 			isLoaded: true,
 			user: {
 				firstName: null,

@@ -61,40 +61,38 @@ To make E2E testing robust and fast, avoid testing Clerk's internal implementati
 
 Clerk uses bot protection that can block automated browsers. The `@clerk/testing` package helps bypass this by generating a testing token.
 
-We use the **Project Dependencies** approach (recommended by Playwright and Clerk) which provides:
-- Full trace recording support
-- HTML report visibility
-- Playwright fixture support
+We use Playwright's **`globalSetup` hook** to configure Clerk test mode once before all tests. This keeps the Playwright UI simpler (no dedicated `setup` project filter) while still ensuring Clerk is ready for every test run.
 
-Configure this in `e2e/global.setup.ts`:
+Configure this in `e2e/clerk-global-setup.ts`:
 
 ```typescript
+import type { FullConfig } from '@playwright/test'
 import { clerkSetup } from '@clerk/testing/playwright'
-import { test as setup } from '@playwright/test'
 
-// Setup must be run serially when Playwright is configured to run fully parallel
-setup.describe.configure({ mode: 'serial' })
-
-setup('global setup', async ({}) => {
-  await clerkSetup()
-  console.log('✅ Clerk testing token generated')
-})
+// Global setup for Clerk E2E tests.
+// Runs once before all Playwright projects and configures Clerk testing token.
+export default async function globalSetup(_config: FullConfig): Promise<void> {
+	await clerkSetup()
+	console.log('✅ Clerk testing token generated (globalSetup)')
+}
 ```
 
-And in `playwright.config.ts`, add the setup project with dependencies:
+And in `playwright.config.ts`, wire it up via `globalSetup` and define the browser projects:
 
 ```typescript
-projects: [
-  // Setup project runs first
-  {
-    name: 'setup',
-    testMatch: /global\.setup\.ts/,
-  },
-  // Browser projects depend on setup
-  { name: 'chromium', use: { ...devices['Desktop Chrome'] }, dependencies: ['setup'] },
-  { name: 'firefox', use: { ...devices['Desktop Firefox'] }, dependencies: ['setup'] },
-  // ... other browsers
-]
+import { defineConfig, devices } from '@playwright/test'
+
+export default defineConfig({
+	testDir: './e2e',
+	globalSetup: './e2e/clerk-global-setup',
+	// ... other config
+	projects: [
+		{ name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+		{ name: 'firefox', use: { ...devices['Desktop Firefox'] } },
+		{ name: 'webkit', use: { ...devices['Desktop Safari'] } },
+		{ name: 'mobile', use: { ...devices['iPhone 14'] } },
+	],
+})
 ```
 
 ### Authenticating in Tests
@@ -162,8 +160,8 @@ As of the latest setup, our E2E testing infrastructure includes:
 - Basic Playwright configuration with multi-browser support
 - Test directory structure (`e2e/` with fixtures, pages, specs)
 - Test user pattern using `+clerk_test` suffix
-- **@clerk/testing package integration** - Bot protection bypass implemented
-- **Global setup with clerkSetup()** - Configured in `e2e/global.setup.ts` using Project Dependencies approach
+	- **@clerk/testing package integration** - Bot protection bypass implemented
+	- **Global setup with clerkSetup()** - Configured in `e2e/clerk-global-setup.ts` using Playwright's `globalSetup` hook
 - **Programmatic authentication** - Fast sign-in using `clerk.signIn()` in `e2e/fixtures/auth.ts`
 - **Dual authentication methods** - Both programmatic (fast) and UI-based (thorough) approaches available
 - **Comprehensive test coverage** - Tests for all Clerk integration scenarios in `e2e/clerk-integration.spec.ts`

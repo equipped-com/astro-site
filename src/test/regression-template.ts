@@ -180,6 +180,8 @@ describe('Payment Form [REGRESSION]', () => {
  * Verification: User redirected to original destination after login
  */
 export const exampleAuthRedirect = `
+import { type Mock } from 'vitest'
+
 describe('Auth Middleware [REGRESSION]', () => {
 	/**
 	 * REGRESSION TEST
@@ -190,7 +192,7 @@ describe('Auth Middleware [REGRESSION]', () => {
 	 */
 	test('should preserve intended destination on session expiry', async () => {
 		const { getAuth } = await import('@hono/clerk-auth')
-		vi.mocked(getAuth).mockReturnValueOnce({ userId: undefined } as MockAuth)
+		(getAuth as Mock).mockReturnValueOnce({ userId: undefined } as MockAuth)
 
 		const mockDb = { prepare: vi.fn() }
 		const app = createTestApp(mockDb)

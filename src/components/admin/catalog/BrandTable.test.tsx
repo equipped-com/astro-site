@@ -2,7 +2,7 @@
  * @REQ-UI-002 @Brands - Manage brands
  */
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest'
 import BrandTable from './BrandTable'
 
 describe('BrandTable', () => {
@@ -40,7 +40,7 @@ describe('BrandTable', () => {
 	 *   Then I should see all brands in a table
 	 */
 	it('should display all brands in a table', async () => {
-		vi.mocked(global.fetch).mockResolvedValueOnce({
+		(global.fetch as Mock).mockResolvedValueOnce({
 			ok: true,
 			json: async () => ({ brands: mockBrands }),
 		} as Response)
@@ -59,7 +59,7 @@ describe('BrandTable', () => {
 	 *   And I should see "Add Brand" button
 	 */
 	it('should display add brand button', () => {
-		vi.mocked(global.fetch).mockResolvedValueOnce({
+		(global.fetch as Mock).mockResolvedValueOnce({
 			ok: true,
 			json: async () => ({ brands: [] }),
 		} as Response)
@@ -76,7 +76,7 @@ describe('BrandTable', () => {
 	 *   Then I should see a form with fields
 	 */
 	it('should show form when clicking add brand', async () => {
-		vi.mocked(global.fetch).mockResolvedValueOnce({
+		(global.fetch as Mock).mockResolvedValueOnce({
 			ok: true,
 			json: async () => ({ brands: [] }),
 		} as Response)
@@ -100,7 +100,7 @@ describe('BrandTable', () => {
 	 *   Then the brand should be created
 	 */
 	it('should create brand when submitting form', async () => {
-		vi.mocked(global.fetch)
+		(global.fetch as Mock)
 			.mockResolvedValueOnce({
 				ok: true,
 				json: async () => ({ brands: [] }),
@@ -148,7 +148,7 @@ describe('BrandTable', () => {
 	 * Scenario: Edit brand
 	 */
 	it('should allow editing a brand', async () => {
-		vi.mocked(global.fetch).mockResolvedValueOnce({
+		(global.fetch as Mock).mockResolvedValueOnce({
 			ok: true,
 			json: async () => ({ brands: mockBrands }),
 		} as Response)
@@ -173,7 +173,7 @@ describe('BrandTable', () => {
 	 * Scenario: Delete brand
 	 */
 	it('should allow deleting a brand', async () => {
-		vi.mocked(global.fetch)
+		(global.fetch as Mock)
 			.mockResolvedValueOnce({
 				ok: true,
 				json: async () => ({ brands: mockBrands }),

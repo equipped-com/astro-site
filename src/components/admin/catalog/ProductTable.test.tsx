@@ -2,7 +2,7 @@
  * @REQ-UI-003 @Products - Browse products
  */
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest'
 import ProductTable from './ProductTable'
 
 describe('ProductTable', () => {
@@ -43,7 +43,7 @@ describe('ProductTable', () => {
 	 *   Then I should see all products in a data table
 	 */
 	it('should display all products in a table', async () => {
-		vi.mocked(global.fetch)
+		(global.fetch as Mock)
 			.mockResolvedValueOnce({
 				ok: true,
 				json: async () => ({ brands: mockBrands }),
@@ -69,7 +69,7 @@ describe('ProductTable', () => {
 	 *     | Filter by brand| Yes       |
 	 */
 	it('should allow filtering by brand', async () => {
-		vi.mocked(global.fetch)
+		(global.fetch as Mock)
 			.mockResolvedValueOnce({
 				ok: true,
 				json: async () => ({ brands: mockBrands }),
@@ -108,7 +108,7 @@ describe('ProductTable', () => {
 	 *     | Filter by type | Yes       |
 	 */
 	it('should allow filtering by type', async () => {
-		vi.mocked(global.fetch)
+		(global.fetch as Mock)
 			.mockResolvedValueOnce({
 				ok: true,
 				json: async () => ({ brands: mockBrands }),
@@ -146,7 +146,7 @@ describe('ProductTable', () => {
 	 *     | Search by name | Yes       |
 	 */
 	it('should allow searching by name', async () => {
-		vi.mocked(global.fetch)
+		(global.fetch as Mock)
 			.mockResolvedValueOnce({
 				ok: true,
 				json: async () => ({ brands: mockBrands }),
@@ -184,7 +184,7 @@ describe('ProductTable', () => {
 	 *     | Paginate       | Yes       |
 	 */
 	it('should allow pagination', async () => {
-		vi.mocked(global.fetch)
+		(global.fetch as Mock)
 			.mockResolvedValueOnce({
 				ok: true,
 				json: async () => ({ brands: mockBrands }),
@@ -219,7 +219,7 @@ describe('ProductTable', () => {
 	 * Scenario: Delete product
 	 */
 	it('should allow deleting a product', async () => {
-		vi.mocked(global.fetch)
+		(global.fetch as Mock)
 			.mockResolvedValueOnce({
 				ok: true,
 				json: async () => ({ brands: mockBrands }),

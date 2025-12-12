@@ -29,7 +29,8 @@ export default defineConfig(
 					statements: 85,
 				},
 			},
-			include: ['src/**/*.test.ts', 'src/**/*.test.tsx', 'src/**/*.spec.ts'],
+			include: ['src/**/*.test.ts', 'src/**/*.test.tsx'],
+			exclude: ['e2e/**', '**/*.spec.ts'],
 		},
 		resolve: {
 			alias: {

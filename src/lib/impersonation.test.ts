@@ -42,17 +42,17 @@ const mockLocalStorage = {
 const mockDispatchEvent = vi.fn()
 
 beforeEach(() => {
-	vi.stubGlobal('localStorage', mockLocalStorage)
-	vi.stubGlobal('window', {
+	global.localStorage = mockLocalStorage as any
+	global.window = {
 		localStorage: mockLocalStorage,
 		dispatchEvent: mockDispatchEvent,
-	})
+	} as any
 	mockLocalStorage.clear()
 	mockDispatchEvent.mockClear()
 })
 
 afterEach(() => {
-	vi.unstubAllGlobals()
+	vi.restoreAllMocks()
 })
 
 describe('Impersonation Library', () => {

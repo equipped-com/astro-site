@@ -3,7 +3,7 @@
  * @REQ-UI-007 @Inventory @QuickEdit - Quick edit inventory status
  */
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
-import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach, type Mock } from 'vitest'
 import InventoryTable from './InventoryTable'
 
 describe('InventoryTable', () => {
@@ -41,7 +41,7 @@ describe('InventoryTable', () => {
 	 *   Then I should see all inventory items
 	 */
 	it('should display all inventory items', async () => {
-		vi.mocked(global.fetch)
+		(global.fetch as Mock)
 			.mockResolvedValueOnce({
 				ok: true,
 				json: async () => ({ products: mockProducts, pagination: { page: 1, limit: 1000, total: 2 } }),
@@ -71,7 +71,7 @@ describe('InventoryTable', () => {
 	 *     | Location       | Yes     |
 	 */
 	it('should show all required fields for each item', async () => {
-		vi.mocked(global.fetch)
+		(global.fetch as Mock)
 			.mockResolvedValueOnce({
 				ok: true,
 				json: async () => ({ products: mockProducts, pagination: { page: 1, limit: 1000, total: 2 } }),
@@ -101,7 +101,7 @@ describe('InventoryTable', () => {
 	 *   Then the status should update immediately
 	 */
 	it('should allow quick editing of inventory status', async () => {
-		vi.mocked(global.fetch)
+		(global.fetch as Mock)
 			.mockResolvedValueOnce({
 				ok: true,
 				json: async () => ({ products: mockProducts, pagination: { page: 1, limit: 1000, total: 2 } }),
@@ -157,7 +157,7 @@ describe('InventoryTable', () => {
 	 * Scenario: Filter inventory
 	 */
 	it('should allow filtering by product', async () => {
-		vi.mocked(global.fetch)
+		(global.fetch as Mock)
 			.mockResolvedValueOnce({
 				ok: true,
 				json: async () => ({ products: mockProducts, pagination: { page: 1, limit: 1000, total: 2 } }),
@@ -192,7 +192,7 @@ describe('InventoryTable', () => {
 	 * Scenario: Filter inventory by status
 	 */
 	it('should allow filtering by status', async () => {
-		vi.mocked(global.fetch)
+		(global.fetch as Mock)
 			.mockResolvedValueOnce({
 				ok: true,
 				json: async () => ({ products: mockProducts, pagination: { page: 1, limit: 1000, total: 2 } }),
@@ -227,7 +227,7 @@ describe('InventoryTable', () => {
 	 * Scenario: Filter inventory by condition
 	 */
 	it('should allow filtering by condition', async () => {
-		vi.mocked(global.fetch)
+		(global.fetch as Mock)
 			.mockResolvedValueOnce({
 				ok: true,
 				json: async () => ({ products: mockProducts, pagination: { page: 1, limit: 1000, total: 2 } }),
