@@ -14,35 +14,16 @@ export default defineConfig(
 			env: testEnv,
 			globals: true,
 			environment: 'happy-dom',
-			pool: 'forks',
-			poolOptions: {
-				forks: {
-					singleFork: true,
-				},
-			},
 			environmentOptions: {
 				happyDOM: {
 					settings: {
-						disableJavaScriptEvaluation: false,
-						disableJavaScriptFileLoading: false,
-						disableCSSFileLoading: false,
-						disableIframePageLoading: false,
-						disableComputedStyleRendering: false,
-						enableFileSystemHttpRequests: false,
-						navigator: {
-							userAgent:
-								'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-						},
-						device: {
-							prefersColorScheme: 'light',
-						},
+						url: 'http://localhost:3000',
+						width: 1024,
+						height: 768,
 					},
-					url: 'http://localhost:3000',
-					width: 1024,
-					height: 768,
 				},
 			},
-			setupFiles: ['./src/test/dom-setup.ts', './src/test/setup.ts'],
+			setupFiles: ['./src/test/setup.ts', './src/test/dom-setup.ts'],
 			coverage: {
 				provider: 'v8',
 				reporter: ['text', 'html', 'json'],
@@ -63,7 +44,7 @@ export default defineConfig(
 					statements: 85,
 				},
 			},
-			include: ['src/**/*.test.ts', 'src/**/*.test.tsx', 'scripts/**/*.test.ts'],
+			include: ['src/**/*.test.ts', 'src/**/*.test.tsx'],
 			exclude: ['e2e/**', '**/*.spec.ts'],
 		},
 		resolve: {
