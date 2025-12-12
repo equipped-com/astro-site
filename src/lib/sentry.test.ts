@@ -1,5 +1,5 @@
 import * as Sentry from '@sentry/browser'
-import { afterEach, beforeEach, describe, expect, it, vi, type Mock } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, type Mock, vi } from 'vitest'
 import {
 	addBreadcrumb,
 	captureError,
@@ -11,16 +11,20 @@ import {
 } from './sentry'
 
 // Mock Sentry
-vi.mock('@sentry/browser', () => ({
-	init: vi.fn(),
-	setUser: vi.fn(),
-	setTag: vi.fn(),
-	captureException: vi.fn(),
-	captureMessage: vi.fn(),
-	addBreadcrumb: vi.fn(),
-	startSpan: vi.fn((_options, callback) => callback({})),
-	browserTracingIntegration: vi.fn(() => 'browserTracingIntegration'),
-}))
+vi.mock('@sentry/browser', async () => {
+	const actual = await vi.importActual('@sentry/browser')
+	return {
+		...actual,
+		init: vi.fn(),
+		setUser: vi.fn(),
+		setTag: vi.fn(),
+		captureException: vi.fn(),
+		captureMessage: vi.fn(),
+		addBreadcrumb: vi.fn(),
+		startSpan: vi.fn((_options, callback) => callback({})),
+		browserTracingIntegration: vi.fn(() => 'browserTracingIntegration'),
+	}
+})
 
 describe('Sentry Error Tracking', () => {
 	beforeEach(() => {
@@ -179,7 +183,7 @@ describe('Sentry Error Tracking', () => {
 	describe('@REQ-MON-007: Performance monitoring', () => {
 		it('should create performance transaction for API request', () => {
 			const mockSpan = { finish: vi.fn() }
-			(Sentry.startSpan as Mock).mockImplementation((_options, callback) => callback(mockSpan as never))
+			;(Sentry.startSpan as Mock).mockImplementation((_options, callback) => callback(mockSpan as never))
 
 			const result = startTransaction('GET /api/devices', 'http.server')
 
