@@ -1091,7 +1091,8 @@ epics:
       - id: task-generation
         name: Automated Task Generation from PRD
         file: workflow/task-generation.md
-        done: false
+        done: true
+        commit: 1c0bce5
         complexity: medium
         depends_on:
           - workflow/prd-preparation
