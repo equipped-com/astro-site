@@ -19,12 +19,23 @@
 import { drizzle } from 'drizzle-orm/d1'
 import { D1Database } from '@miniflare/d1'
 import Database from 'better-sqlite3'
-import { readFileSync } from 'node:fs'
-import { join } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import { readFileSync, existsSync } from 'node:fs'
+import { join, resolve } from 'node:path'
 import * as schema from '@/db/schema'
 
-const __dirname = fileURLToPath(new URL('.', import.meta.url))
+// Find project root by looking for package.json
+function findProjectRoot(): string {
+	let currentDir = process.cwd()
+	while (currentDir !== '/') {
+		if (existsSync(join(currentDir, 'package.json'))) {
+			return currentDir
+		}
+		currentDir = resolve(currentDir, '..')
+	}
+	return process.cwd()
+}
+
+const projectRoot = findProjectRoot()
 
 /**
  * Create an in-memory test database with migrations applied
@@ -33,7 +44,7 @@ const __dirname = fileURLToPath(new URL('.', import.meta.url))
  * @REQ-TEST-002 - Applies all migrations in sequence
  * @REQ-TEST-004 - Returns isolated database instance per test
  *
- * @returns Drizzle database instance with full schema
+ * @returns Object with Drizzle database instance and D1 binding
  */
 export function createTestDatabase() {
 	// Create in-memory SQLite database
@@ -51,7 +62,8 @@ export function createTestDatabase() {
 
 	for (const file of migrations) {
 		try {
-			const sql = readFileSync(join(__dirname, '../../migrations', file), 'utf-8')
+			const migrationPath = join(projectRoot, 'migrations', file)
+			const sql = readFileSync(migrationPath, 'utf-8')
 			// Execute migration SQL
 			sqlite.exec(sql)
 		} catch (error) {
@@ -60,8 +72,11 @@ export function createTestDatabase() {
 		}
 	}
 
-	// Return Drizzle instance with schema
-	return drizzle(d1, { schema })
+	// Return both Drizzle instance and D1 binding
+	return {
+		db: drizzle(d1, { schema }),
+		d1,
+	}
 }
 
 /**
@@ -69,10 +84,10 @@ export function createTestDatabase() {
  *
  * @REQ-TEST-003 - Seeds test data with common fixtures
  *
- * @param db - Drizzle database instance
+ * @param db - Drizzle database instance from createTestDatabase().db
  * @returns Object with fixture IDs for test assertions
  */
-export async function seedTestData(db: ReturnType<typeof createTestDatabase>) {
+export async function seedTestData(db: ReturnType<typeof createTestDatabase>['db']) {
 	// Insert test user
 	await db.insert(schema.users).values({
 		id: 'user_test_alice',
@@ -132,12 +147,12 @@ export async function seedTestData(db: ReturnType<typeof createTestDatabase>) {
 /**
  * Seed test invitation data
  *
- * @param db - Drizzle database instance
+ * @param db - Drizzle database instance from createTestDatabase().db
  * @param options - Invitation configuration
  * @returns Invitation ID
  */
 export async function seedTestInvitation(
-	db: ReturnType<typeof createTestDatabase>,
+	db: ReturnType<typeof createTestDatabase>['db'],
 	options: {
 		id?: string
 		accountId?: string
@@ -176,9 +191,9 @@ export async function seedTestInvitation(
  * when the reference is lost. This function is provided for explicit cleanup
  * if needed, but is generally not required.
  *
- * @param db - Drizzle database instance (unused, kept for API consistency)
+ * @param dbResult - Result from createTestDatabase() (unused, kept for API consistency)
  */
-export function cleanupTestDatabase(db: ReturnType<typeof createTestDatabase>) {
+export function cleanupTestDatabase(dbResult: ReturnType<typeof createTestDatabase>) {
 	// In-memory database is automatically garbage collected
 	// No explicit cleanup needed
 }

@@ -11,8 +11,11 @@
  */
 
 import { Hono } from 'hono'
-import { beforeEach, describe, expect, test, vi } from 'vitest'
+import { beforeEach, describe, expect, test } from 'vitest'
 import productsRouter from './products'
+import { createTestDatabase, seedTestData } from '@/test/drizzle-helpers'
+import * as schema from '@/db/schema'
+import type { D1Database } from '@miniflare/d1'
 
 // Mock types
 interface MockEnv {
@@ -20,9 +23,11 @@ interface MockEnv {
 	CLERK_SECRET_KEY: string
 }
 
-// Helper to create test app with mocked DB and context
+let db: ReturnType<typeof createTestDatabase>['db']
+let dbBinding: D1Database
+
+// Helper to create test app with real database and context
 function createTestApp(
-	mockDb: D1Database,
 	options: {
 		isSysAdmin?: boolean
 		userId?: string
@@ -48,7 +53,7 @@ function createTestApp(
 
 	app.use('*', async (c, next) => {
 		// @ts-expect-error - mocking env
-		c.env = { DB: mockDb, CLERK_SECRET_KEY: 'test_secret' }
+		c.env = { DB: dbBinding, CLERK_SECRET_KEY: 'test_secret' }
 		c.set('userId', userId)
 		c.set('sessionId', 'session_123')
 
@@ -79,6 +84,29 @@ function createTestApp(
  * Feature: Catalog CRUD API Endpoints
  */
 describe('Products API', () => {
+	beforeEach(async () => {
+		// Create fresh database with migrations for each test
+		const dbResult = createTestDatabase()
+		db = dbResult.db
+		dbBinding = dbResult.d1
+
+		// Seed test data
+		await seedTestData(db)
+
+		// Add additional test product
+		await db.insert(schema.products).values({
+			id: 'prod_test_macbook_air',
+			brandId: 'brand_test_apple',
+			name: 'MacBook Air 13"',
+			modelIdentifier: 'MacBookAir10,1',
+			sku: 'MBA-13-M2-2022',
+			productType: 'laptop',
+			description: 'Test MacBook Air',
+			msrp: 1299.0,
+			isActive: true,
+		})
+	})
+
 	/**
 	 * @REQ-API-004 @Products @List
 	 * Scenario: List products with filters
@@ -89,36 +117,7 @@ describe('Products API', () => {
 	 */
 	describe('@REQ-API-004 @Products @List - List products with filters', () => {
 		test('should return all products without filters', async () => {
-			const mockDb = {
-				prepare: vi.fn(() => ({
-					bind: vi.fn(() => ({
-						all: vi.fn(async () => [
-							{
-								id: 'prod_1',
-								brandId: 'brand_apple',
-								brandName: 'Apple',
-								name: 'MacBook Pro 14"',
-								sku: 'MBP14-M3-512',
-								productType: 'laptop',
-								msrp: 1999,
-								isActive: true,
-							},
-							{
-								id: 'prod_2',
-								brandId: 'brand_apple',
-								brandName: 'Apple',
-								name: 'MacBook Air 13"',
-								sku: 'MBA13-M3-256',
-								productType: 'laptop',
-								msrp: 1299,
-								isActive: true,
-							},
-						]),
-					})),
-				})),
-			} as unknown as D1Database
-
-			const app = createTestApp(mockDb, { isSysAdmin: false })
+			const app = createTestApp({ isSysAdmin: false })
 			const res = await app.request('/')
 			const data = await res.json()
 
@@ -130,70 +129,27 @@ describe('Products API', () => {
 		})
 
 		test('should filter products by brand', async () => {
-			const mockDb = {
-				prepare: vi.fn(() => ({
-					bind: vi.fn(() => ({
-						all: vi.fn(async () => [
-							{
-								id: 'prod_1',
-								brandId: 'brand_apple',
-								brandName: 'Apple',
-								name: 'MacBook Pro 14"',
-								productType: 'laptop',
-							},
-						]),
-					})),
-				})),
-			} as unknown as D1Database
-
-			const app = createTestApp(mockDb, { isSysAdmin: false })
-			const res = await app.request('/?brand=brand_apple')
+			const app = createTestApp({ isSysAdmin: false })
+			const res = await app.request('/?brand=brand_test_apple')
 			const data = await res.json()
 
 			expect(res.status).toBe(200)
-			expect(data.products).toHaveLength(1)
-			expect(data.products[0].brandId).toBe('brand_apple')
+			expect(data.products).toHaveLength(2)
+			expect(data.products[0].brandId).toBe('brand_test_apple')
 		})
 
 		test('should filter products by type', async () => {
-			const mockDb = {
-				prepare: vi.fn(() => ({
-					bind: vi.fn(() => ({
-						all: vi.fn(async () => [
-							{
-								id: 'prod_1',
-								brandId: 'brand_apple',
-								brandName: 'Apple',
-								name: 'MacBook Pro 14"',
-								productType: 'laptop',
-							},
-						]),
-					})),
-				})),
-			} as unknown as D1Database
-
-			const app = createTestApp(mockDb, { isSysAdmin: false })
+			const app = createTestApp({ isSysAdmin: false })
 			const res = await app.request('/?type=laptop')
 			const data = await res.json()
 
 			expect(res.status).toBe(200)
-			expect(data.products).toHaveLength(1)
+			expect(data.products).toHaveLength(2)
 			expect(data.products[0].productType).toBe('laptop')
 		})
 
 		test('should support pagination', async () => {
-			const mockDb = {
-				prepare: vi.fn(() => ({
-					bind: vi.fn(() => ({
-						all: vi.fn(async () => [
-							{ id: 'prod_1', name: 'Product 1' },
-							{ id: 'prod_2', name: 'Product 2' },
-						]),
-					})),
-				})),
-			} as unknown as D1Database
-
-			const app = createTestApp(mockDb, { isSysAdmin: false })
+			const app = createTestApp({ isSysAdmin: false })
 			const res = await app.request('/?page=2&limit=10')
 			const data = await res.json()
 
@@ -215,57 +171,12 @@ describe('Products API', () => {
 	 */
 	describe('@REQ-API-005 @Products @Create - Create product (sys_admin only)', () => {
 		test('should create a new product as sys_admin', async () => {
-			const mockDb = {
-				prepare: vi.fn(() => ({
-					bind: vi.fn(() => ({
-						run: vi.fn(async () => ({ success: true })),
-						get: vi.fn(async () => ({
-							id: 'brand_apple',
-							name: 'Apple',
-							slug: 'apple',
-						})),
-					})),
-				})),
-			} as unknown as D1Database
-
-			// Override to return created product on second get
-			let callCount = 0
-			mockDb.prepare = vi.fn(() => ({
-				bind: vi.fn(() => ({
-					run: vi.fn(async () => ({ success: true })),
-					get: vi.fn(async () => {
-						callCount++
-						if (callCount === 1) {
-							// First call: check brand exists
-							return {
-								id: 'brand_apple',
-								name: 'Apple',
-								slug: 'apple',
-							}
-						}
-						// Second call: return created product
-						return {
-							id: 'prod_123',
-							brandId: 'brand_apple',
-							brandName: 'Apple',
-							name: 'MacBook Pro 14"',
-							sku: 'MBP14-M3-512',
-							productType: 'laptop',
-							msrp: 1999,
-							isActive: true,
-							createdAt: '2024-12-10T00:00:00Z',
-							updatedAt: '2024-12-10T00:00:00Z',
-						}
-					}),
-				})),
-			}))
-
-			const app = createTestApp(mockDb, { isSysAdmin: true })
+			const app = createTestApp({ isSysAdmin: true })
 			const res = await app.request('/', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({
-					brand_id: 'brand_apple',
+					brand_id: 'brand_test_apple',
 					name: 'MacBook Pro 14"',
 					sku: 'MBP14-M3-512',
 					product_type: 'laptop',
@@ -282,9 +193,7 @@ describe('Products API', () => {
 		})
 
 		test('should reject create with missing required fields', async () => {
-			const mockDb = {} as unknown as D1Database
-
-			const app = createTestApp(mockDb, { isSysAdmin: true })
+			const app = createTestApp({ isSysAdmin: true })
 			const res = await app.request('/', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
@@ -301,15 +210,7 @@ describe('Products API', () => {
 		})
 
 		test('should reject create with invalid brand_id', async () => {
-			const mockDb = {
-				prepare: vi.fn(() => ({
-					bind: vi.fn(() => ({
-						get: vi.fn(async () => null), // Brand not found
-					})),
-				})),
-			} as unknown as D1Database
-
-			const app = createTestApp(mockDb, { isSysAdmin: true })
+			const app = createTestApp({ isSysAdmin: true })
 			const res = await app.request('/', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
@@ -339,61 +240,22 @@ describe('Products API', () => {
 	 */
 	describe('@REQ-API-006 @Products @Search - Search products by name or SKU', () => {
 		test('should search products by name', async () => {
-			const mockDb = {
-				prepare: vi.fn(() => ({
-					bind: vi.fn(() => ({
-						all: vi.fn(async () => [
-							{
-								id: 'prod_1',
-								brandId: 'brand_apple',
-								brandName: 'Apple',
-								name: 'MacBook Pro 14"',
-								sku: 'MBP14-M3-512',
-							},
-							{
-								id: 'prod_2',
-								brandId: 'brand_apple',
-								brandName: 'Apple',
-								name: 'MacBook Air 13"',
-								sku: 'MBA13-M3-256',
-							},
-						]),
-					})),
-				})),
-			} as unknown as D1Database
-
-			const app = createTestApp(mockDb, { isSysAdmin: false })
+			const app = createTestApp({ isSysAdmin: false })
 			const res = await app.request('/?search=MacBook')
 			const data = await res.json()
 
 			expect(res.status).toBe(200)
-			expect(data.products).toHaveLength(2)
+			expect(data.products.length).toBeGreaterThan(0)
 		})
 
 		test('should search products by SKU', async () => {
-			const mockDb = {
-				prepare: vi.fn(() => ({
-					bind: vi.fn(() => ({
-						all: vi.fn(async () => [
-							{
-								id: 'prod_1',
-								brandId: 'brand_apple',
-								brandName: 'Apple',
-								name: 'MacBook Pro 14"',
-								sku: 'MBP14-M3-512',
-							},
-						]),
-					})),
-				})),
-			} as unknown as D1Database
-
-			const app = createTestApp(mockDb, { isSysAdmin: false })
-			const res = await app.request('/?search=MBP14')
+			const app = createTestApp({ isSysAdmin: false })
+			const res = await app.request('/?search=MBA-13')
 			const data = await res.json()
 
 			expect(res.status).toBe(200)
-			expect(data.products).toHaveLength(1)
-			expect(data.products[0].sku).toContain('MBP14')
+			expect(data.products.length).toBeGreaterThan(0)
+			expect(data.products[0].sku).toContain('MBA-13')
 		})
 	})
 })

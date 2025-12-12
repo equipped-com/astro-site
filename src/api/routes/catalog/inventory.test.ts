@@ -23,7 +23,7 @@ interface MockEnv {
 	CLERK_SECRET_KEY: string
 }
 
-let db: ReturnType<typeof createTestDatabase>
+let db: ReturnType<typeof createTestDatabase>['db']
 let dbBinding: D1Database
 
 // Helper to create test app with real database and context
@@ -84,6 +84,29 @@ function createTestApp(
  * Feature: Catalog CRUD API Endpoints
  */
 describe('Inventory API', () => {
+	beforeEach(async () => {
+		// Create fresh database with migrations for each test
+		const dbResult = createTestDatabase()
+		db = dbResult.db
+		dbBinding = dbResult.d1
+
+		// Seed test data
+		await seedTestData(db)
+
+		// Add test inventory item
+		await db.insert(schema.inventoryItems).values({
+			id: 'inv_test_001',
+			productId: 'prod_test_macbook',
+			serialNumber: 'C02XJ0XHJG5H',
+			condition: 'new',
+			status: 'available',
+			purchaseCost: 2000,
+			salePrice: 2499,
+			warehouseLocation: 'A1-B2-C3',
+			notes: 'Brand new in box',
+		})
+	})
+
 	/**
 	 * @REQ-API-007 @Inventory @List
 	 * Scenario: List inventory items (sys_admin only)
@@ -94,31 +117,7 @@ describe('Inventory API', () => {
 	 */
 	describe('@REQ-API-007 @Inventory @List - List inventory items (sys_admin only)', () => {
 		test('should return all inventory items as sys_admin', async () => {
-			const mockDb = {
-				prepare: vi.fn(() => ({
-					bind: vi.fn(() => ({
-						all: vi.fn(async () => [
-							{
-								id: 'inv_1',
-								productId: 'prod_macbook',
-								productName: 'MacBook Pro 14"',
-								brandName: 'Apple',
-								serialNumber: 'C02XJ0XHJG5H',
-								condition: 'new',
-								status: 'available',
-								purchaseCost: 2000,
-								salePrice: 2499,
-								warehouseLocation: 'A1-B2-C3',
-								notes: 'Brand new in box',
-								createdAt: '2024-12-10T00:00:00Z',
-								updatedAt: '2024-12-10T00:00:00Z',
-							},
-						]),
-					})),
-				})),
-			} as unknown as D1Database
-
-			const app = createTestApp(mockDb, { isSysAdmin: true })
+			const app = createTestApp({ isSysAdmin: true })
 			const res = await app.request('/')
 			const data = await res.json()
 
@@ -130,22 +129,7 @@ describe('Inventory API', () => {
 		})
 
 		test('should filter inventory by status', async () => {
-			const mockDb = {
-				prepare: vi.fn(() => ({
-					bind: vi.fn(() => ({
-						all: vi.fn(async () => [
-							{
-								id: 'inv_1',
-								productId: 'prod_macbook',
-								status: 'available',
-								condition: 'new',
-							},
-						]),
-					})),
-				})),
-			} as unknown as D1Database
-
-			const app = createTestApp(mockDb, { isSysAdmin: true })
+			const app = createTestApp({ isSysAdmin: true })
 			const res = await app.request('/?status=available')
 			const data = await res.json()
 
@@ -155,22 +139,7 @@ describe('Inventory API', () => {
 		})
 
 		test('should filter inventory by condition', async () => {
-			const mockDb = {
-				prepare: vi.fn(() => ({
-					bind: vi.fn(() => ({
-						all: vi.fn(async () => [
-							{
-								id: 'inv_1',
-								productId: 'prod_macbook',
-								status: 'available',
-								condition: 'new',
-							},
-						]),
-					})),
-				})),
-			} as unknown as D1Database
-
-			const app = createTestApp(mockDb, { isSysAdmin: true })
+			const app = createTestApp({ isSysAdmin: true })
 			const res = await app.request('/?condition=new')
 			const data = await res.json()
 
@@ -180,28 +149,13 @@ describe('Inventory API', () => {
 		})
 
 		test('should filter inventory by product_id', async () => {
-			const mockDb = {
-				prepare: vi.fn(() => ({
-					bind: vi.fn(() => ({
-						all: vi.fn(async () => [
-							{
-								id: 'inv_1',
-								productId: 'prod_macbook',
-								status: 'available',
-								condition: 'new',
-							},
-						]),
-					})),
-				})),
-			} as unknown as D1Database
-
-			const app = createTestApp(mockDb, { isSysAdmin: true })
-			const res = await app.request('/?product_id=prod_macbook')
+			const app = createTestApp({ isSysAdmin: true })
+			const res = await app.request('/?product_id=prod_test_macbook')
 			const data = await res.json()
 
 			expect(res.status).toBe(200)
 			expect(data.items).toHaveLength(1)
-			expect(data.items[0].productId).toBe('prod_macbook')
+			expect(data.items[0].productId).toBe('prod_test_macbook')
 		})
 	})
 
@@ -218,56 +172,12 @@ describe('Inventory API', () => {
 	 */
 	describe('@REQ-API-008 @Inventory @Create - Add inventory item', () => {
 		test('should create a new inventory item as sys_admin', async () => {
-			const mockDb = {
-				prepare: vi.fn(() => ({
-					bind: vi.fn(() => ({
-						run: vi.fn(async () => ({ success: true })),
-						get: vi.fn(async () => ({
-							id: 'prod_123',
-							name: 'MacBook Pro 14"',
-							brandId: 'brand_apple',
-						})),
-					})),
-				})),
-			} as unknown as D1Database
-
-			// Override to return created item on second get
-			let callCount = 0
-			mockDb.prepare = vi.fn(() => ({
-				bind: vi.fn(() => ({
-					run: vi.fn(async () => ({ success: true })),
-					get: vi.fn(async () => {
-						callCount++
-						if (callCount === 1) {
-							// First call: check product exists
-							return {
-								id: 'prod_123',
-								name: 'MacBook Pro 14"',
-								brandId: 'brand_apple',
-							}
-						}
-						// Second call: return created inventory item
-						return {
-							id: 'inv_123',
-							productId: 'prod_123',
-							productName: 'MacBook Pro 14"',
-							brandName: 'Apple',
-							serialNumber: 'C02XYZ123ABC',
-							condition: 'new',
-							status: 'available',
-							createdAt: '2024-12-10T00:00:00Z',
-							updatedAt: '2024-12-10T00:00:00Z',
-						}
-					}),
-				})),
-			}))
-
-			const app = createTestApp(mockDb, { isSysAdmin: true })
+			const app = createTestApp({ isSysAdmin: true })
 			const res = await app.request('/', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({
-					product_id: 'prod_123',
+					product_id: 'prod_test_macbook',
 					serial_number: 'C02XYZ123ABC',
 					condition: 'new',
 					status: 'available',
@@ -283,14 +193,12 @@ describe('Inventory API', () => {
 		})
 
 		test('should reject create with missing required fields', async () => {
-			const mockDb = {} as unknown as D1Database
-
-			const app = createTestApp(mockDb, { isSysAdmin: true })
+			const app = createTestApp({ isSysAdmin: true })
 			const res = await app.request('/', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({
-					product_id: 'prod_123',
+					product_id: 'prod_test_macbook',
 					// Missing condition and status
 				}),
 			})
@@ -302,15 +210,7 @@ describe('Inventory API', () => {
 		})
 
 		test('should reject create with invalid product_id', async () => {
-			const mockDb = {
-				prepare: vi.fn(() => ({
-					bind: vi.fn(() => ({
-						get: vi.fn(async () => null), // Product not found
-					})),
-				})),
-			} as unknown as D1Database
-
-			const app = createTestApp(mockDb, { isSysAdmin: true })
+			const app = createTestApp({ isSysAdmin: true })
 			const res = await app.request('/', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
@@ -338,52 +238,8 @@ describe('Inventory API', () => {
 	 */
 	describe('@REQ-API-009 @Inventory @Update - Update inventory status', () => {
 		test('should update inventory item status as sys_admin', async () => {
-			const mockDb = {
-				prepare: vi.fn(() => ({
-					bind: vi.fn(() => ({
-						run: vi.fn(async () => ({ success: true })),
-						get: vi.fn(async () => ({
-							id: 'inv_123',
-							productId: 'prod_macbook',
-							status: 'available',
-							condition: 'new',
-						})),
-					})),
-				})),
-			} as unknown as D1Database
-
-			// Override to return updated item on second get
-			let callCount = 0
-			mockDb.prepare = vi.fn(() => ({
-				bind: vi.fn(() => ({
-					run: vi.fn(async () => ({ success: true })),
-					get: vi.fn(async () => {
-						callCount++
-						if (callCount === 1) {
-							// First call: check item exists
-							return {
-								id: 'inv_123',
-								productId: 'prod_macbook',
-								status: 'available',
-								condition: 'new',
-							}
-						}
-						// Second call: return updated item
-						return {
-							id: 'inv_123',
-							productId: 'prod_macbook',
-							productName: 'MacBook Pro 14"',
-							brandName: 'Apple',
-							status: 'sold',
-							condition: 'new',
-							updatedAt: '2024-12-10T10:00:00Z',
-						}
-					}),
-				})),
-			}))
-
-			const app = createTestApp(mockDb, { isSysAdmin: true })
-			const res = await app.request('/inv_123', {
+			const app = createTestApp({ isSysAdmin: true })
+			const res = await app.request('/inv_test_001', {
 				method: 'PUT',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({
@@ -399,15 +255,7 @@ describe('Inventory API', () => {
 		})
 
 		test('should return 404 for non-existent inventory item', async () => {
-			const mockDb = {
-				prepare: vi.fn(() => ({
-					bind: vi.fn(() => ({
-						get: vi.fn(async () => null), // Item not found
-					})),
-				})),
-			} as unknown as D1Database
-
-			const app = createTestApp(mockDb, { isSysAdmin: true })
+			const app = createTestApp({ isSysAdmin: true })
 			const res = await app.request('/inv_nonexistent', {
 				method: 'PUT',
 				headers: { 'Content-Type': 'application/json' },
@@ -423,52 +271,8 @@ describe('Inventory API', () => {
 		})
 
 		test('should update multiple fields at once', async () => {
-			const mockDb = {
-				prepare: vi.fn(() => ({
-					bind: vi.fn(() => ({
-						run: vi.fn(async () => ({ success: true })),
-						get: vi.fn(async () => ({
-							id: 'inv_123',
-							productId: 'prod_macbook',
-							status: 'available',
-							condition: 'new',
-							notes: null,
-						})),
-					})),
-				})),
-			} as unknown as D1Database
-
-			// Override for update
-			let callCount = 0
-			mockDb.prepare = vi.fn(() => ({
-				bind: vi.fn(() => ({
-					run: vi.fn(async () => ({ success: true })),
-					get: vi.fn(async () => {
-						callCount++
-						if (callCount === 1) {
-							return {
-								id: 'inv_123',
-								productId: 'prod_macbook',
-								status: 'available',
-								condition: 'new',
-								notes: null,
-							}
-						}
-						return {
-							id: 'inv_123',
-							productId: 'prod_macbook',
-							status: 'reserved',
-							condition: 'like_new',
-							notes: 'Reserved for customer',
-							warehouseLocation: 'B3-C4-D5',
-							updatedAt: '2024-12-10T10:00:00Z',
-						}
-					}),
-				})),
-			}))
-
-			const app = createTestApp(mockDb, { isSysAdmin: true })
-			const res = await app.request('/inv_123', {
+			const app = createTestApp({ isSysAdmin: true })
+			const res = await app.request('/inv_test_001', {
 				method: 'PUT',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({
