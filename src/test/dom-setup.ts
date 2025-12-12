@@ -23,7 +23,7 @@ globalThis.document = window.document as any
 Object.defineProperty(globalThis, 'navigator', {
 	value: window.navigator,
 	writable: true,
-	configurable: true
+	configurable: true,
 })
 
 globalThis.localStorage = window.localStorage as any
