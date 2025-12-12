@@ -844,7 +844,8 @@ epics:
       - id: clerk-e2e-integration
         name: Integrate Clerk Testing with Playwright
         file: testing/clerk-e2e-integration.md
-        done: false
+        done: true
+        commit: 08fc9da
         complexity: medium
         depends_on:
           - testing/setup-playwright
@@ -1084,7 +1085,8 @@ epics:
       - id: rollback-procedures
         name: Rollback and Recovery Runbook
         file: workflow/rollback-procedures.md
-        done: false
+        done: true
+        commit: 1e35865
         complexity: medium
         depends_on: []
       - id: synthetic-isolation
