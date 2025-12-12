@@ -434,7 +434,8 @@ epics:
       - id: catalog-admin-ui
         name: Catalog Admin UI (Sys Admin Only)
         file: catalog/catalog-admin-ui.md
-        done: false
+        done: true
+        commit: 654d3be
         complexity: medium
         depends_on:
           - catalog/catalog-api
