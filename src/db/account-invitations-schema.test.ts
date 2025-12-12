@@ -8,8 +8,6 @@
  * @REQ-SCHEMA-002 Unique constraint
  * @REQ-SCHEMA-003 Foreign key constraints
  * @REQ-SCHEMA-004 Default expiry calculation
- *
- * @vitest-environment node
  */
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 

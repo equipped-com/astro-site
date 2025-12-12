@@ -6,31 +6,13 @@
  */
 
 import { describe, it, expect, beforeEach } from 'vitest'
-import { eq } from 'drizzle-orm'
+import { getTableConfig } from 'drizzle-orm/sqlite-core'
 import { auditLog, type NewAuditLogEntry } from './schema'
 
-// Mock database client
-const mockDb = {
-	insert: (table: any) => ({
-		values: (values: any) => ({
-			run: async () => ({ id: 'audit_123' }),
-		}),
-	}),
-	select: () => ({
-		from: (table: any) => ({
-			where: (condition: any) => ({
-				all: async () => [],
-				first: async () => null,
-			}),
-			all: async () => [],
-		}),
-	}),
-	delete: (table: any) => ({
-		where: (condition: any) => ({
-			run: async () => ({ changes: 1 }),
-		}),
-	}),
-}
+// Get table configuration using Drizzle's public API
+const tableConfig = getTableConfig(auditLog)
+const columnNames = tableConfig.columns.map(col => col.name)
+const indexNames = tableConfig.indexes.map(idx => idx.config.name)
 
 describe('Audit Log Integration Tests', () => {
 	describe('Audit Log Data Structure', () => {
@@ -79,23 +61,20 @@ describe('Audit Log Integration Tests', () => {
 		 */
 		it('should query by account_id', () => {
 			// This test verifies the correct field is used in queries
-			const accountId = 'acc_123'
-			// In real usage: db.select().from(auditLog).where(eq(auditLog.accountId, accountId))
-			expect(auditLog._.columns).toHaveProperty('accountId')
+			expect(columnNames).toContain('account_id')
 		})
 
 		it('should query by user_id', () => {
-			const userId = 'user_456'
-			expect(auditLog._.columns).toHaveProperty('userId')
+			expect(columnNames).toContain('user_id')
 		})
 
 		it('should query by entity_type and entity_id', () => {
-			expect(auditLog._.columns).toHaveProperty('entityType')
-			expect(auditLog._.columns).toHaveProperty('entityId')
+			expect(columnNames).toContain('entity_type')
+			expect(columnNames).toContain('entity_id')
 		})
 
 		it('should order by created_at', () => {
-			expect(auditLog._.columns).toHaveProperty('createdAt')
+			expect(columnNames).toContain('created_at')
 		})
 	})
 
@@ -104,14 +83,11 @@ describe('Audit Log Integration Tests', () => {
 		 * Verify the schema migration is complete
 		 */
 		it('should have account_id column (not organization_id)', () => {
-			const columns = Object.keys(auditLog._.columns)
-			expect(columns).toContain('accountId')
-			expect(columns).not.toContain('organizationId')
+			expect(columnNames).toContain('account_id')
+			expect(columnNames).not.toContain('organization_id')
 		})
 
 		it('should have idx_audit_account index (not idx_audit_org)', () => {
-			const indexes = auditLog._.indexes || []
-			const indexNames = indexes.map((idx: any) => idx.name)
 			expect(indexNames).toContain('idx_audit_account')
 			expect(indexNames).not.toContain('idx_audit_org')
 		})
@@ -119,25 +95,23 @@ describe('Audit Log Integration Tests', () => {
 		it('should preserve all required columns', () => {
 			const requiredColumns = [
 				'id',
-				'accountId',
-				'userId',
+				'account_id',
+				'user_id',
 				'action',
-				'entityType',
-				'entityId',
-				'createdAt',
+				'entity_type',
+				'entity_id',
+				'created_at',
 			]
-			const columns = Object.keys(auditLog._.columns)
-			requiredColumns.forEach(col => {
-				expect(columns).toContain(col)
-			})
+			for (const col of requiredColumns) {
+				expect(columnNames).toContain(col)
+			}
 		})
 
 		it('should preserve optional columns', () => {
-			const optionalColumns = ['changes', 'ipAddress', 'userAgent']
-			const columns = Object.keys(auditLog._.columns)
-			optionalColumns.forEach(col => {
-				expect(columns).toContain(col)
-			})
+			const optionalColumns = ['changes', 'ip_address', 'user_agent']
+			for (const col of optionalColumns) {
+				expect(columnNames).toContain(col)
+			}
 		})
 	})
 
@@ -214,14 +188,12 @@ describe('Audit Log Integration Tests', () => {
 		 * Ensure no old field references remain
 		 */
 		it('should not have organization_id field', () => {
-			const columns = Object.keys(auditLog._.columns)
-			expect(columns).not.toContain('organizationId')
-			expect(columns).not.toContain('organization_id')
+			expect(columnNames).not.toContain('organization_id')
 		})
 
 		it('should not have audit_logs table reference', () => {
-			// The table name should be auditLog (which maps to 'audit_log' in SQL)
-			expect(auditLog._.name).toBe('audit_log')
+			// The table name should be 'audit_log' in SQL
+			expect(tableConfig.name).toBe('audit_log')
 		})
 	})
 })

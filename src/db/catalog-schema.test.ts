@@ -10,93 +10,20 @@
  * @REQ-SCHEMA-004 - Foreign key relationships
  * @REQ-SCHEMA-005 - Performance indexes
  */
-import { afterAll, beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 import { eq } from 'drizzle-orm'
-import { drizzle } from 'drizzle-orm/d1'
+import { createTestDatabase } from '@/test/drizzle-helpers'
 import { brands, inventoryItems, products } from './schema'
 
 // In-memory D1 database for testing
-let db: ReturnType<typeof drizzle>
-let d1: D1Database
+let db: ReturnType<typeof createTestDatabase>['db']
+let d1: ReturnType<typeof createTestDatabase>['d1']
 
 // Setup in-memory database
-beforeEach(async () => {
-	// Use Cloudflare's D1 in-memory database for testing
-	const miniflare = await import('miniflare')
-	const mf = new miniflare.Miniflare({
-		modules: true,
-		script: '',
-		d1Databases: ['DB'],
-	})
-
-	d1 = (await mf.getD1Database('DB')) as D1Database
-	db = drizzle(d1)
-
-	// Run initial migration
-	await d1.exec(`
-		CREATE TABLE brands (
-			id TEXT PRIMARY KEY,
-			name TEXT NOT NULL UNIQUE,
-			slug TEXT NOT NULL UNIQUE,
-			logo_url TEXT,
-			is_active BOOLEAN DEFAULT TRUE,
-			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-			updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-		);
-	`)
-
-	await d1.exec(`
-		CREATE TABLE products (
-			id TEXT PRIMARY KEY,
-			brand_id TEXT NOT NULL REFERENCES brands(id),
-			name TEXT NOT NULL,
-			model_identifier TEXT,
-			model_number TEXT,
-			sku TEXT UNIQUE,
-			product_type TEXT NOT NULL,
-			description TEXT,
-			specs TEXT,
-			msrp DECIMAL(10,2),
-			image_url TEXT,
-			is_active BOOLEAN DEFAULT TRUE,
-			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-			updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-		);
-	`)
-
-	await d1.exec(`
-		CREATE TABLE inventory_items (
-			id TEXT PRIMARY KEY,
-			product_id TEXT NOT NULL REFERENCES products(id),
-			serial_number TEXT UNIQUE,
-			condition TEXT NOT NULL DEFAULT 'new',
-			status TEXT NOT NULL DEFAULT 'available',
-			purchase_cost DECIMAL(10,2),
-			sale_price DECIMAL(10,2),
-			notes TEXT,
-			warehouse_location TEXT,
-			created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-			updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
-		);
-	`)
-
-	// Create indexes
-	await d1.exec(`
-		CREATE INDEX idx_brands_slug ON brands(slug);
-		CREATE INDEX idx_brands_is_active ON brands(is_active);
-		CREATE INDEX idx_products_brand ON products(brand_id);
-		CREATE INDEX idx_products_sku ON products(sku);
-		CREATE INDEX idx_products_type ON products(product_type);
-		CREATE INDEX idx_products_is_active ON products(is_active);
-		CREATE INDEX idx_inventory_product ON inventory_items(product_id);
-		CREATE INDEX idx_inventory_status ON inventory_items(status);
-		CREATE INDEX idx_inventory_condition ON inventory_items(condition);
-		CREATE INDEX idx_inventory_serial ON inventory_items(serial_number);
-	`)
-})
-
-afterAll(async () => {
-	// Cleanup is automatic with in-memory DB
+beforeEach(() => {
+	const result = createTestDatabase()
+	db = result.db
+	d1 = result.d1
 })
 
 /**
@@ -130,7 +57,7 @@ describe('Product Catalog Schema', () => {
 			expect(result).toHaveLength(1)
 			expect(result[0].name).toBe('Apple')
 			expect(result[0].slug).toBe('apple')
-			expect(result[0].isActive).toBe(1) // SQLite stores booleans as integers
+			expect(result[0].isActive).toBe(true) // Drizzle returns boolean with mode: 'boolean'
 		})
 
 		it('should enforce unique constraint on name', async () => {
@@ -174,7 +101,7 @@ describe('Product Catalog Schema', () => {
 			})
 
 			const result = await db.select().from(brands).where(eq(brands.id, brandId))
-			expect(result[0].isActive).toBe(1) // Default TRUE
+			expect(result[0].isActive).toBe(true) // Drizzle returns boolean with mode: 'boolean'
 			expect(result[0].createdAt).toBeTruthy()
 			expect(result[0].updatedAt).toBeTruthy()
 		})
@@ -254,7 +181,7 @@ describe('Product Catalog Schema', () => {
 			})
 
 			const result = await db.select().from(products).where(eq(products.id, productId))
-			expect(result[0].isActive).toBe(1) // Default TRUE
+			expect(result[0].isActive).toBe(true) // Drizzle returns boolean with mode: 'boolean'
 			expect(result[0].createdAt).toBeTruthy()
 			expect(result[0].updatedAt).toBeTruthy()
 		})

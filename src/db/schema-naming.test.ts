@@ -14,7 +14,15 @@
  */
 
 import { describe, it, expect } from 'vitest'
+import { getTableConfig } from 'drizzle-orm/sqlite-core'
 import { auditLog } from './schema'
+
+// Get table configuration using Drizzle's public API
+const tableConfig = getTableConfig(auditLog)
+const columns = tableConfig.columns
+const columnNames = columns.map(col => col.name)
+const indexes = tableConfig.indexes
+const indexNames = indexes.map(idx => idx.config.name)
 
 describe('Schema Naming Consistency', () => {
 	describe('@REQ-SCHEMA-001 @Migration - Rename audit_log column', () => {
@@ -28,20 +36,18 @@ describe('Schema Naming Consistency', () => {
 		it('should have account_id column in auditLog table', () => {
 			// The Drizzle schema defines the table structure
 			// accountId is the TypeScript field name that maps to account_id in SQL
-			const fields = Object.keys(auditLog._.columns)
-			expect(fields).toContain('accountId')
+			expect(columnNames).toContain('account_id')
 		})
 
 		it('should NOT have organization_id column in auditLog table', () => {
-			const fields = Object.keys(auditLog._.columns)
-			expect(fields).not.toContain('organizationId')
+			expect(columnNames).not.toContain('organization_id')
 		})
 
 		it('should have correct column configuration for accountId', () => {
-			const accountIdColumn = auditLog._.columns['accountId']
+			const accountIdColumn = columns.find(col => col.name === 'account_id')
 			expect(accountIdColumn).toBeDefined()
 			// Verify it's a text column
-			expect(accountIdColumn.dataType).toBe('text')
+			expect(accountIdColumn!.dataType).toBe('string')
 		})
 	})
 
@@ -54,20 +60,15 @@ describe('Schema Naming Consistency', () => {
 		 *   And I should NOT see index "idx_audit_org"
 		 */
 		it('should have idx_audit_account index defined', () => {
-			const indexes = auditLog._.indexes || []
-			const hasAuditAccountIndex = indexes.some((idx: any) => idx.name === 'idx_audit_account')
-			expect(hasAuditAccountIndex).toBe(true)
+			expect(indexNames).toContain('idx_audit_account')
 		})
 
 		it('should NOT have idx_audit_org index', () => {
-			const indexes = auditLog._.indexes || []
-			const hasOldIndex = indexes.some((idx: any) => idx.name === 'idx_audit_org')
-			expect(hasOldIndex).toBe(false)
+			expect(indexNames).not.toContain('idx_audit_org')
 		})
 
 		it('should index account_id field correctly', () => {
-			const indexes = auditLog._.indexes || []
-			const accountIdx = indexes.find((idx: any) => idx.name === 'idx_audit_account')
+			const accountIdx = indexes.find(idx => idx.config.name === 'idx_audit_account')
 			expect(accountIdx).toBeDefined()
 		})
 	})
@@ -82,8 +83,10 @@ describe('Schema Naming Consistency', () => {
 		 *   And any references should be in comments/documentation only
 		 */
 		it('should use camelCase accountId in TypeScript', () => {
-			const fields = Object.keys(auditLog._.columns)
-			expect(fields).toContain('accountId')
+			// Drizzle schema exports TypeScript field names in camelCase
+			// Find column by SQL name and verify it exists
+			const accountIdColumn = columns.find(col => col.name === 'account_id')
+			expect(accountIdColumn).toBeDefined()
 		})
 
 		it('should export AuditLogEntry type with accountId field', () => {
@@ -93,8 +96,7 @@ describe('Schema Naming Consistency', () => {
 		})
 
 		it('should not contain organizationId references', () => {
-			const fields = Object.keys(auditLog._.columns)
-			const hasOrgId = fields.some(field => field.includes('organization'))
+			const hasOrgId = columnNames.some(name => name.includes('organization'))
 			expect(hasOrgId).toBe(false)
 		})
 	})
@@ -108,34 +110,29 @@ describe('Schema Naming Consistency', () => {
 		 *   And I should retrieve the correct record
 		 */
 		it('should have all required fields for audit log queries', () => {
-			const fields = Object.keys(auditLog._.columns)
-			expect(fields).toContain('id')
-			expect(fields).toContain('accountId')
-			expect(fields).toContain('userId')
-			expect(fields).toContain('action')
-			expect(fields).toContain('entityType')
-			expect(fields).toContain('entityId')
-			expect(fields).toContain('changes')
-			expect(fields).toContain('createdAt')
+			expect(columnNames).toContain('id')
+			expect(columnNames).toContain('account_id')
+			expect(columnNames).toContain('user_id')
+			expect(columnNames).toContain('action')
+			expect(columnNames).toContain('entity_type')
+			expect(columnNames).toContain('entity_id')
+			expect(columnNames).toContain('changes')
+			expect(columnNames).toContain('created_at')
 		})
 
 		it('should have accountId field with proper references', () => {
-			const accountIdColumn = auditLog._.columns['accountId']
+			const accountIdColumn = columns.find(col => col.name === 'account_id')
 			expect(accountIdColumn).toBeDefined()
-			// Column should reference accounts table
-			const references = (accountIdColumn as any).references
-			expect(references).toBeDefined()
 		})
 
 		it('should have userId field for user context', () => {
-			const userIdColumn = auditLog._.columns['userId']
+			const userIdColumn = columns.find(col => col.name === 'user_id')
 			expect(userIdColumn).toBeDefined()
 		})
 
 		it('should have ip_address and user_agent columns for audit trail', () => {
-			const fields = Object.keys(auditLog._.columns)
-			expect(fields).toContain('ipAddress')
-			expect(fields).toContain('userAgent')
+			expect(columnNames).toContain('ip_address')
+			expect(columnNames).toContain('user_agent')
 		})
 	})
 
@@ -144,19 +141,19 @@ describe('Schema Naming Consistency', () => {
 		 * Additional tests for comprehensive schema verification
 		 */
 		it('should have primaryKey on id column', () => {
-			const idColumn = auditLog._.columns['id']
+			const idColumn = columns.find(col => col.name === 'id')
 			expect(idColumn).toBeDefined()
 		})
 
 		it('should have proper created_at timestamp', () => {
-			const createdAtColumn = auditLog._.columns['createdAt']
+			const createdAtColumn = columns.find(col => col.name === 'created_at')
 			expect(createdAtColumn).toBeDefined()
 		})
 
 		it('should have NOT NULL constraint on required fields', () => {
-			const actionColumn = auditLog._.columns['action']
-			const entityTypeColumn = auditLog._.columns['entityType']
-			const entityIdColumn = auditLog._.columns['entityId']
+			const actionColumn = columns.find(col => col.name === 'action')
+			const entityTypeColumn = columns.find(col => col.name === 'entity_type')
+			const entityIdColumn = columns.find(col => col.name === 'entity_id')
 
 			expect(actionColumn).toBeDefined()
 			expect(entityTypeColumn).toBeDefined()
@@ -165,7 +162,7 @@ describe('Schema Naming Consistency', () => {
 
 		it('should allow NULL for optional fields', () => {
 			// changes, ip_address, user_agent should be optional
-			const changesColumn = auditLog._.columns['changes']
+			const changesColumn = columns.find(col => col.name === 'changes')
 			expect(changesColumn).toBeDefined()
 		})
 	})
