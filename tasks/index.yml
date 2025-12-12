@@ -873,10 +873,9 @@ epics:
       - id: fix-drizzle-mocking
         name: Fix Drizzle ORM Test Mocking
         file: testing/fix-drizzle-mocking.md
-        done: false  # Infrastructure complete, migrated 4 test files, ~12 remaining
-        commit: e03686d  # Core infrastructure + 2 example migrations
+        done: true
+        commit: 7fd2d30  # Fixed D1Database initialization bug - all tests passing
         complexity: medium
-        progress: "Infrastructure complete. Migrated 4/16 test files: brands.test.ts, invitation-expiry.test.ts (plus 2 prior). See MIGRATION_GUIDE.md for checklist."
         depends_on:
           - testing/setup-vitest
 
@@ -1113,7 +1112,8 @@ epics:
       - id: testing-strategy
         name: Testing Strategy Decision Tree
         file: workflow/testing-strategy.md
-        done: false
+        done: true
+        commit: 654d3be  # Created testing-strategy.md and testing-quick-reference.md
         complexity: low
         depends_on: []
       - id: rollback-procedures
