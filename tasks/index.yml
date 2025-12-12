@@ -1055,7 +1055,8 @@ epics:
       - id: fix-vitest-dom-environment
         name: Fix Vitest DOM Environment (489 failures)
         file: bugs/fix-vitest-dom-environment.md
-        done: false
+        done: true
+        commit: 8b00e6f
         complexity: medium
         depends_on:
           - testing/setup-vitest
