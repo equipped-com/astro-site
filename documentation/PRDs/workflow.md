@@ -169,5 +169,5 @@ Generate tasks for each workflow area:
 
 - Existing script: `scripts/validate-task-dependencies.js`
 - Task index: `tasks/index.yml`
-- Main PRD: `documentation/PRD.md`
+- Product PRD: `documentation/PRDs/product.md`
 - Testing docs: `documentation/e2e-testing-with-clerk.md`

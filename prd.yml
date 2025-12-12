@@ -6,11 +6,11 @@ version: 1
 updated: 2025-12-11
 
 files:
-  PRD.md:
+  product.md:
     status: complete
-    location: documentation/PRD.md
+    location: documentation/PRDs/product.md
     processed_at: 2024-12-08
-    notes: "Original PRD - tasks created manually"
+    notes: "Core product PRD - tasks created manually"
     epics_created:
       - infrastructure
       - database
@@ -31,3 +31,11 @@ files:
       - testing
       - integrations
       - bugs
+
+  workflow.md:
+    status: complete
+    location: documentation/PRDs/workflow.md
+    processed_at: 2024-12-12
+    notes: "Workflow & Process Improvement PRD - tasks created with automated planning"
+    epics_created:
+      - workflow

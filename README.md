@@ -115,13 +115,14 @@ tasks/                # Development task tracking
 
 ## Documentation
 
-| Document                      | Purpose                                            |
-| ----------------------------- | -------------------------------------------------- |
-| `documentation/PRD.md`        | Product Requirements - authoritative feature specs |
-| `documentation/EQUIPPED.md`   | Product vision and capabilities overview           |
-| `documentation/PLAN.md`       | Development phases and implementation plan         |
-| `documentation/platform-*.md` | UX flows with Figma references                     |
-| `tasks/index.yml`             | Development task index with status tracking        |
+| Document                         | Purpose                                            |
+| -------------------------------- | -------------------------------------------------- |
+| `documentation/PRDs/product.md`  | Product Requirements - authoritative feature specs |
+| `documentation/PRDs/workflow.md` | Workflow & Process Improvement Requirements        |
+| `documentation/EQUIPPED.md`      | Product vision and capabilities overview           |
+| `documentation/PLAN.md`          | Development phases and implementation plan         |
+| `documentation/platform-*.md`    | UX flows with Figma references                     |
+| `tasks/index.yml`                | Development task index with status tracking        |
 
 ## Task System
 

@@ -340,7 +340,9 @@ This creates an audit trail:
 
 ### Key Documents
 
-- `PRD.md` - Product requirements (authoritative for features)
+- `documentation/PRDs/*.md` - Product Requirements Documents (authoritative for features)
+  - `product.md` - Core product features and capabilities
+  - `workflow.md` - Development workflow and process improvements
 - `documentation/*.md` - UX flows and integrations
 - `tasks/index.yml` - Task index with status tracking + dependencies + commit hashes
 - `scripts/validate-task-dependencies.js` - Validation tool for task readiness
