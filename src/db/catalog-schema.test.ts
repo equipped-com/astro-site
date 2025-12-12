@@ -10,8 +10,9 @@
  * @REQ-SCHEMA-004 - Foreign key relationships
  * @REQ-SCHEMA-005 - Performance indexes
  */
-import { beforeEach, describe, expect, it } from 'vitest'
+
 import { eq } from 'drizzle-orm'
+import { beforeEach, describe, expect, it } from 'vitest'
 import { createTestDatabase } from '@/test/drizzle-helpers'
 import { brands, inventoryItems, products } from './schema'
 
@@ -467,7 +468,10 @@ describe('Product Catalog Schema', () => {
 			const productResult = await db.select().from(products).where(eq(products.brandId, 'brand_lenovo'))
 			expect(productResult).toHaveLength(1)
 
-			const inventoryResult = await db.select().from(inventoryItems).where(eq(inventoryItems.productId, 'prod_thinkpad'))
+			const inventoryResult = await db
+				.select()
+				.from(inventoryItems)
+				.where(eq(inventoryItems.productId, 'prod_thinkpad'))
 			expect(inventoryResult).toHaveLength(2)
 
 			// Verify available inventory
