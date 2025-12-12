@@ -372,12 +372,9 @@ epics:
       - id: invitation-expiry
         name: Invitation Expiry Worker
         file: invitations/invitation-expiry.md
-        done: false
-        # original_commit: 632f34d  # Implementation completed but tests failing
+        done: true
+        commit: f303865
         complexity: medium
-        reason: "Worker tests failing"
-        failing_tests:
-          - src/workers/invitation-expiry.test.ts
         depends_on:
           - invitations/invitations-schema
           - bugs/fix-worker-tests
@@ -1224,7 +1221,8 @@ epics:
       - id: fix-schema-naming-tests
         name: Fix Schema Naming Test Failures
         file: bugs/fix-schema-naming-tests.md
-        done: false
+        done: true
+        commit: 0d5eee9
         complexity: medium
         depends_on:
           - testing/fix-database-tests
