@@ -862,7 +862,8 @@ epics:
       - id: e2e-otp-flows
         name: E2E Tests for OTP Verification Flows
         file: testing/e2e-otp-flows.md
-        done: false
+        done: true
+        commit: bb60c8a
         complexity: medium
         depends_on:
           - testing/clerk-e2e-integration
