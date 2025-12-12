@@ -16,11 +16,12 @@
  * @REQ-TEST-004 @Cleanup @Isolation
  * Tests are isolated from each other with automatic cleanup
  */
-import { drizzle } from 'drizzle-orm/d1'
-import { D1Database } from '@miniflare/d1'
-import Database from 'better-sqlite3'
-import { readFileSync, existsSync } from 'node:fs'
+
+import { existsSync, readFileSync } from 'node:fs'
 import { join, resolve } from 'node:path'
+import { D1Database, D1DatabaseAPI } from '@miniflare/d1'
+import Database from 'better-sqlite3'
+import { drizzle } from 'drizzle-orm/d1'
 import * as schema from '@/db/schema'
 
 // Find project root by looking for package.json
@@ -51,14 +52,11 @@ export function createTestDatabase() {
 	const sqlite = new Database(':memory:')
 
 	// Wrap with Miniflare D1 API
-	const d1 = new D1Database(sqlite)
+	const d1API = new D1DatabaseAPI(sqlite)
+	const d1 = new D1Database(d1API)
 
 	// Apply migrations in order
-	const migrations = [
-		'0001_initial.sql',
-		'0002_create_product_catalog.sql',
-		'0003_create_account_invitations.sql',
-	]
+	const migrations = ['0001_initial.sql', '0002_create_product_catalog.sql', '0003_create_account_invitations.sql']
 
 	for (const file of migrations) {
 		try {
@@ -193,7 +191,7 @@ export async function seedTestInvitation(
  *
  * @param dbResult - Result from createTestDatabase() (unused, kept for API consistency)
  */
-export function cleanupTestDatabase(dbResult: ReturnType<typeof createTestDatabase>) {
+export function cleanupTestDatabase(_dbResult: ReturnType<typeof createTestDatabase>) {
 	// In-memory database is automatically garbage collected
 	// No explicit cleanup needed
 }
