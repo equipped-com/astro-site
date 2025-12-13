@@ -443,14 +443,10 @@ epics:
       - id: catalog-admin-ui
         name: Catalog Admin UI (Sys Admin Only)
         file: catalog/catalog-admin-ui.md
-        done: false
-        # original_commit: 654d3be  # Implementation completed but tests failing
+        done: true
+        commit: 7bb1b32  # Test fixes completed
+        original_commit: 654d3be  # Original implementation
         complexity: medium
-        reason: "Catalog admin component tests failing"
-        failing_tests:
-          - src/components/admin/catalog/BrandTable.test.tsx
-          - src/components/admin/catalog/InventoryTable.test.tsx
-          - src/components/admin/catalog/ProductTable.test.tsx
         depends_on:
           - catalog/catalog-api
           - sysadmin/admin-dashboard
@@ -764,14 +760,10 @@ epics:
       - id: dashboard-home
         name: Dashboard Home Page
         file: dashboard/dashboard-home.md
-        done: false
-        # original_commit: 183f066  # Implementation completed but tests failing
+        done: true
+        commit: 0a0bd99  # Test fixes completed
+        original_commit: 183f066  # Original implementation
         complexity: medium
-        reason: "Dashboard tests failing"
-        failing_tests:
-          - src/test/pages/dashboard/index.test.tsx
-          - src/components/dashboard/QuickStats.test.tsx
-          - src/components/dashboard/AccountSwitcher.test.tsx
         depends_on:
           - dashboard/dashboard-layout
           - api/device-crud
