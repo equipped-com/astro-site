@@ -35,10 +35,10 @@ describe('ReturnLabel Component', () => {
 		// Reset fetch mocks
 		global.fetch = vi.fn()
 		// Mock window.open for print
-		global.window.open = vi.fn()
+		window.open = vi.fn()
 		// Mock URL.createObjectURL for PDF download
-		global.URL.createObjectURL = vi.fn(() => 'blob:mock-url')
-		global.URL.revokeObjectURL = vi.fn()
+		window.URL.createObjectURL = vi.fn(() => 'blob:mock-url')
+		window.URL.revokeObjectURL = vi.fn()
 	})
 
 	describe('@REQ-TRADE-007 Generate return label', () => {
@@ -91,6 +91,7 @@ describe('ReturnLabel Component', () => {
 				...mockTradeIn,
 				shippingLabel: mockLabel,
 			}
+
 			;(global.fetch as any).mockResolvedValueOnce({
 				ok: true,
 				blob: async () => new Blob(['pdf content'], { type: 'application/pdf' }),
@@ -98,13 +99,30 @@ describe('ReturnLabel Component', () => {
 
 			render(<ReturnLabel tradeIn={tradeInWithLabel} />)
 
+			// Mock document methods for PDF download after render
+			const mockAnchor = {
+				href: '',
+				download: '',
+				click: vi.fn(),
+			}
+			const createElementSpy = vi.spyOn(document, 'createElement').mockReturnValueOnce(mockAnchor as any)
+			const appendChildSpy = vi.spyOn(document.body, 'appendChild').mockImplementationOnce(() => mockAnchor as any)
+			const removeChildSpy = vi.spyOn(document.body, 'removeChild').mockImplementationOnce(() => mockAnchor as any)
+
 			const downloadButton = screen.getByText('Download PDF')
 			fireEvent.click(downloadButton)
 
 			await waitFor(() => {
 				expect(global.fetch).toHaveBeenCalledWith(`/api/trade-in/label-pdf/${mockLabel.labelId}`)
-				expect(URL.createObjectURL).toHaveBeenCalled()
+				expect(window.URL.createObjectURL).toHaveBeenCalled()
+				expect(mockAnchor.click).toHaveBeenCalled()
+				expect(window.URL.revokeObjectURL).toHaveBeenCalled()
 			})
+
+			// Cleanup - restore spies
+			createElementSpy.mockRestore()
+			appendChildSpy.mockRestore()
+			removeChildSpy.mockRestore()
 		})
 
 		it('should be emailed to customer', async () => {

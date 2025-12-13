@@ -189,8 +189,8 @@ describe('ValueAdjustmentModal Component', () => {
 		it('should allow customer to request device return with shipping cost warning', () => {
 			const confirmMock = vi.fn(() => true)
 			const alertMock = vi.fn()
-			global.confirm = confirmMock
-			global.alert = alertMock
+			window.confirm = confirmMock
+			window.alert = alertMock
 
 			render(
 				<ValueAdjustmentModal tradeIn={mockTradeIn} adjustment={mockAdjustment} isOpen={true} onClose={() => {}} />,
