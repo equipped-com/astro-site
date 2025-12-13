@@ -1251,7 +1251,8 @@ epics:
       - id: fix-dashboard-tests
         name: Fix Dashboard Component Tests
         file: bugs/fix-dashboard-tests.md
-        done: false
+        done: true
+        commit: 0a0bd99
         complexity: medium
         depends_on:
           - testing/fix-component-tests
