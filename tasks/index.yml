@@ -432,14 +432,10 @@ epics:
       - id: catalog-api
         name: Catalog CRUD API Endpoints
         file: catalog/catalog-api.md
-        done: false
-        # original_commit: 2beacaf  # Implementation completed but tests failing
+        done: true
+        commit: 2beacaf  # Implementation commit
+        test_fix_commit: 5e33238  # Test fixes (Biome formatting)
         complexity: medium
-        reason: "~15 API tests failing - catalog endpoints not working as expected"
-        failing_tests:
-          - src/api/routes/catalog/brands.test.ts
-          - src/api/routes/catalog/products.test.ts
-          - src/api/routes/catalog/inventory.test.ts
         depends_on:
           - catalog/catalog-schema
           - api/auth-middleware
@@ -1203,7 +1199,8 @@ epics:
       - id: fix-catalog-api-tests
         name: Fix Catalog API Endpoint Tests
         file: bugs/fix-catalog-api-tests.md
-        done: false
+        done: true
+        commit: 5e33238
         complexity: medium
         depends_on:
           - bugs/fix-catalog-schema-tests
