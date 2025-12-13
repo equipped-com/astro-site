@@ -126,7 +126,7 @@ Tests serve THREE critical purposes:
 
 - **Unit Tests** - Vitest - Individual functions, utilities, components
 - **Integration Tests** - Vitest - API endpoints, multi-component flows, database interactions
-- **E2E Tests** - Playwright (future) - Critical user journeys
+- **E2E Tests** - Playwright + Playwright Agents - Critical user journeys (Feature Shepherds)
 - **Regression Tests** - Vitest - Every bug fix gets a test to prevent reoccurrence
 
 ### Coverage Requirements
@@ -258,6 +258,52 @@ Checkout the testing tasks for comprehensive patterns:
 - `tasks/testing/auth-tests.md` - Auth system testing
 - `tasks/testing/integration-tests.md` - API & multi-component testing
 - `tasks/testing/regression-tests.md` - Bug fix verification
+- `documentation/PRDs/feature-shepherds.md` - E2E testing with Playwright Agents
+
+### Playwright Agents & Feature Shepherds
+
+**Feature Shepherds** are AI-powered E2E test suites that monitor critical product features using Playwright Agents.
+
+**Setup:**
+```bash
+# Initialize Playwright Agents
+npx playwright init-agents --loop=claude
+```
+
+**Directory Structure:**
+```
+features/{FEATURE_KEY}/          # Feature contract
+  prd.md                         # Feature requirements
+  acceptance.md                  # Acceptance criteria
+  data.md                        # Test data
+  shepherd.config.json           # Entry URLs, roles
+  plan.md                        # Generated test plan (Markdown)
+  report.md                      # Coverage report
+
+e2e/shepherd/{FEATURE_KEY}/      # Generated tests
+  seed.spec.ts                   # Bootstrap/setup test
+  *.spec.ts                      # Scenario tests
+```
+
+**Agent Workflow:**
+1. **Planner** - Reads feature contracts, generates test plan (`plan.md`)
+2. **Generator** - Transforms plan into executable Playwright tests
+3. **Healer** - Auto-fixes failing tests by inspecting UI and updating locators
+
+**Key Principles:**
+- Auth shepherd must pass before adding other features
+- Tests auto-regenerate when features change
+- Deleting `plan.md` and regenerating validates agent robustness
+- Zero console errors in UI flows (home, login, logout, account management)
+
+**Running Shepherds:**
+```bash
+# Run all shepherds
+npx playwright test e2e/shepherd
+
+# Run specific feature shepherd
+npx playwright test e2e/shepherd/auth
+```
 
 ### Test Responsibility - CRITICAL
 
