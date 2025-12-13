@@ -638,13 +638,10 @@ epics:
       - id: return-shipping
         name: Return Shipping & Labels
         file: trade-in/return-shipping.md
-        done: false
-        # original_commit: 3174704  # Implementation completed but tests failing
+        done: true
+        commit: 3174704  # Implementation commit
+        test_fix_commit: d70e0fb  # Test fixes
         complexity: medium
-        reason: "Trade-in component tests failing"
-        failing_tests:
-          - src/components/trade-in/ReturnLabel.test.tsx
-          - src/components/trade-in/ValueAdjustmentModal.test.tsx
         depends_on:
           - trade-in/device-valuation
           - bugs/fix-trade-in-tests
@@ -1262,7 +1259,8 @@ epics:
       - id: fix-trade-in-tests
         name: Fix Trade-In Component Tests
         file: bugs/fix-trade-in-tests.md
-        done: false
+        done: true
+        commit: d70e0fb
         complexity: medium
         depends_on:
           - testing/fix-component-tests
