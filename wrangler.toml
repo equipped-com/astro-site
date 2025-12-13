@@ -22,3 +22,7 @@ database_id = "b1b71c2d-ba07-470a-bf82-3084fa82017c"
 
 [vars]
 ENVIRONMENT = "production"
+
+# Scheduled cron triggers
+[triggers]
+crons = ["0 2 * * *"]  # Daily at 2 AM UTC

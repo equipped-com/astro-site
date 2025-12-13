@@ -68,20 +68,21 @@ impersonationRoutes.post('/start', async c => {
 	const auditId = crypto.randomUUID()
 	await db
 		.prepare(
-			`INSERT INTO audit_logs (id, user_id, account_id, action, details, is_impersonation, created_at)
-			 VALUES (?, ?, ?, ?, ?, ?, datetime('now'))`,
+			`INSERT INTO audit_log (id, user_id, account_id, action, entity_type, entity_id, changes, created_at)
+			 VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now'))`,
 		)
 		.bind(
 			auditId,
 			userId,
 			accountId,
-			'impersonation_started',
+			'impersonation_start',
+			'account',
+			accountId,
 			JSON.stringify({
 				admin_email: user.email,
 				admin_name: `${user.first_name || ''} ${user.last_name || ''}`.trim(),
 				account_name: account.name,
 			}),
-			1, // is_impersonation = true
 		)
 		.run()
 
@@ -125,19 +126,20 @@ impersonationRoutes.post('/end', async c => {
 	const auditId = crypto.randomUUID()
 	await db
 		.prepare(
-			`INSERT INTO audit_logs (id, user_id, account_id, action, details, is_impersonation, created_at)
-			 VALUES (?, ?, ?, ?, ?, ?, datetime('now'))`,
+			`INSERT INTO audit_log (id, user_id, account_id, action, entity_type, entity_id, changes, created_at)
+			 VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now'))`,
 		)
 		.bind(
 			auditId,
 			userId,
 			accountId,
-			'impersonation_ended',
+			'impersonation_end',
+			'account',
+			accountId,
 			JSON.stringify({
 				admin_email: user.email,
 				admin_name: `${user.first_name || ''} ${user.last_name || ''}`.trim(),
 			}),
-			1, // is_impersonation = true
 		)
 		.run()
 
@@ -176,20 +178,21 @@ impersonationRoutes.post('/log', async c => {
 	const auditId = crypto.randomUUID()
 	await db
 		.prepare(
-			`INSERT INTO audit_logs (id, user_id, account_id, action, details, is_impersonation, created_at)
-			 VALUES (?, ?, ?, ?, ?, ?, datetime('now'))`,
+			`INSERT INTO audit_log (id, user_id, account_id, action, entity_type, entity_id, changes, created_at)
+			 VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now'))`,
 		)
 		.bind(
 			auditId,
 			userId,
 			accountId,
 			action,
+			'account',
+			accountId,
 			JSON.stringify({
 				...details,
 				admin_email: user.email,
 				admin_name: `${user.first_name || ''} ${user.last_name || ''}`.trim(),
 			}),
-			1, // is_impersonation = true
 		)
 		.run()
 
@@ -238,9 +241,9 @@ impersonationRoutes.get('/audit-logs', async c => {
 
 	let query = `
 		SELECT al.*, u.email as admin_email, u.first_name, u.last_name
-		FROM audit_logs al
+		FROM audit_log al
 		LEFT JOIN users u ON u.id = al.user_id
-		WHERE al.is_impersonation = 1
+		WHERE al.action LIKE 'impersonation_%'
 	`
 	const params: (string | number)[] = []
 

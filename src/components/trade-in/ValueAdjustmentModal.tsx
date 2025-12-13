@@ -99,7 +99,7 @@ export function ValueAdjustmentModal({
 				'Are you sure you want to request device return? You will be responsible for return shipping costs.',
 			)
 		) {
-			alert('Return request submitted. We will contact you with shipping instructions.')
+			window.alert('Return request submitted. We will contact you with shipping instructions.')
 			onClose()
 		}
 	}

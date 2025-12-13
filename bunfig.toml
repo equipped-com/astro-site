@@ -1,0 +1,8 @@
+# Bun Configuration
+# https://bun.sh/docs/runtime/bunfig
+
+[test]
+# DISABLE Bun's built-in test runner
+# This project uses Vitest - always run `bun run test` instead of `bun test`
+# Running `bun test` will now show an error instead of using the wrong test runner
+preload = ["./scripts/test-guard.ts"]

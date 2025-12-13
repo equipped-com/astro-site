@@ -9,7 +9,7 @@
  */
 
 import { render, screen, waitFor } from '@testing-library/react'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, type Mock, vi } from 'vitest'
 import { QuickStats } from './QuickStats'
 
 // Mock fetch
@@ -32,7 +32,7 @@ describe('QuickStats', () => {
 	 *   Then skeleton loaders should be displayed
 	 */
 	it('should show loading skeletons while fetching data', () => {
-		vi.mocked(fetch).mockImplementation(
+		;(fetch as Mock).mockImplementation(
 			() =>
 				new Promise(() => {
 					// Never resolve to keep loading state
@@ -56,7 +56,7 @@ describe('QuickStats', () => {
 	 *   And I should see "7 active" as subtext
 	 */
 	it('should display device count with active status', async () => {
-		vi.mocked(fetch).mockImplementation((url: string | URL) => {
+		;(fetch as Mock).mockImplementation((url: string | URL) => {
 			const urlStr = url.toString()
 			if (urlStr.includes('/devices')) {
 				return Promise.resolve({
@@ -108,7 +108,7 @@ describe('QuickStats', () => {
 	 *   And I should see "4 active" as subtext
 	 */
 	it('should display people count with active status', async () => {
-		vi.mocked(fetch).mockImplementation((url: string | URL) => {
+		;(fetch as Mock).mockImplementation((url: string | URL) => {
 			const urlStr = url.toString()
 			if (urlStr.includes('/people')) {
 				return Promise.resolve({
@@ -151,7 +151,7 @@ describe('QuickStats', () => {
 	 *   Then all counts should show "0"
 	 */
 	it('should display zeros for empty account', async () => {
-		vi.mocked(fetch).mockImplementation((url: string | URL) => {
+		;(fetch as Mock).mockImplementation((url: string | URL) => {
 			const urlStr = url.toString()
 			if (urlStr.includes('/devices')) {
 				return Promise.resolve({
@@ -187,7 +187,7 @@ describe('QuickStats', () => {
 	 *   Then an error message should be displayed
 	 */
 	it('should display error message when API fails', async () => {
-		vi.mocked(fetch).mockRejectedValue(new Error('Network error'))
+		;(fetch as Mock).mockRejectedValue(new Error('Network error'))
 
 		render(<QuickStats />)
 
@@ -204,7 +204,7 @@ describe('QuickStats', () => {
 	 *   Then each stat card should be a clickable link to its detail page
 	 */
 	it('should render stat cards as links to detail pages', async () => {
-		vi.mocked(fetch).mockImplementation((url: string | URL) => {
+		;(fetch as Mock).mockImplementation((url: string | URL) => {
 			const urlStr = url.toString()
 			if (urlStr.includes('/devices')) {
 				return Promise.resolve({
@@ -244,11 +244,9 @@ describe('QuickStats', () => {
 	 *   Then it should use the custom base URL
 	 */
 	it('should use custom API base URL when provided', async () => {
-		const customBaseUrl = 'https://custom-api.example.com'
-
-		vi.mocked(fetch).mockImplementation((url: string | URL) => {
+		;(fetch as Mock).mockImplementation((url: string | URL) => {
 			const urlStr = url.toString()
-			expect(urlStr.startsWith(customBaseUrl)).toBe(true)
+			expect(urlStr.startsWith('https://custom-api.example.com')).toBe(true)
 
 			if (urlStr.includes('/devices')) {
 				return Promise.resolve({
@@ -265,7 +263,7 @@ describe('QuickStats', () => {
 			return Promise.reject(new Error('Unknown endpoint'))
 		})
 
-		render(<QuickStats apiBaseUrl={customBaseUrl} />)
+		render(<QuickStats apiBaseUrl="https://custom-api.example.com" />)
 
 		await waitFor(() => {
 			expect(screen.getByText('Devices')).toBeInTheDocument()

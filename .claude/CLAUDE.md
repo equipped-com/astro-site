@@ -40,6 +40,22 @@ bun run test:ui              # Visual UI dashboard
 ```
 
 **IMPORTANT:** Use `bun` instead of `npm` for faster execution. Falls back to `npm` if bun not available.
+- **ALWAYS use `bun run test`** - NEVER use `bun test` (uses Bun's built-in test runner which fails with errors)
+- `bun run test` uses Vitest with proper configuration (tests passing)
+- A failsafe in `bunfig.toml` will block `bun test` with an error message
+
+## Dependency Management
+
+**NEVER modify `package.json` directly.** Always use package manager commands:
+
+```bash
+bun add <package>       # Add dependency
+bun add -d <package>    # Add dev dependency
+bun remove <package>    # Remove dependency
+bun install             # Install after git pull
+```
+
+This ensures `package.json` and `bun.lock` stay in sync and prevents version conflicts.
 
 ## Design Guidelines
 
@@ -68,6 +84,32 @@ bun run test:ui              # Visual UI dashboard
   - Bad: just passes data through, exists because it "feels proper"
 - **STREAMING FOR LARGE DATA**: Use streaming patterns instead of accumulating arrays in memory
 - **COMMENTS ONLY FOR COMPLEXITY**: Use clear variable/function names; add comments only where logic isn't self-evident
+
+## Biome Linting - CRITICAL
+
+When Biome reports lint errors:
+
+1. **DO NOT run `biome check` repeatedly** - this only reports errors
+2. **Apply fixes immediately**:
+   ```bash
+   bunx biome check --write <files>           # Safe fixes
+   bunx biome check --write --unsafe <files>  # All fixes (use when safe)
+   ```
+3. **If stuck in a check loop** - STOP and apply fixes instead of checking again
+
+**Common pattern to avoid**:
+```bash
+bunx biome check file.ts  # Reports errors
+bunx biome check file.ts  # Still has errors (no progress!)
+bunx biome check file.ts  # Infinite loop...
+```
+
+**Correct pattern**:
+```bash
+bunx biome check file.ts                   # Identify errors
+bunx biome check --write --unsafe file.ts  # Fix them
+bunx biome check file.ts                   # Verify clean
+```
 
 ## Testing Strategy - MANDATORY
 
@@ -340,10 +382,44 @@ This creates an audit trail:
 
 ### Key Documents
 
-- `PRD.md` - Product requirements (authoritative for features)
+- `documentation/PRDs/*.md` - Product Requirements Documents (authoritative for features)
+  - `product.md` - Core product features and capabilities
+  - `workflow.md` - Development workflow and process improvements
+  - **Note:** Only actual PRDs go here, not templates or support files
+- `documentation/prd-template.md` - Template for new PRDs
+- `documentation/prd-preparation-checklist.md` - PRD scoping checklist
 - `documentation/*.md` - UX flows and integrations
 - `tasks/index.yml` - Task index with status tracking + dependencies + commit hashes
+- `prd.yml` - Tracks PRD processing status
 - `scripts/validate-task-dependencies.js` - Validation tool for task readiness
+
+### PRD-to-Task Generation Workflow
+
+**IMPORTANT:** When new PRD files are added or task files are missing, use `/prepare-prd`:
+
+```bash
+/prepare-prd
+```
+
+This command:
+1. Scans `documentation/PRDs/*.md` for unprocessed or incomplete PRDs
+2. Checks `prd.yml` for PRDs with status `pending` or `attention-needed`
+3. Launches parallel Sonnet agents to generate task files
+4. Creates `tasks/{epic}/` directories and `{task}.md` files
+5. Updates `prd.yml` with completion status
+
+**PRD Status Values in `prd.yml`:**
+- `complete` - All task files generated successfully
+- `in-progress` - Currently being processed
+- `pending` - Not yet processed
+- `attention-needed` - Failed generation, needs retry
+
+**When to use `/prepare-prd`:**
+- Adding a new PRD file to `documentation/PRDs/`
+- Task files are missing but epic exists in `tasks/index.yml`
+- PRD marked `attention-needed` in `prd.yml`
+
+**Do NOT manually create task files from PRDs** - always use `/prepare-prd` for consistency.
 
 ### Test Criteria Format
 

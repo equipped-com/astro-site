@@ -8,9 +8,13 @@
  * that getAuth() reads, allowing full control over auth state in tests.
  */
 
+import { getAuth } from '@hono/clerk-auth'
 import { Hono } from 'hono'
-import { beforeEach, describe, expect, test, vi } from 'vitest'
+import { beforeEach, describe, expect, type Mock, test, vi } from 'vitest'
 import userRoutes from './user'
+
+// Get the mocked getAuth from global setup
+const mockedGetAuth = getAuth as Mock
 
 // Mock types
 interface MockEnv {
@@ -38,27 +42,23 @@ interface TestAppOptions {
 /**
  * Create test app with injected auth context.
  *
- * This mimics what clerkMiddleware() does - it sets c.clerkAuth
- * which getAuth() then reads. By injecting this ourselves, we can:
- * - Control auth state per-test
- * - Verify auth was checked
- * - Test unauthenticated scenarios
+ * This overrides the global getAuth mock to return our test-specific auth.
+ * The global mock in setup.ts returns 'user_test_default' by default.
  */
 function createTestApp({ db, auth = { userId: 'user_123', sessionId: 'session_123' } }: TestAppOptions) {
 	const authCallTracker = vi.fn()
+
+	// Override the globally mocked getAuth to return our test auth
+	mockedGetAuth.mockImplementation(() => {
+		authCallTracker()
+		return auth
+	})
 
 	const app = new Hono<{ Bindings: MockEnv }>()
 
 	app.use('*', async (c, next) => {
 		// Inject DB
 		c.env = { DB: db } as MockEnv
-
-		// Inject auth context - this is what clerkMiddleware() does
-		// getAuth(c) internally calls c.get('clerkAuth')()
-		c.set('clerkAuth', () => {
-			authCallTracker()
-			return auth
-		})
 
 		return next()
 	})
@@ -272,8 +272,37 @@ describe('User Profile API', () => {
 		})
 	})
 
-	describe('@REQ-USER-004: List account memberships', () => {
-		test('should return all accounts user has access to', async () => {
+	/**
+	 * @REQ-API-001: Requires authentication
+	 * Scenario: Requires authentication
+	 */
+	describe('@REQ-API-001 @Authentication: GET /api/user/accounts requires authentication', () => {
+		test('should return 401 when not logged in', async () => {
+			const mockDb = {
+				prepare: vi.fn(),
+			}
+
+			const { app, authCallTracker } = createTestApp({
+				db: mockDb,
+				auth: { userId: undefined },
+			})
+			const res = await app.request('/accounts')
+
+			// Auth was still checked
+			expect(authCallTracker).toHaveBeenCalled()
+
+			expect(res.status).toBe(401)
+			const json = await res.json()
+			expect(json.error).toBe('Authentication required')
+		})
+	})
+
+	/**
+	 * @REQ-API-002: Response format
+	 * Scenario: List accessible accounts
+	 */
+	describe('@REQ-API-002 @Response: List accessible accounts', () => {
+		test('should return all accessible accounts with correct fields', async () => {
 			const mockDb = {
 				prepare: vi.fn((_query: string) => ({
 					bind: vi.fn(() => ({
@@ -282,14 +311,29 @@ describe('User Profile API', () => {
 								{
 									id: 'acc_acme',
 									name: 'Acme Corp',
-									short_name: 'acme',
-									role: 'admin',
+									short_name: 'acmecorp',
+									logo_url: 'https://example.com/acme.png',
+									role: 'owner',
+									account_access_id: 'aa_001',
+									is_primary: 1,
 								},
 								{
 									id: 'acc_beta',
 									name: 'Beta Inc',
-									short_name: 'beta',
+									short_name: 'betainc',
+									logo_url: null,
+									role: 'admin',
+									account_access_id: 'aa_002',
+									is_primary: 0,
+								},
+								{
+									id: 'acc_client',
+									name: 'Client Co',
+									short_name: 'clientco',
+									logo_url: 'https://example.com/client.png',
 									role: 'member',
+									account_access_id: 'aa_003',
+									is_primary: 0,
 								},
 							],
 						})),
@@ -302,15 +346,191 @@ describe('User Profile API', () => {
 
 			expect(res.status).toBe(200)
 			const json = await res.json()
-			expect(json.accounts).toHaveLength(2)
+			expect(json.accounts).toHaveLength(3)
+
+			// Verify all required fields are present
+			for (const account of json.accounts) {
+				expect(account).toHaveProperty('id')
+				expect(account).toHaveProperty('name')
+				expect(account).toHaveProperty('short_name')
+				expect(account).toHaveProperty('logo_url')
+				expect(account).toHaveProperty('role')
+				expect(account).toHaveProperty('is_primary')
+				expect(account).toHaveProperty('account_access_id')
+
+				// Verify types
+				expect(typeof account.id).toBe('string')
+				expect(typeof account.name).toBe('string')
+				expect(typeof account.short_name).toBe('string')
+				expect(typeof account.role).toBe('string')
+				expect(typeof account.is_primary).toBe('boolean')
+				expect(typeof account.account_access_id).toBe('string')
+				// logo_url can be string or null
+				expect(account.logo_url === null || typeof account.logo_url === 'string').toBe(true)
+			}
+
+			// Verify first account
 			expect(json.accounts[0]).toMatchObject({
+				id: 'acc_acme',
 				name: 'Acme Corp',
-				role: 'admin',
+				short_name: 'acmecorp',
+				logo_url: 'https://example.com/acme.png',
+				role: 'owner',
+				is_primary: true,
+				account_access_id: 'aa_001',
 			})
+
+			// Verify second account
 			expect(json.accounts[1]).toMatchObject({
+				id: 'acc_beta',
 				name: 'Beta Inc',
-				role: 'member',
+				short_name: 'betainc',
+				logo_url: null,
+				role: 'admin',
+				is_primary: false,
+				account_access_id: 'aa_002',
 			})
+
+			// Verify third account
+			expect(json.accounts[2]).toMatchObject({
+				id: 'acc_client',
+				name: 'Client Co',
+				short_name: 'clientco',
+				role: 'member',
+				is_primary: false,
+				account_access_id: 'aa_003',
+			})
+		})
+	})
+
+	/**
+	 * @REQ-API-003: Sorting
+	 * Scenario: Accounts sorted by primary then alphabetically
+	 */
+	describe('@REQ-API-003 @Sorting: Accounts sorted by primary then alphabetically', () => {
+		test('should sort primary account first, then alphabetically', async () => {
+			const mockDb = {
+				prepare: vi.fn((_query: string) => ({
+					bind: vi.fn(() => ({
+						all: vi.fn(async () => ({
+							results: [
+								// Database returns already sorted (simulating ORDER BY is_primary DESC, a.name ASC)
+								{
+									id: 'acc_beta',
+									name: 'Beta Inc',
+									short_name: 'betainc',
+									logo_url: null,
+									role: 'admin',
+									account_access_id: 'aa_002',
+									is_primary: 1, // Primary account
+								},
+								{
+									id: 'acc_acme',
+									name: 'Acme Corp',
+									short_name: 'acmecorp',
+									logo_url: null,
+									role: 'member',
+									account_access_id: 'aa_001',
+									is_primary: 0,
+								},
+								{
+									id: 'acc_zeta',
+									name: 'Zeta Co',
+									short_name: 'zetaco',
+									logo_url: null,
+									role: 'member',
+									account_access_id: 'aa_003',
+									is_primary: 0,
+								},
+							],
+						})),
+					})),
+				})),
+			}
+
+			const { app } = createTestApp({ db: mockDb })
+			const res = await app.request('/accounts')
+
+			expect(res.status).toBe(200)
+			const json = await res.json()
+			expect(json.accounts).toHaveLength(3)
+
+			// Verify order
+			expect(json.accounts[0].name).toBe('Beta Inc')
+			expect(json.accounts[0].is_primary).toBe(true)
+
+			expect(json.accounts[1].name).toBe('Acme Corp')
+			expect(json.accounts[1].is_primary).toBe(false)
+
+			expect(json.accounts[2].name).toBe('Zeta Co')
+			expect(json.accounts[2].is_primary).toBe(false)
+		})
+	})
+
+	/**
+	 * @REQ-API-004: Single account
+	 * Scenario: User with single account
+	 */
+	describe('@REQ-API-004 @SingleAccount: User with single account', () => {
+		test('should return single account marked as primary', async () => {
+			const mockDb = {
+				prepare: vi.fn((_query: string) => ({
+					bind: vi.fn(() => ({
+						all: vi.fn(async () => ({
+							results: [
+								{
+									id: 'acc_acme',
+									name: 'Acme Corp',
+									short_name: 'acmecorp',
+									logo_url: null,
+									role: 'owner',
+									account_access_id: 'aa_001',
+									is_primary: 1,
+								},
+							],
+						})),
+					})),
+				})),
+			}
+
+			const { app } = createTestApp({ db: mockDb })
+			const res = await app.request('/accounts')
+
+			expect(res.status).toBe(200)
+			const json = await res.json()
+			expect(json.accounts).toHaveLength(1)
+			expect(json.accounts[0].is_primary).toBe(true)
+			expect(json.accounts[0]).toMatchObject({
+				id: 'acc_acme',
+				name: 'Acme Corp',
+				role: 'owner',
+			})
+		})
+	})
+
+	/**
+	 * @REQ-API-005: No access
+	 * Scenario: User with no account access (edge case)
+	 */
+	describe('@REQ-API-005 @NoAccess: User with no account access', () => {
+		test('should return empty array when user has no account access', async () => {
+			const mockDb = {
+				prepare: vi.fn((_query: string) => ({
+					bind: vi.fn(() => ({
+						all: vi.fn(async () => ({
+							results: [],
+						})),
+					})),
+				})),
+			}
+
+			const { app } = createTestApp({ db: mockDb })
+			const res = await app.request('/accounts')
+
+			expect(res.status).toBe(200)
+			const json = await res.json()
+			expect(json.accounts).toHaveLength(0)
+			expect(Array.isArray(json.accounts)).toBe(true)
 		})
 	})
 
@@ -394,6 +614,150 @@ describe('User Profile API', () => {
 
 			// Auth was still checked
 			expect(authCallTracker).toHaveBeenCalled()
+
+			expect(res.status).toBe(401)
+			const json = await res.json()
+			expect(json.error).toBe('Unauthorized')
+		})
+	})
+
+	/**
+	 * @REQ-API-001 @Update
+	 * Scenario: Set primary account
+	 * Given I am logged in as "alice@example.com"
+	 * And I have access to "Acme Corp" and "Beta Inc"
+	 * And my current primary is "Acme Corp"
+	 * When I PUT "/api/users/me/primary-account" with account_id
+	 * Then the response status should be 200
+	 * And users.primary_account_id should be updated
+	 */
+	describe('@REQ-API-001 @Update: Set primary account', () => {
+		test('should set primary account when user has access', async () => {
+			const mockDb = {
+				prepare: vi.fn((query: string) => {
+					if (query.includes('SELECT aa.role')) {
+						// Access check query
+						return {
+							bind: vi.fn(() => ({
+								first: vi.fn(async () => ({
+									role: 'admin',
+									name: 'Beta Inc',
+								})),
+							})),
+						}
+					}
+					if (query.includes('UPDATE')) {
+						// Update query
+						return {
+							bind: vi.fn(() => ({
+								run: vi.fn(async () => ({ success: true })),
+							})),
+						}
+					}
+					// SELECT after update
+					return {
+						bind: vi.fn(() => ({
+							first: vi.fn(async () => ({
+								id: 'user_123',
+								email: 'alice@example.com',
+								first_name: 'Alice',
+								last_name: 'Smith',
+								phone: null,
+								primary_account_id: 'acc_betainc',
+								avatar_url: null,
+							})),
+						})),
+					}
+				}),
+			}
+
+			const { app } = createTestApp({ db: mockDb })
+			const res = await app.request('/primary-account', {
+				method: 'PUT',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ account_id: 'acc_betainc' }),
+			})
+
+			expect(res.status).toBe(200)
+			const json = await res.json()
+			expect(json.user.primary_account_id).toBe('acc_betainc')
+			expect(json.user.email).toBe('alice@example.com')
+		})
+	})
+
+	/**
+	 * @REQ-API-002 @Validation
+	 * Scenario: Cannot set primary to account without access
+	 * Given I am logged in as "alice@example.com"
+	 * And I do NOT have access to "Client Co"
+	 * When I PUT "/api/users/me/primary-account" with account_id
+	 * Then the response status should be 403
+	 */
+	describe('@REQ-API-002 @Validation: Cannot set primary to unauthorized account', () => {
+		test('should return 403 when user lacks access', async () => {
+			const mockDb = {
+				prepare: vi.fn((_query: string) => ({
+					bind: vi.fn(() => ({
+						first: vi.fn(async () => null), // No access found
+					})),
+				})),
+			}
+
+			const { app } = createTestApp({ db: mockDb })
+			const res = await app.request('/primary-account', {
+				method: 'PUT',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ account_id: 'acc_clientco' }),
+			})
+
+			expect(res.status).toBe(403)
+			const json = await res.json()
+			expect(json.error).toBe('You do not have access to this account')
+		})
+	})
+
+	/**
+	 * @REQ-API-003 @Validation
+	 * Scenario: Validation - Missing account_id
+	 */
+	describe('@REQ-API-003 @Validation: Missing account_id', () => {
+		test('should return 400 when account_id is missing', async () => {
+			const mockDb = {
+				prepare: vi.fn(),
+			}
+
+			const { app } = createTestApp({ db: mockDb })
+			const res = await app.request('/primary-account', {
+				method: 'PUT',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({}),
+			})
+
+			expect(res.status).toBe(400)
+			const json = await res.json()
+			expect(json.error).toBe('account_id is required')
+		})
+	})
+
+	/**
+	 * @REQ-API-004 @Auth
+	 * Scenario: Requires authentication
+	 */
+	describe('@REQ-API-004 @Auth: Unauthenticated user', () => {
+		test('should return 401 when not authenticated', async () => {
+			const mockDb = {
+				prepare: vi.fn(),
+			}
+
+			const { app } = createTestApp({
+				db: mockDb,
+				auth: { userId: undefined },
+			})
+			const res = await app.request('/primary-account', {
+				method: 'PUT',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ account_id: 'acc_123' }),
+			})
 
 			expect(res.status).toBe(401)
 			const json = await res.json()

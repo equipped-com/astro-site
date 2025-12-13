@@ -3,37 +3,32 @@
  *
  * @REQ-SA-010 Restricted actions while impersonating
  */
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { render, screen, waitFor } from '@testing-library/react'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import * as impersonationLib from '@/lib/impersonation'
 import { RestrictedAction, useRestrictedAction } from './RestrictedAction'
 
 // Mock fetch
 global.fetch = vi.fn()
 
-// Mock localStorage
-const mockStorage: Record<string, string> = {}
-const mockLocalStorage = {
-	getItem: vi.fn((key: string) => mockStorage[key] || null),
-	setItem: vi.fn((key: string, value: string) => {
-		mockStorage[key] = value
-	}),
-	removeItem: vi.fn((key: string) => {
-		delete mockStorage[key]
-	}),
-	clear: vi.fn(() => {
-		for (const key of Object.keys(mockStorage)) {
-			delete mockStorage[key]
-		}
-	}),
-}
+// Mock the impersonation library
+vi.mock('@/lib/impersonation', async importOriginal => {
+	const original = await importOriginal<typeof impersonationLib>()
+	return {
+		...original,
+		getImpersonationSession: vi.fn(() => null),
+		endImpersonationSession: vi.fn(),
+		getAdminDashboardUrl: vi.fn(() => '/admin'),
+	}
+})
 
 // Mock alert
 global.alert = vi.fn()
 
 beforeEach(() => {
 	vi.clearAllMocks()
-	mockLocalStorage.clear()
-	Object.defineProperty(window, 'localStorage', { value: mockLocalStorage })
+	// Reset the mock to default behavior (return null)
+	vi.mocked(impersonationLib.getImpersonationSession).mockReturnValue(null)
 })
 
 const mockSession = {
@@ -73,7 +68,7 @@ describe('RestrictedAction Component', () => {
 
 	describe('when impersonating', () => {
 		beforeEach(() => {
-			mockStorage.equipped_impersonation_session = JSON.stringify(mockSession)
+			vi.mocked(impersonationLib.getImpersonationSession).mockReturnValue(mockSession)
 		})
 
 		/**
@@ -85,46 +80,53 @@ describe('RestrictedAction Component', () => {
 		 *     | Remove the owner |
 		 *   And these should show "Action restricted in admin mode"
 		 */
-		it('should disable restricted actions', () => {
+		it('should disable restricted actions', async () => {
 			render(
 				<RestrictedAction action="delete_account">
 					<button type="button">Delete Account</button>
 				</RestrictedAction>,
 			)
 
-			const wrapper = screen.getByText('Delete Account').closest('div')
-			expect(wrapper).toHaveClass('pointer-events-none')
-			expect(wrapper).toHaveClass('opacity-50')
+			await waitFor(() => {
+				const wrapper = screen.getByText('Delete Account').closest('div')
+				expect(wrapper).toHaveClass('pointer-events-none')
+				expect(wrapper).toHaveClass('opacity-50')
+			})
 		})
 
-		it('should show restriction message for restricted actions', () => {
+		it('should show restriction message for restricted actions', async () => {
 			render(
 				<RestrictedAction action="delete_account" showMessage={true}>
 					<button type="button">Delete Account</button>
 				</RestrictedAction>,
 			)
 
-			expect(screen.getByText(/Action restricted in admin mode/)).toBeInTheDocument()
+			await waitFor(() => {
+				expect(screen.getByText(/Action restricted in admin mode/)).toBeInTheDocument()
+			})
 		})
 
-		it('should allow non-restricted actions', () => {
+		it('should allow non-restricted actions', async () => {
 			render(
 				<RestrictedAction action="view_devices">
 					<button type="button">View Devices</button>
 				</RestrictedAction>,
 			)
 
-			const button = screen.getByText('View Devices')
-			expect(button.closest('div')).not.toHaveClass('pointer-events-none')
+			await waitFor(() => {
+				const button = screen.getByText('View Devices')
+				// Non-restricted actions should be rendered directly without wrapper
+				expect(button.closest('div.pointer-events-none')).toBeNull()
+			})
 		})
 	})
 
 	describe('custom render prop', () => {
 		beforeEach(() => {
-			mockStorage.equipped_impersonation_session = JSON.stringify(mockSession)
+			vi.mocked(impersonationLib.getImpersonationSession).mockReturnValue(mockSession)
 		})
 
-		it('should support custom render function', () => {
+		it('should support custom render function', async () => {
 			render(
 				<RestrictedAction
 					action="change_billing"
@@ -136,12 +138,14 @@ describe('RestrictedAction Component', () => {
 				/>,
 			)
 
-			const button = screen.getByText('Restricted')
-			expect(button).toBeDisabled()
-			expect(button).toHaveAttribute('title', expect.stringContaining('Action restricted'))
+			await waitFor(() => {
+				const button = screen.getByText('Restricted')
+				expect(button).toBeDisabled()
+				expect(button).toHaveAttribute('title', expect.stringContaining('Action restricted'))
+			})
 		})
 
-		it('should pass isRestricted=false for allowed actions', () => {
+		it('should pass isRestricted=false for allowed actions', async () => {
 			render(
 				<RestrictedAction
 					action="view_devices"
@@ -153,32 +157,42 @@ describe('RestrictedAction Component', () => {
 				/>,
 			)
 
-			const button = screen.getByText('View Devices')
-			expect(button).not.toBeDisabled()
+			await waitFor(() => {
+				const button = screen.getByText('View Devices')
+				expect(button).not.toBeDisabled()
+			})
 		})
 	})
 
 	describe('showMessage prop', () => {
 		beforeEach(() => {
-			mockStorage.equipped_impersonation_session = JSON.stringify(mockSession)
+			vi.mocked(impersonationLib.getImpersonationSession).mockReturnValue(mockSession)
 		})
 
-		it('should show message when showMessage=true (default)', () => {
+		it('should show message when showMessage=true (default)', async () => {
 			render(
 				<RestrictedAction action="delete_account">
 					<button type="button">Delete</button>
 				</RestrictedAction>,
 			)
 
-			expect(screen.getByRole('alert')).toBeInTheDocument()
+			await waitFor(() => {
+				expect(screen.getByRole('alert')).toBeInTheDocument()
+			})
 		})
 
-		it('should hide message when showMessage=false', () => {
+		it('should hide message when showMessage=false', async () => {
 			render(
 				<RestrictedAction action="delete_account" showMessage={false}>
 					<button type="button">Delete</button>
 				</RestrictedAction>,
 			)
+
+			await waitFor(() => {
+				// Wait for session to be loaded (indicated by the disabled class)
+				const wrapper = screen.getByText('Delete').closest('div')
+				expect(wrapper).toHaveClass('pointer-events-none')
+			})
 
 			expect(screen.queryByRole('alert')).not.toBeInTheDocument()
 		})

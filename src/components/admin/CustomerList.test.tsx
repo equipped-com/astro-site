@@ -7,6 +7,7 @@
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import * as impersonationLib from '@/lib/impersonation'
 import CustomerList from './CustomerList'
 
 // Mock fetch
@@ -24,7 +25,19 @@ vi.mock('@clerk/clerk-react', () => ({
 	}),
 }))
 
-// Mock localStorage
+// Mock the impersonation library
+vi.mock('@/lib/impersonation', async importOriginal => {
+	const original = await importOriginal<typeof impersonationLib>()
+	return {
+		...original,
+		startImpersonationSession: vi.fn(),
+		getImpersonationUrl: vi.fn(
+			(shortName: string) => `https://${shortName}.tryequipped.com/dashboard?impersonate=true`,
+		),
+	}
+})
+
+// Mock localStorage (for tests that still need it)
 const mockStorage: Record<string, string> = {}
 const mockLocalStorage = {
 	getItem: vi.fn((key: string) => mockStorage[key] || null),
@@ -405,6 +418,16 @@ describe('CustomerList Component', () => {
 		})
 
 		it('should store impersonation session in localStorage', async () => {
+			const mockSession = {
+				adminUserId: 'user_admin123',
+				adminEmail: 'admin@tryequipped.com',
+				adminName: 'John Admin',
+				accountId: 'acc_1',
+				accountName: 'Acme Corporation',
+				accountShortName: 'acme',
+				startedAt: new Date().toISOString(),
+			}
+
 			;(global.fetch as any).mockResolvedValueOnce({
 				ok: true,
 				json: async () => mockCustomers,
@@ -414,15 +437,7 @@ describe('CustomerList Component', () => {
 				ok: true,
 				json: async () => ({
 					success: true,
-					session: {
-						adminUserId: 'user_admin123',
-						adminEmail: 'admin@tryequipped.com',
-						adminName: 'John Admin',
-						accountId: 'acc_1',
-						accountName: 'Acme Corporation',
-						accountShortName: 'acme',
-						startedAt: new Date().toISOString(),
-					},
+					session: mockSession,
 				}),
 			})
 
@@ -436,7 +451,7 @@ describe('CustomerList Component', () => {
 			await user.click(screen.getByTestId('impersonate-acme'))
 
 			await waitFor(() => {
-				expect(mockLocalStorage.setItem).toHaveBeenCalledWith('equipped_impersonation_session', expect.any(String))
+				expect(impersonationLib.startImpersonationSession).toHaveBeenCalledWith(mockSession)
 			})
 		})
 

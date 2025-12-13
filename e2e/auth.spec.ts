@@ -1,13 +1,11 @@
-import { expect, signIn, test } from './fixtures/auth'
+import { expect, signIn, signInProgrammatic, signInUI, test } from './fixtures/auth'
 
 // @REQ-E2E-AUTH-001
 test.describe('Authentication Flow', () => {
-	test('user can sign in and access dashboard', async ({ page }) => {
-		// Given I am on the sign-in page
-		await page.goto('/sign-in')
-
-		// When I enter valid credentials and submit
-		await signIn(page)
+	test('user can sign in programmatically and access dashboard', async ({ page }) => {
+		// Given I need to authenticate quickly (using programmatic sign-in)
+		// When I sign in programmatically
+		await signInProgrammatic(page)
 
 		// Then I should be on the dashboard
 		await expect(page).toHaveURL(/\/dashboard/)
@@ -33,5 +31,16 @@ test.describe('Authentication Flow', () => {
 
 		// Then I should be on the homepage
 		await expect(page).toHaveURL('/')
+	})
+
+	// @REQ-CLERK-003 - Test UI-based sign-in flow
+	test('user can sign in via UI and authenticate', async ({ page }) => {
+		// Given I need to test the actual sign-in flow
+		// When I use the UI-based sign-in
+		await signInUI(page)
+
+		// Then I should be authenticated successfully
+		await expect(page).toHaveURL(/\/dashboard/)
+		await expect(page.locator('text=Dashboard')).toBeVisible()
 	})
 })

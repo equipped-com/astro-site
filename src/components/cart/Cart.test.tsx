@@ -173,7 +173,7 @@ describe('Cart Component', () => {
 			expect(screen.getByText('Subtotal')).toBeInTheDocument()
 			expect(screen.getAllByText(/2,?798\.00/).length).toBeGreaterThan(0)
 			expect(screen.getByText('Shipping')).toBeInTheDocument()
-			expect(screen.getByText('Calculated at checkout')).toBeInTheDocument()
+			expect(screen.getAllByText('Calculated at checkout').length).toBe(2) // Shipping and Taxes
 			expect(screen.getByText('Taxes')).toBeInTheDocument()
 		})
 	})
@@ -222,7 +222,7 @@ describe('Cart Component', () => {
 
 			// Should show discount applied
 			await waitFor(() => {
-				expect(screen.getByText(/FIRST10/i)).toBeInTheDocument()
+				expect(screen.getByText(/Discount \(FIRST10\)/i)).toBeInTheDocument()
 			})
 		})
 
@@ -414,6 +414,97 @@ describe('Cart Component', () => {
 				expect(toast.success).toHaveBeenCalledWith('Item removed from cart')
 			})
 
+			await waitFor(() => {
+				expect(screen.getByText('Your cart is empty')).toBeInTheDocument()
+			})
+		})
+	})
+
+	describe('@REQ-COM-CART-006 - Cart persistence', () => {
+		it('should persist cart items and payment method to localStorage', async () => {
+			const cart = {
+				id: 'test-cart',
+				accountId: 'test-account',
+				userId: 'test-user',
+				paymentMethod: '24-month' as const,
+				items: [
+					{
+						id: 'item-1',
+						productSku: 'MB-M2',
+						productName: 'MacBook Air M2',
+						productImage: '',
+						specs: {},
+						quantity: 1,
+						unitPrice: 1199,
+						monthlyPrice24: 49.96,
+					},
+				],
+				subtotal: 1199,
+				createdAt: new Date(),
+				updatedAt: new Date(),
+			}
+			localStorage.setItem('equipped_cart', JSON.stringify(cart))
+
+			// First render - cart should load from localStorage
+			const { unmount } = renderCart()
+
+			await waitFor(() => {
+				expect(screen.getByText('MacBook Air M2')).toBeInTheDocument()
+			})
+
+			// Verify payment method persisted (24-month should be selected)
+			const monthButton24 = screen.getByRole('button', { name: /24-month/i })
+			expect(monthButton24.closest('button')).toHaveClass(/border-primary/)
+
+			// Unmount component (simulate closing browser)
+			unmount()
+
+			// Re-render (simulate returning to the site)
+			renderCart()
+
+			// Cart should still have the item
+			await waitFor(() => {
+				expect(screen.getByText('MacBook Air M2')).toBeInTheDocument()
+			})
+
+			// Payment method should still be 24-month
+			await waitFor(() => {
+				const monthButton24Rerendered = screen.getByRole('button', { name: /24-month/i })
+				expect(monthButton24Rerendered.closest('button')).toHaveClass(/border-primary/)
+			})
+		})
+
+		it('should clear cart for different accountId', async () => {
+			const cart = {
+				id: 'test-cart',
+				accountId: 'old-account',
+				userId: 'old-user',
+				paymentMethod: 'buy' as const,
+				items: [
+					{
+						id: 'item-1',
+						productSku: 'MB-M2',
+						productName: 'MacBook Air M2',
+						productImage: '',
+						specs: {},
+						quantity: 1,
+						unitPrice: 1199,
+					},
+				],
+				subtotal: 1199,
+				createdAt: new Date(),
+				updatedAt: new Date(),
+			}
+			localStorage.setItem('equipped_cart', JSON.stringify(cart))
+
+			// Render with different accountId
+			render(
+				<CartProvider accountId="new-account" userId="new-user">
+					<Cart />
+				</CartProvider>,
+			)
+
+			// Cart should be empty because accountId changed
 			await waitFor(() => {
 				expect(screen.getByText('Your cart is empty')).toBeInTheDocument()
 			})

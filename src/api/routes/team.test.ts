@@ -8,9 +8,13 @@
  * that getAuth() reads, allowing full control over auth state in tests.
  */
 
+import { getAuth } from '@hono/clerk-auth'
 import { Hono } from 'hono'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { type Mock, beforeEach, describe, expect, it, vi } from 'vitest'
 import teamRoutes from './team'
+
+// Get the mocked getAuth from global setup
+const mockedGetAuth = getAuth as Mock
 
 interface MockAuth {
 	userId?: string
@@ -35,6 +39,7 @@ interface TestAppOptions {
  * - DB environment
  * - clerkAuth (for getAuth())
  * - accountId (for requireTenant to pass)
+ * - user context (for getUser() in route handlers)
  *
  * The requireAccountAccess middleware will query the DB for access verification,
  * which our mock DB handles.
@@ -46,16 +51,28 @@ function createTestApp({
 }: TestAppOptions) {
 	const app = new Hono()
 
+	// Override the globally mocked getAuth to return our test auth
+	// The global mock in setup.ts returns 'user_test_default', but we need
+	// to use the auth parameter for this specific test app instance
+	const authData = {
+		userId: auth.userId ?? 'user-123',
+		sessionId: auth.sessionId ?? 'session-123',
+	}
+	mockedGetAuth.mockReturnValue(authData)
+
 	app.use('*', async (c, next) => {
 		// Inject DB
 		c.env = { DB: db } as unknown as typeof c.env
 
-		// Inject auth context (what clerkMiddleware does)
-		c.set('clerkAuth', () => auth)
-
 		// Inject accountId for requireTenant (simulating subdomain resolution)
 		c.set('accountId', context.accountId ?? 'account-123')
 		c.set('account', context.account ?? { id: 'account-123', short_name: 'test', name: 'Test Account' })
+
+		// Note: We intentionally do NOT set 'user' here because requireAccountAccess
+		// middleware will set it based on DB query + auth.userId. The middleware
+		// sets c.set('user', { id: auth.userId, ... }), so currentUser.id will
+		// be whatever auth.userId is.
+		c.set('role', context.role ?? 'owner')
 
 		return next()
 	})
@@ -69,6 +86,12 @@ function createTestApp({
  *
  * IMPORTANT: The requireAccountAccess middleware queries the DB to verify access.
  * This mock auto-handles that query by returning a valid access record.
+ *
+ * Query differentiation:
+ * - requireAccountAccess: contains "JOIN users" (selects user info)
+ * - getTargetAccess: contains "user_id, role FROM account_access" (simple select)
+ *
+ * The handler's first() callback is only called for non-middleware queries (like getTargetAccess).
  */
 function createMockDb(
 	handlers: {
@@ -78,37 +101,34 @@ function createMockDb(
 	},
 	options: { role?: string } = {},
 ): MockDb {
-	let lastParams: unknown[] = []
 	const userRole = options.role ?? 'owner'
 
 	return {
 		prepare: vi.fn((query: string) => ({
-			bind: vi.fn((...params: unknown[]) => {
-				lastParams = params
-				return {
-					first: vi.fn(async () => {
-						// Handle requireAccountAccess middleware query
-						if (query.includes('account_access aa') && query.includes('JOIN users u')) {
-							return {
-								id: 'access-test',
-								user_id: 'user-123',
-								account_id: 'account-123',
-								role: userRole,
-								email: 'owner@test.com',
-								first_name: 'Test',
-								last_name: 'Owner',
-							}
+			bind: vi.fn((...params: unknown[]) => ({
+				first: vi.fn(async () => {
+					// Handle requireAccountAccess middleware query (joins with users table)
+					if (query.includes('JOIN users')) {
+						return {
+							id: 'access-test',
+							user_id: 'user-123',
+							account_id: 'account-123',
+							role: userRole,
+							email: 'owner@test.com',
+							first_name: 'Test',
+							last_name: 'Owner',
 						}
-						// Handle tenantMiddleware account lookup
-						if (query.includes('FROM accounts WHERE')) {
-							return { id: 'account-123', short_name: 'test', name: 'Test Account' }
-						}
-						return handlers.first?.(query, lastParams) ?? null
-					}),
-					all: vi.fn(() => handlers.all?.(query, lastParams) ?? { results: [] }),
-					run: vi.fn(() => handlers.run?.(query, lastParams) ?? { success: true }),
-				}
-			}),
+					}
+					// Handle tenantMiddleware account lookup
+					if (query.includes('FROM accounts WHERE')) {
+						return { id: 'account-123', short_name: 'test', name: 'Test Account' }
+					}
+					// For all other queries (like target access lookup), use the handler
+					return handlers.first?.(query, params) ?? null
+				}),
+				all: vi.fn(async () => handlers.all?.(query, params) ?? { results: [] }),
+				run: vi.fn(async () => handlers.run?.(query, params) ?? { success: true }),
+			})),
 		})),
 	}
 }

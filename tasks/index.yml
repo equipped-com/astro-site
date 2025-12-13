@@ -187,8 +187,8 @@
 #
 # =============================================================================
 
-version: 3
-updated: 2024-12-08
+version: 4
+updated: 2025-12-10
 
 epics:
   infrastructure:
@@ -249,6 +249,15 @@ epics:
         complexity: low
         depends_on:
           - database/initial-schema
+      - id: fix-schema-naming
+        name: Fix Schema Naming Consistency
+        file: database/fix-schema-naming.md
+        done: true
+        commit: 0d5eee9
+        complexity: low
+        depends_on:
+          - database/initial-schema
+          - bugs/fix-schema-naming-tests
 
   multi-tenancy:
     name: Multi-Tenancy Architecture
@@ -316,6 +325,137 @@ epics:
           - auth/auth-pages
           - auth/clerk-provider
 
+  invitations:
+    name: Team Invitations
+    description: Account invitation lifecycle (REQ-ID-005 to REQ-ID-008)
+    priority: high
+    tasks:
+      - id: invitations-schema
+        name: Account Invitations Table Migration
+        file: invitations/invitations-schema.md
+        done: true
+        commit: 8d43f4b
+        complexity: medium
+        depends_on:
+          - database/initial-schema
+      - id: invitation-api
+        name: Invitation API Endpoints
+        file: invitations/invitation-api.md
+        done: true
+        commit: 15425a3
+        complexity: high  # Security, lifecycle management
+        depends_on:
+          - invitations/invitations-schema
+          - api/auth-middleware
+      - id: invitation-ui
+        name: Invitation UI Components
+        file: invitations/invitation-ui.md
+        done: true
+        commit: 654a9b6
+        complexity: medium
+        depends_on:
+          - invitations/invitation-api
+          - settings/team-access
+          - bugs/fix-invitation-ui-confirm
+      - id: invitation-emails
+        name: Invitation Email Templates
+        file: invitations/invitation-emails.md
+        done: true
+        commit: a35f0b7
+        complexity: low
+        depends_on:
+          - invitations/invitation-api
+      - id: invitation-expiry
+        name: Invitation Expiry Worker
+        file: invitations/invitation-expiry.md
+        done: true
+        commit: f303865
+        complexity: medium
+        depends_on:
+          - invitations/invitations-schema
+          - bugs/fix-worker-tests
+
+  multi-account:
+    name: Multi-Account Access
+    description: Consultant pattern for users with multiple accounts (REQ-ID-011, REQ-ID-012)
+    priority: high
+    tasks:
+      - id: account-switcher
+        name: Account Switcher Component
+        file: multi-account/account-switcher.md
+        done: true
+        commit: 943a490
+        complexity: medium
+        depends_on:
+          - auth/clerk-provider
+          - api/auth-middleware
+      - id: account-list-api
+        name: User Accounts API Endpoint
+        file: multi-account/account-list-api.md
+        done: true
+        commit: 11362b8
+        complexity: medium
+        depends_on:
+          - api/auth-middleware
+      - id: set-primary-account
+        name: Set Primary Account
+        file: multi-account/set-primary-account.md
+        done: true
+        commit: 2beacaf
+        complexity: low
+        depends_on:
+          - multi-account/account-list-api
+          - api/user-endpoints
+
+  catalog:
+    name: Global Product Catalog
+    description: Brands, products, and inventory management (Database Schema)
+    priority: medium
+    tasks:
+      - id: catalog-schema
+        name: Product Catalog Schema Migration
+        file: catalog/catalog-schema.md
+        done: true
+        commit: 1a830f8
+        complexity: medium
+        depends_on:
+          - database/initial-schema
+          - bugs/fix-catalog-schema-tests
+      - id: catalog-seed-data
+        name: Seed Brands and Products
+        file: catalog/catalog-seed-data.md
+        done: true
+        commit: 89892ed
+        complexity: low
+        depends_on:
+          - catalog/catalog-schema
+      - id: catalog-api
+        name: Catalog CRUD API Endpoints
+        file: catalog/catalog-api.md
+        done: true
+        commit: 2beacaf  # Implementation commit
+        test_fix_commit: 5e33238  # Test fixes (Biome formatting)
+        complexity: medium
+        depends_on:
+          - catalog/catalog-schema
+          - api/auth-middleware
+          - bugs/fix-catalog-api-tests
+      - id: catalog-admin-ui
+        name: Catalog Admin UI (Sys Admin Only)
+        file: catalog/catalog-admin-ui.md
+        done: false
+        # original_commit: 654d3be  # Implementation completed but tests failing
+        complexity: medium
+        reason: "Catalog admin component tests failing"
+        failing_tests:
+          - src/components/admin/catalog/BrandTable.test.tsx
+          - src/components/admin/catalog/InventoryTable.test.tsx
+          - src/components/admin/catalog/ProductTable.test.tsx
+        depends_on:
+          - catalog/catalog-api
+          - sysadmin/admin-dashboard
+          - bugs/fix-catalog-admin-tests
+
   api:
     name: API Layer
     description: Hono API routes with tenant scoping
@@ -353,10 +493,11 @@ epics:
         name: User Profile Endpoints
         file: api/user-endpoints.md
         done: true
-        commit: 337a2b5
+        commit: ab03f64
         complexity: medium
         depends_on:
           - api/auth-middleware
+          - bugs/fix-user-api-tests
 
   commerce:
     name: Commerce & Checkout
@@ -367,7 +508,7 @@ epics:
         name: Cart Management
         file: commerce/cart-management.md
         done: true
-        commit: cb0bb8d
+        commit: f303865
         complexity: medium
         depends_on:
           - api/auth-middleware
@@ -498,10 +639,12 @@ epics:
         name: Return Shipping & Labels
         file: trade-in/return-shipping.md
         done: true
-        commit: 3174704
+        commit: 3174704  # Implementation commit
+        test_fix_commit: d70e0fb  # Test fixes
         complexity: medium
         depends_on:
           - trade-in/device-valuation
+          - bugs/fix-trade-in-tests
 
   fleet:
     name: Fleet Management
@@ -542,10 +685,12 @@ epics:
         name: Team Access Management
         file: settings/team-access.md
         done: true
-        commit: 1abfc48
+        commit: 1abfc48  # Implementation
+        test_fix_commit: 97bcefe  # Test fixes
         complexity: medium
         depends_on:
           - settings/organization-settings
+          - bugs/fix-team-access-rendering
 
   sysadmin:
     name: Sys Admin Tools
@@ -564,11 +709,13 @@ epics:
         name: Customer Impersonation
         file: sysadmin/customer-impersonation.md
         done: true
-        commit: cc49b6c
+        commit: 7cdac47  # All tests passing after bugs/fix-impersonation-tests
+        original_commit: cc49b6c  # Original implementation
         complexity: high  # Security-sensitive, audit logging
         depends_on:
           - sysadmin/admin-dashboard
           - api/auth-middleware
+          - bugs/fix-impersonation-tests
 
   monitoring:
     name: Monitoring & Observability
@@ -587,10 +734,11 @@ epics:
         name: Sentry Error Tracking
         file: monitoring/error-tracking.md
         done: true
-        commit: 187288f
+        commit: 187288f  # Original implementation
         complexity: medium
         depends_on:
           - monitoring/health-check
+          - bugs/fix-sentry-tests
 
   dashboard:
     name: Dashboard UI
@@ -616,12 +764,18 @@ epics:
       - id: dashboard-home
         name: Dashboard Home Page
         file: dashboard/dashboard-home.md
-        done: true
-        commit: 183f066
+        done: false
+        # original_commit: 183f066  # Implementation completed but tests failing
         complexity: medium
+        reason: "Dashboard tests failing"
+        failing_tests:
+          - src/test/pages/dashboard/index.test.tsx
+          - src/components/dashboard/QuickStats.test.tsx
+          - src/components/dashboard/AccountSwitcher.test.tsx
         depends_on:
           - dashboard/dashboard-layout
           - api/device-crud
+          - bugs/fix-dashboard-tests
       - id: loading-states
         name: Loading States
         file: dashboard/loading-states.md
@@ -717,6 +871,90 @@ epics:
           - testing/setup-vitest
           - auth/auth-pages
           - commerce/checkout-assignment
+      - id: clerk-e2e-integration
+        name: Integrate Clerk Testing with Playwright
+        file: testing/clerk-e2e-integration.md
+        done: true
+        commit: 08fc9da
+        complexity: medium
+        depends_on:
+          - testing/setup-playwright
+          - auth/clerk-provider
+      - id: e2e-auth-state
+        name: E2E Authentication State Reuse
+        file: testing/e2e-auth-state.md
+        done: true
+        commit: 558018b
+        complexity: low
+        depends_on:
+          - testing/clerk-e2e-integration
+      - id: e2e-otp-flows
+        name: E2E Tests for OTP Verification Flows
+        file: testing/e2e-otp-flows.md
+        done: true
+        commit: bb60c8a
+        complexity: medium
+        depends_on:
+          - testing/clerk-e2e-integration
+      - id: fix-drizzle-mocking
+        name: Fix Drizzle ORM Test Mocking
+        file: testing/fix-drizzle-mocking.md
+        done: true
+        commit: 7fd2d30  # Fixed D1Database initialization bug - all tests passing
+        complexity: medium
+        depends_on:
+          - testing/setup-vitest
+      - id: mock-browser-apis
+        name: Mock Browser APIs in Test Environment
+        file: testing/mock-browser-apis.md
+        done: true
+        commit: 013c0b6
+        complexity: low
+        depends_on:
+          - testing/setup-vitest
+          - bugs/fix-dom-setup-navigator
+      - id: reconcile-task-status
+        name: Reconcile Task Status with Test Results
+        file: testing/reconcile-task-status.md
+        done: true
+        commit: 5c8ca95
+        complexity: low
+        depends_on: []
+      - id: fix-component-tests
+        name: Fix Failing Component Tests
+        file: testing/fix-component-tests.md
+        done: true
+        commit: 97bcefe
+        complexity: high
+        depends_on:
+          - testing/mock-browser-apis
+          - testing/setup-vitest
+      - id: fix-database-tests
+        name: Fix Failing Database Tests
+        file: testing/fix-database-tests.md
+        done: true
+        commit: b77eac4
+        complexity: high
+        depends_on:
+          - testing/setup-vitest
+          - testing/fix-drizzle-mocking
+      - id: fix-api-tests
+        name: Fix Failing API Route Tests
+        file: testing/fix-api-tests.md
+        done: true
+        commit: 025691c
+        complexity: high
+        depends_on:
+          - testing/fix-database-tests
+          - testing/setup-vitest
+      - id: generate-bug-fix-tasks
+        name: Generate Bug Fix Task Files from Test Failures
+        file: testing/generate-bug-fix-tasks.md
+        done: true
+        commit: 3eff161
+        complexity: medium
+        depends_on:
+          - testing/reconcile-task-status
 
   integrations:
     name: External Integrations
@@ -785,6 +1023,38 @@ epics:
         complexity: medium
         depends_on:
           - trade-in/return-shipping
+      - id: google-workspace-oauth
+        name: Google Workspace OAuth Setup
+        file: integrations/google-workspace-oauth.md
+        done: false
+        complexity: high  # OAuth integration, security
+        requires: human  # Google Cloud Console setup
+        depends_on:
+          - api/auth-middleware
+      - id: google-directory-sync
+        name: Google Directory Sync
+        file: integrations/google-directory-sync.md
+        done: false
+        complexity: high  # External API, data sync
+        depends_on:
+          - integrations/google-workspace-oauth
+          - people/directory-view
+      - id: addigy-integration
+        name: Addigy MDM Integration
+        file: integrations/addigy-integration.md
+        done: false
+        complexity: high  # External API, MDM setup wizard
+        requires: human  # Addigy account setup
+        depends_on:
+          - fleet/device-inventory
+      - id: mdm-device-sync
+        name: MDM Device Sync Worker
+        file: integrations/mdm-device-sync.md
+        done: false
+        complexity: medium
+        depends_on:
+          - integrations/addigy-integration
+          - database/run-migrations
 
   bugs:
     name: Bug Fixes & Architecture Issues
@@ -863,3 +1133,223 @@ epics:
         commit: 07a66d7
         complexity: low
         depends_on: []
+      - id: fix-vitest-dom-environment
+        name: Fix Vitest DOM Environment (489 failures)
+        file: bugs/fix-vitest-dom-environment.md
+        done: true
+        commit: 8b00e6f
+        complexity: medium
+        depends_on:
+          - testing/setup-vitest
+      - id: fix-vitest-api-changes
+        name: Update Tests for Vitest 4.x API Changes (75 failures)
+        file: bugs/fix-vitest-api-changes.md
+        done: true
+        commit: 9084bed
+        complexity: low
+        depends_on:
+          - testing/setup-vitest
+      - id: exclude-e2e-from-vitest
+        name: Exclude Playwright E2E Tests from Vitest (3 failures)
+        file: bugs/exclude-e2e-from-vitest.md
+        done: true
+        commit: 9084bed
+        complexity: low
+        depends_on:
+          - testing/setup-playwright
+
+      # Test failure bug fixes (from testing/generate-bug-fix-tasks)
+      - id: fix-team-access-rendering
+        name: Fix Team Access Component Rendering
+        file: bugs/fix-team-access-rendering.md
+        done: true
+        commit: 97bcefe
+        complexity: medium
+        depends_on:
+          - testing/mock-browser-apis
+          - testing/fix-component-tests
+
+      - id: fix-invitation-ui-confirm
+        name: Fix Invitation UI confirm() Error
+        file: bugs/fix-invitation-ui-confirm.md
+        done: true
+        commit: 0ca7ce0
+        complexity: low
+        depends_on:
+          - testing/mock-browser-apis
+
+      - id: fix-catalog-schema-tests
+        name: Fix Catalog Schema Test Database Setup
+        file: bugs/fix-catalog-schema-tests.md
+        done: true
+        commit: 1a830f8
+        complexity: medium
+        depends_on:
+          - testing/fix-drizzle-mocking
+          - testing/fix-database-tests
+
+      - id: fix-catalog-api-tests
+        name: Fix Catalog API Endpoint Tests
+        file: bugs/fix-catalog-api-tests.md
+        done: true
+        commit: 5e33238
+        complexity: medium
+        depends_on:
+          - bugs/fix-catalog-schema-tests
+          - testing/fix-api-tests
+
+      - id: fix-schema-naming-tests
+        name: Fix Schema Naming Test Failures
+        file: bugs/fix-schema-naming-tests.md
+        done: true
+        commit: 0d5eee9
+        complexity: medium
+        depends_on:
+          - testing/fix-database-tests
+
+      - id: fix-impersonation-tests
+        name: Fix Customer Impersonation Test Failures
+        file: bugs/fix-impersonation-tests.md
+        done: true
+        commit: 7cdac47
+        complexity: high
+        depends_on:
+          - testing/fix-component-tests
+          - testing/fix-api-tests
+
+      - id: fix-user-api-tests
+        name: Fix User API Endpoint Tests
+        file: bugs/fix-user-api-tests.md
+        done: true
+        commit: ab03f64
+        complexity: medium
+        depends_on:
+          - testing/fix-api-tests
+
+      - id: fix-cart-tests
+        name: Fix Cart Management Tests
+        file: bugs/fix-cart-tests.md
+        done: true
+        commit: 5a5d8ad
+        complexity: medium
+        depends_on:
+          - testing/fix-component-tests
+
+      - id: fix-worker-tests
+        name: Fix Invitation Expiry Worker Tests
+        file: bugs/fix-worker-tests.md
+        done: true
+        commit: 5a5d8ad
+        complexity: medium
+        depends_on:
+          - testing/setup-vitest
+
+      - id: fix-dashboard-tests
+        name: Fix Dashboard Component Tests
+        file: bugs/fix-dashboard-tests.md
+        done: true
+        commit: 0a0bd99
+        complexity: medium
+        depends_on:
+          - testing/fix-component-tests
+
+      - id: fix-trade-in-tests
+        name: Fix Trade-In Component Tests
+        file: bugs/fix-trade-in-tests.md
+        done: true
+        commit: d70e0fb
+        complexity: medium
+        depends_on:
+          - testing/fix-component-tests
+
+      - id: fix-catalog-admin-tests
+        name: Fix Catalog Admin UI Tests
+        file: bugs/fix-catalog-admin-tests.md
+        done: true
+        commit: 7bb1b32
+        complexity: medium
+        depends_on:
+          - testing/fix-component-tests
+          - bugs/fix-catalog-api-tests
+
+      - id: fix-dom-setup-navigator
+        name: Fix DOM Setup Navigator Read-Only Error
+        file: bugs/fix-dom-setup-navigator.md
+        done: true
+        commit: 013c0b6
+        complexity: low
+        depends_on:
+          - testing/setup-vitest
+
+      - id: fix-sentry-tests
+        name: Fix Sentry Performance Monitoring Tests
+        file: bugs/fix-sentry-tests.md
+        done: true
+        commit: 49fd7ec
+        complexity: medium
+        failing_tests:
+          - src/lib/sentry.test.ts
+        depends_on:
+          - testing/setup-vitest
+
+  workflow:
+    name: Workflow & Process Improvements
+    description: Development processes, automation, and decision frameworks
+    priority: medium
+    tasks:
+      - id: prd-preparation
+        name: PRD Preparation Checklist
+        file: workflow/prd-preparation.md
+        done: true
+        commit: 92762eb
+        complexity: low
+        depends_on: []
+      - id: task-generation
+        name: Automated Task Generation from PRD
+        file: workflow/task-generation.md
+        done: true
+        commit: 1c0bce5
+        complexity: medium
+        depends_on:
+          - workflow/prd-preparation
+      - id: dependency-validation
+        name: Enhanced Task Dependency Validation
+        file: workflow/dependency-validation.md
+        done: true
+        commit: d313933
+        complexity: low
+        depends_on:
+          - workflow/task-generation
+      - id: testing-strategy
+        name: Testing Strategy Decision Tree
+        file: workflow/testing-strategy.md
+        done: true
+        commit: 654d3be  # Created testing-strategy.md and testing-quick-reference.md
+        complexity: low
+        depends_on: []
+      - id: rollback-procedures
+        name: Rollback and Recovery Runbook
+        file: workflow/rollback-procedures.md
+        done: true
+        commit: 1e35865
+        complexity: medium
+        depends_on: []
+      - id: synthetic-isolation
+        name: Synthetic Test Data Isolation Patterns
+        file: workflow/synthetic-isolation.md
+        done: true
+        commit: 7f80bc0
+        complexity: medium
+        depends_on:
+          - workflow/testing-strategy
+      - id: env-var-strategy
+        name: Environment Variable Management Strategy
+        file: workflow/env-var-strategy.md
+        done: true
+        commit: c70cc52
+        complexity: medium
+        depends_on:
+          - workflow/testing-strategy
+          - testing/setup-vitest
+          - testing/setup-playwright
+          - testing/clerk-e2e-integration

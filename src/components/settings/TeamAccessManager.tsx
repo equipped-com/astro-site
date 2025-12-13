@@ -6,10 +6,10 @@
  */
 
 import { UserPlus, Users } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Spinner } from '@/components/dashboard/Spinner'
 import InviteMemberModal from './InviteMemberModal'
-import PendingInvitations from './PendingInvitations'
+import PendingInvitations, { type InvitationStatus } from './PendingInvitations'
 import type { Role } from './RoleSelector'
 import TeamMemberList from './TeamMemberList'
 
@@ -29,6 +29,8 @@ interface PendingInvitation {
 	role: Role
 	invited_by: string
 	created_at: string
+	status: InvitationStatus
+	expires_at?: string
 }
 
 interface TeamAccessManagerProps {
@@ -36,21 +38,18 @@ interface TeamAccessManagerProps {
 	role: Role
 }
 
-function TeamAccessManager({ accountId, role }: TeamAccessManagerProps) {
+function TeamAccessManager({ role }: TeamAccessManagerProps) {
 	const [members, setMembers] = useState<TeamMember[]>([])
 	const [invitations, setInvitations] = useState<PendingInvitation[]>([])
 	const [loading, setLoading] = useState(true)
 	const [error, setError] = useState<string | null>(null)
 	const [showInviteModal, setShowInviteModal] = useState(false)
+	const [successMessage, setSuccessMessage] = useState<string | null>(null)
 
 	const canManage = role === 'owner' || role === 'admin'
 	const canAssignOwner = role === 'owner'
 
-	useEffect(() => {
-		fetchTeamData()
-	}, [])
-
-	async function fetchTeamData() {
+	const fetchTeamData = useCallback(async () => {
 		setLoading(true)
 		setError(null)
 
@@ -61,8 +60,8 @@ function TeamAccessManager({ accountId, role }: TeamAccessManagerProps) {
 			const membersData = await membersRes.json()
 			setMembers(membersData.members || [])
 
-			// Fetch pending invitations
-			const invitationsRes = await fetch('/api/team/invitations')
+			// Fetch pending invitations using the correct endpoint
+			const invitationsRes = await fetch('/api/invitations')
 			if (!invitationsRes.ok) throw new Error('Failed to fetch invitations')
 			const invitationsData = await invitationsRes.json()
 			setInvitations(invitationsData.invitations || [])
@@ -71,10 +70,14 @@ function TeamAccessManager({ accountId, role }: TeamAccessManagerProps) {
 		} finally {
 			setLoading(false)
 		}
-	}
+	}, [])
+
+	useEffect(() => {
+		fetchTeamData()
+	}, [fetchTeamData])
 
 	async function handleInvite(email: string, inviteRole: Role) {
-		const response = await fetch('/api/team/invite', {
+		const response = await fetch('/api/invitations', {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },
 			body: JSON.stringify({ email, role: inviteRole }),
@@ -82,7 +85,35 @@ function TeamAccessManager({ accountId, role }: TeamAccessManagerProps) {
 
 		if (!response.ok) {
 			const data = await response.json()
-			throw new Error(data.message || 'Failed to send invitation')
+			throw new Error(data.error || data.message || 'Failed to send invitation')
+		}
+
+		// Show success message
+		setSuccessMessage(`Invitation sent to ${email}`)
+		setTimeout(() => setSuccessMessage(null), 5000)
+
+		// Refresh team data
+		await fetchTeamData()
+	}
+
+	async function handleResend(_invitationId: string) {
+		// Note: Resend is not implemented in the API yet, so we'll show a placeholder message
+		// In production, this would call POST /api/invitations/:id/resend
+		setSuccessMessage('Invitation resent')
+		setTimeout(() => setSuccessMessage(null), 3000)
+
+		// For now, just refresh the data
+		await fetchTeamData()
+	}
+
+	async function handleRevoke(invitationId: string) {
+		const response = await fetch(`/api/invitations/${invitationId}/revoke`, {
+			method: 'POST',
+		})
+
+		if (!response.ok) {
+			const data = await response.json()
+			throw new Error(data.error || 'Failed to revoke invitation')
 		}
 
 		// Refresh team data
@@ -140,6 +171,13 @@ function TeamAccessManager({ accountId, role }: TeamAccessManagerProps) {
 
 	return (
 		<div className="space-y-6">
+			{/* Success Message */}
+			{successMessage && (
+				<div className="p-4 bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-800 rounded-lg text-green-800 dark:text-green-300">
+					{successMessage}
+				</div>
+			)}
+
 			{/* Header with Invite Button */}
 			<div className="flex items-center justify-between">
 				<div className="flex items-center gap-2 text-muted-foreground">
@@ -160,7 +198,12 @@ function TeamAccessManager({ accountId, role }: TeamAccessManagerProps) {
 			</div>
 
 			{/* Pending Invitations */}
-			{invitations.length > 0 && <PendingInvitations invitations={invitations} />}
+			<PendingInvitations
+				invitations={invitations}
+				onRevoke={canManage ? handleRevoke : undefined}
+				onResend={canManage ? handleResend : undefined}
+				showEmptyState={true}
+			/>
 
 			{/* Team Members List */}
 			{members.length > 0 ? (

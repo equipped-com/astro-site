@@ -3,7 +3,7 @@
  *
  * Navigation sidebar for the sys admin dashboard with global views.
  */
-import { Building2, Flag, Package, Settings, ShoppingCart, Users } from 'lucide-react'
+import { Building2, Flag, Package, Settings, ShoppingCart, Users, Store } from 'lucide-react'
 import { useState } from 'react'
 
 interface NavItem {
@@ -22,6 +22,12 @@ export default function AdminSidebar() {
 			href: '/admin/customers',
 			icon: Building2,
 			active: currentPath.startsWith('/admin/customers'),
+		},
+		{
+			label: 'Catalog',
+			href: '/admin/catalog/products',
+			icon: Store,
+			active: currentPath.startsWith('/admin/catalog'),
 		},
 		{
 			label: 'Global Devices',

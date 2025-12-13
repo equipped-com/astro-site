@@ -1,0 +1,41 @@
+---
+import { ClerkProvider } from '@clerk/clerk-react'
+import InventoryTable from '@/components/admin/catalog/InventoryTable'
+import AdminLayout from '@/layouts/AdminLayout.astro'
+
+const publishableKey = import.meta.env.PUBLIC_CLERK_PUBLISHABLE_KEY
+---
+
+<AdminLayout title="Inventory Management - Equipped Admin">
+	<div class="space-y-6">
+		<div class="flex items-center justify-between">
+			<div>
+				<h1 class="text-3xl font-bold">Inventory Management</h1>
+				<p class="text-muted-foreground mt-2">
+					Track physical inventory items with serial numbers and status.
+				</p>
+			</div>
+			<div class="flex items-center gap-4">
+				<a
+					href="/admin/catalog/brands"
+					class="rounded-md border border-input px-4 py-2 text-sm font-medium hover:bg-accent"
+				>
+					Manage Brands
+				</a>
+				<a
+					href="/admin/catalog/products"
+					class="rounded-md border border-input px-4 py-2 text-sm font-medium hover:bg-accent"
+				>
+					Manage Products
+				</a>
+			</div>
+		</div>
+
+		<ClerkProvider
+			publishableKey={publishableKey}
+			client:only="react"
+		>
+			<InventoryTable client:only="react" />
+		</ClerkProvider>
+	</div>
+</AdminLayout>
