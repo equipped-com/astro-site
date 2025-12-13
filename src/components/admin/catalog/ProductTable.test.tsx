@@ -57,7 +57,8 @@ describe('ProductTable', () => {
 
 		await waitFor(() => {
 			expect(screen.getByText('MacBook Pro 14-inch M3')).toBeInTheDocument()
-			expect(screen.getByText('Apple')).toBeInTheDocument()
+			// Apple appears in both dropdown filter and table, so use getAllByText
+			expect(screen.getAllByText('Apple').length).toBeGreaterThan(0)
 		})
 	})
 
