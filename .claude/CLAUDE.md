@@ -259,6 +259,138 @@ Checkout the testing tasks for comprehensive patterns:
 - `tasks/testing/integration-tests.md` - API & multi-component testing
 - `tasks/testing/regression-tests.md` - Bug fix verification
 
+### Test Responsibility - CRITICAL
+
+**Agents MUST take ownership of test quality. Passing tests are a requirement, not a suggestion.**
+
+#### After Making Changes
+
+**MANDATORY: Run tests before marking work complete**
+
+```bash
+# Run all tests
+bun run test
+
+# Or run specific tests affected by your changes
+bun run test -- path/to/affected/test.test.tsx
+```
+
+**You MUST verify tests pass after:**
+- Code changes (even "small" ones)
+- Dependency updates
+- Configuration changes (tsconfig, vite, astro.config, etc.)
+- Refactoring
+- Bug fixes
+
+#### Scope of Responsibility
+
+**1. File-level changes (components, utilities, APIs)**
+   - Run tests for the specific files you modified
+   - Run tests for files that import your changed files
+   - Example: If you modify `src/lib/utils.ts`, run tests that import it
+
+**2. Configuration/global changes (tsconfig, vite, build config)**
+   - Run **ALL tests** - you are responsible for the entire test suite
+   - Global changes can break anything, anywhere
+   - No exceptions
+
+**3. Dependency changes (package.json, lockfile)**
+   - Run **ALL tests** - dependency updates can have wide-reaching effects
+   - Check for breaking changes in upgrade guides
+   - Test both unit tests and build process
+
+#### Ownership Rules
+
+**DO NOT blame other agents unless proven innocent:**
+- If a test fails after your changes, assume it's your fault first
+- Debug the failure thoroughly before claiming "it was already broken"
+- Check git history: `git log --oneline -- path/to/test.test.tsx`
+- Only attribute to others if you can prove your changes had no impact
+
+**Examples:**
+- ✅ "I modified auth middleware and auth tests are failing - I need to fix this"
+- ✅ "I updated vite config and all tests are failing - I broke the test runner"
+- ❌ "Component tests are failing but I only changed CSS - not my problem"
+  - Wrong! CSS changes can break snapshot tests, render tests, etc.
+- ❌ "I updated React and tests fail - React must have a bug"
+  - Wrong! You chose to update React, you own making tests pass
+
+#### Forbidden Solutions
+
+**NEVER do these to "fix" failing tests:**
+
+❌ Skip tests with `.skip()` or `xit()`
+❌ Delete failing tests
+❌ Comment out assertions
+❌ Increase timeout limits without understanding why tests are slow
+❌ Add `@ts-ignore` or `@ts-expect-error` to mask type errors in tests
+❌ Mock everything to force tests to pass
+❌ Change test assertions to match broken behavior
+
+**These are NOT solutions - they hide problems instead of fixing them.**
+
+#### When You Can't Fix a Test
+
+If you've exhausted all options and cannot fix a failing test:
+
+1. **Document the failure thoroughly**
+   ```
+   ESCALATION: Test failure in src/components/Checkout.test.tsx
+
+   Failure: "should calculate shipping correctly"
+   Error: Expected 5.99, received 0
+
+   Investigation:
+   - Checked shipping calculation logic - looks correct
+   - Tried different test data - still fails
+   - Reviewed recent commits - no obvious cause
+   - Suspect integration with external pricing API
+
+   Next steps:
+   - Create task for shipping calculation debugging
+   - May need access to API docs or domain expert
+   ```
+
+2. **Create a task for fixing it**
+   - Add to `tasks/bugs/fix-{test-name}.md`
+   - Include error messages, stack traces, investigation notes
+   - Mark as `high` priority if it blocks other work
+
+3. **Do NOT mark your task as complete**
+   - Broken tests = incomplete work
+   - Task stays `in_progress` until tests pass OR handoff task created
+
+4. **Report to user**
+   ```
+   ⚠️ TASK INCOMPLETE: Tests failing after implementation
+
+   I've created task `bugs/fix-checkout-shipping-test` to address
+   the test failure. I cannot mark this task complete until tests pass.
+   ```
+
+#### Test-First Workflow (Recommended)
+
+For new features, consider writing tests first:
+
+1. Write failing test that describes desired behavior
+2. Implement feature until test passes
+3. Refactor with confidence (tests prevent regressions)
+
+This ensures:
+- Tests are comprehensive (written before implementation bias)
+- Code is testable (hard-to-test code is usually poorly designed)
+- No forgotten tests (you can't mark complete until tests exist)
+
+#### Quick Reference
+
+**Before marking task complete:**
+- [ ] All relevant tests pass (`bun run test`)
+- [ ] No tests skipped/deleted to make them pass
+- [ ] If tests fail and I can't fix them, I created a follow-up task
+- [ ] If I made global/config changes, entire test suite passes
+
+**Remember:** Tests are not obstacles - they're safety nets. Breaking them means breaking production.
+
 ## Pre-Implementation Checklist
 
 For non-trivial features:

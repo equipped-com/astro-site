@@ -88,9 +88,17 @@ describe('Dashboard Home Page Integration', () => {
 	 *   And I should see quick action shortcuts
 	 */
 	it('should render complete dashboard with all sections', async () => {
-		// Mock Date.now() to control greeting time
-		const realDateNow = Date.now
-		Date.now = () => new Date('2025-01-15T10:00:00').getTime()
+		// Mock Date constructor to control greeting time (10 AM = "Good morning")
+		const RealDate = Date
+		vi.stubGlobal(
+			'Date',
+			class extends RealDate {
+				constructor() {
+					super()
+					return new RealDate('2025-01-15T10:00:00')
+				}
+			},
+		)
 
 		render(
 			<div>
@@ -122,7 +130,8 @@ describe('Dashboard Home Page Integration', () => {
 		expect(screen.getByText('Add Device')).toBeInTheDocument()
 		expect(screen.getByText('Shop Devices')).toBeInTheDocument()
 
-		Date.now = realDateNow
+		// Restore original Date
+		vi.unstubAllGlobals()
 	})
 
 	/**

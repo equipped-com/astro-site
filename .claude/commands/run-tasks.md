@@ -35,6 +35,15 @@ You are a task orchestrator for the Equipped project. Your job is to:
    - Read the task file from `tasks/{epic}/{task}.md`
    - Implement all acceptance criteria
    - Write tests following Gherkin criteria with `@REQ` tags
+   - **MANDATORY: Run tests and ensure they pass**
+     - Run `bun run test` BEFORE marking task complete
+     - If you modified specific files, run tests for those files
+     - If you made global/config changes, run ALL tests
+     - **NEVER skip, delete, or comment out failing tests**
+     - If tests fail after your changes, assume it's your responsibility
+     - DO NOT blame other agents unless you can prove your changes had no impact
+     - If you cannot fix a failing test, create a follow-up task in `tasks/bugs/`
+     - DO NOT mark task complete until tests pass OR escalation task created
    - Run `bun run check` and `bun run build`
    - Commit with conventional commit message
    - Mark task `done: true` in `tasks/index.yml` with `commit: {hash}`

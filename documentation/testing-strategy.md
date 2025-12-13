@@ -253,6 +253,85 @@ describe('[Component/Feature] [REGRESSION]', () => {
 | Integration    | 90%+         | API endpoints              |
 | E2E            | 5-10 key flows | Critical user flows      |
 
+## Test Responsibility & Ownership
+
+**CRITICAL: Passing tests are non-negotiable. You are responsible for test quality.**
+
+### Running Tests After Changes
+
+**MANDATORY: Run tests before considering work complete**
+
+```bash
+# Run all tests
+bun run test
+
+# Run specific test file
+bun run test -- path/to/file.test.tsx
+
+# Watch mode during development
+bun run test:watch
+```
+
+**You MUST run tests after:**
+- Any code changes (even small ones)
+- Dependency updates
+- Configuration changes (tsconfig, vite, astro.config)
+- Refactoring
+- Bug fixes
+
+### Scope of Responsibility
+
+**File-level changes:**
+- Run tests for files you modified
+- Run tests that import your changed files
+- Example: Modified `lib/utils.ts`? Run all tests importing it
+
+**Global/config changes:**
+- Run **ALL tests** - no exceptions
+- Global changes affect everything
+- Configuration changes can break any test
+
+**Dependency updates:**
+- Run **ALL tests**
+- Check upgrade guides for breaking changes
+- Test both unit tests and build process
+
+### Ownership Rules
+
+**Assume failures are your responsibility:**
+- Test fails after your changes? It's likely your fault
+- Debug thoroughly before blaming others
+- Check git history: `git log --oneline -- path/to/test.test.tsx`
+- Only attribute to others if proven your changes had no impact
+
+**DO NOT:**
+- ❌ Skip tests with `.skip()` or `xit()`
+- ❌ Delete failing tests
+- ❌ Comment out assertions
+- ❌ Increase timeouts without understanding why
+- ❌ Add `@ts-ignore` to mask test errors
+- ❌ Change assertions to match broken behavior
+
+These hide problems instead of fixing them.
+
+### When You Can't Fix a Test
+
+If you've exhausted all options:
+
+1. **Document thoroughly** - error messages, stack traces, investigation notes
+2. **Create a follow-up task** - `tasks/bugs/fix-{test-name}.md` with full context
+3. **DO NOT mark work complete** - broken tests = incomplete work
+4. **Report to user** - explain what's broken and next steps
+
+### Quick Checklist Before Marking Work Complete
+
+- [ ] Relevant tests pass (`bun run test`)
+- [ ] No tests skipped/deleted to make them pass
+- [ ] If global/config changes, ALL tests pass
+- [ ] If tests fail and unfixable, created follow-up task
+- [ ] Build succeeds (`bun run build`)
+- [ ] Linter passes (`bun run check`)
+
 ## Quick Reference
 
 ### "Should I write a test for this?"
