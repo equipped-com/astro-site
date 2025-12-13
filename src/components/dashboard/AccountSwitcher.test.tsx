@@ -10,7 +10,7 @@
 
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { AccountSwitcher, type Account } from './AccountSwitcher'
+import { type Account, AccountSwitcher } from './AccountSwitcher'
 
 const mockAccounts: Account[] = [
 	{
@@ -37,8 +37,14 @@ describe('AccountSwitcher', () => {
 	beforeEach(() => {
 		vi.clearAllMocks()
 		// Reset location mock
-		delete (window as any).location
-		window.location = { href: '', protocol: 'https:', hostname: 'acmecorp.tryequipped.com' } as any
+		Object.defineProperty(window, 'location', {
+			writable: true,
+			value: {
+				href: '',
+				protocol: 'https:',
+				hostname: 'acmecorp.tryequipped.com',
+			},
+		})
 	})
 
 	/**
@@ -167,6 +173,16 @@ describe('AccountSwitcher', () => {
 	})
 
 	it('should use default subdomain navigation if no onSwitch provided', async () => {
+		// Set up location mock before rendering
+		Object.defineProperty(window, 'location', {
+			writable: true,
+			value: {
+				href: '',
+				protocol: 'https:',
+				hostname: 'acmecorp.tryequipped.com',
+			},
+		})
+
 		render(<AccountSwitcher currentAccount={mockAccounts[0]} accounts={mockAccounts} />)
 
 		// Open dropdown
@@ -324,7 +340,7 @@ describe('AccountSwitcher', () => {
 			<div>
 				<AccountSwitcher currentAccount={mockAccounts[0]} accounts={mockAccounts} />
 				<div data-testid="outside">Outside element</div>
-			</div>
+			</div>,
 		)
 
 		// Open dropdown

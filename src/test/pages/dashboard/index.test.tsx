@@ -9,18 +9,20 @@
  */
 
 import { render, screen, waitFor } from '@testing-library/react'
-import { afterEach, beforeEach, describe, expect, it, vi, type Mock } from 'vitest'
-import { QuickActions } from '@/components/dashboard/QuickActions'
-import { QuickStats } from '@/components/dashboard/QuickStats'
-import { WelcomeCard } from '@/components/dashboard/WelcomeCard'
+import { afterEach, beforeEach, describe, expect, it, type Mock, vi } from 'vitest'
 
-// Mock Clerk
+// Mock Clerk - must be before component imports
 vi.mock('@clerk/clerk-react', () => ({
 	useUser: vi.fn(),
 	ClerkProvider: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }))
 
 const { useUser } = await import('@clerk/clerk-react')
+
+// Import components after mock setup
+import { QuickActions } from '@/components/dashboard/QuickActions'
+import { QuickStats } from '@/components/dashboard/QuickStats'
+import { WelcomeCard } from '@/components/dashboard/WelcomeCard'
 
 describe('Dashboard Home Page Integration', () => {
 	beforeEach(() => {
@@ -30,17 +32,17 @@ describe('Dashboard Home Page Integration', () => {
 		global.fetch = vi.fn()
 
 		// Default mock for authenticated user
-		(useUser as Mock).mockReturnValue({
+		;(useUser as Mock).mockReturnValue({
 			isLoaded: true,
 			user: {
 				firstName: 'Alice',
 				fullName: 'Alice Johnson',
 			},
 			isSignedIn: true,
-		} as any)
+		})
 
 		// Default mock for API calls
-		(global.fetch as Mock).mockImplementation((url: string | URL) => {
+		;(global.fetch as Mock).mockImplementation((url: string | URL) => {
 			const urlStr = url.toString()
 			if (urlStr.includes('/devices')) {
 				return Promise.resolve({
@@ -191,7 +193,7 @@ describe('Dashboard Home Page Integration', () => {
 	 *   And the welcome card should load independently
 	 */
 	it('should show loading states while fetching stats', () => {
-		(fetch as Mock).mockImplementation(
+		;(fetch as Mock).mockImplementation(
 			() =>
 				new Promise(() => {
 					// Never resolve to keep loading
@@ -215,7 +217,7 @@ describe('Dashboard Home Page Integration', () => {
 	 *   And quick actions should still be accessible
 	 */
 	it('should handle API errors gracefully', async () => {
-		(fetch as Mock).mockRejectedValue(new Error('API unavailable'))
+		;(fetch as Mock).mockRejectedValue(new Error('API unavailable'))
 
 		render(
 			<div>
@@ -246,7 +248,7 @@ describe('Dashboard Home Page Integration', () => {
 	 *   And quick actions should be prominently displayed to guide next steps
 	 */
 	it('should display zeros and guide new users', async () => {
-		(fetch as Mock).mockImplementation((url: string | URL) => {
+		;(fetch as Mock).mockImplementation((url: string | URL) => {
 			const urlStr = url.toString()
 			if (urlStr.includes('/devices')) {
 				return Promise.resolve({
