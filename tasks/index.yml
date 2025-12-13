@@ -708,15 +708,10 @@ epics:
       - id: customer-impersonation
         name: Customer Impersonation
         file: sysadmin/customer-impersonation.md
-        done: false
-        # original_commit: cc49b6c  # Implementation completed but tests failing
+        done: true
+        commit: 7cdac47  # All tests passing after bugs/fix-impersonation-tests
+        original_commit: cc49b6c  # Original implementation
         complexity: high  # Security-sensitive, audit logging
-        reason: "~10 impersonation tests failing - mock expectations not met"
-        failing_tests:
-          - src/api/routes/admin/impersonation.test.ts
-          - src/components/admin/useImpersonation.test.ts
-          - src/components/admin/ImpersonationBanner.test.tsx
-          - src/components/admin/RestrictedAction.test.tsx
         depends_on:
           - sysadmin/admin-dashboard
           - api/auth-middleware
@@ -1215,7 +1210,8 @@ epics:
       - id: fix-impersonation-tests
         name: Fix Customer Impersonation Test Failures
         file: bugs/fix-impersonation-tests.md
-        done: false
+        done: true
+        commit: 7cdac47
         complexity: high
         depends_on:
           - testing/fix-component-tests
