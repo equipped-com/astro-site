@@ -997,7 +997,6 @@ epics:
         file: integrations/stripe-payments.md
         done: false
         complexity: high  # Payment processing
-        requires: human  # Stripe account setup
         depends_on:
           - commerce/checkout-payment
       - id: alchemy-api
