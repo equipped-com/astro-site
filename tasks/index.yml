@@ -1265,7 +1265,8 @@ epics:
       - id: fix-catalog-admin-tests
         name: Fix Catalog Admin UI Tests
         file: bugs/fix-catalog-admin-tests.md
-        done: false
+        done: true
+        commit: 7bb1b32
         complexity: medium
         depends_on:
           - testing/fix-component-tests
