@@ -947,6 +947,41 @@ epics:
         complexity: medium
         depends_on:
           - testing/reconcile-task-status
+      - id: feature-shepherd-contracts
+        name: Define Feature Shepherd Contract Structure
+        file: testing/feature-shepherd-contracts.md
+        done: false
+        complexity: medium
+        depends_on: []
+      - id: playwright-agents-bootstrap
+        name: Integrate Playwright Agents with E2E Stack
+        file: testing/playwright-agents-bootstrap.md
+        done: false
+        complexity: high
+        depends_on:
+          - testing/setup-playwright
+          - testing/feature-shepherd-contracts
+      - id: feature-shepherd-seed-fixtures
+        name: Create Shepherd Seed Fixtures and Golden-Path Tests
+        file: testing/feature-shepherd-seed-fixtures.md
+        done: false
+        complexity: medium
+        depends_on:
+          - testing/setup-playwright
+          - testing/clerk-e2e-integration
+          - testing/e2e-auth-state
+          - testing/feature-shepherd-contracts
+      - id: feature-shepherd-prompt-template
+        name: Create Shepherd Prompt Template and Validate with Auth Pilot
+        file: testing/feature-shepherd-prompt-template.md
+        done: false
+        complexity: high
+        depends_on:
+          - testing/feature-shepherd-contracts
+          - testing/playwright-agents-bootstrap
+          - testing/feature-shepherd-seed-fixtures
+          - auth/auth-pages
+          - auth/clerk-provider
 
   integrations:
     name: External Integrations

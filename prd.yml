@@ -3,7 +3,7 @@
 # Run `/prepare-prd` to process new PRD files
 
 version: 1
-updated: 2025-12-11
+updated: 2025-12-13
 
 files:
   product.md:
@@ -39,3 +39,11 @@ files:
     notes: "Workflow & Process Improvement PRD - all 6 task files generated successfully"
     epics_created:
       - workflow
+
+  feature-shepherds.md:
+    status: complete
+    location: documentation/PRDs/feature-shepherds.md
+    processed_at: 2025-12-13
+    notes: "Feature Shepherds with Playwright Agents - all 10 task files generated successfully"
+    epics_created:
+      - testing
