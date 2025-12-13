@@ -4,12 +4,13 @@
  * Public read access for browsing products with filters.
  * Sys admin only for creating/updating products.
  */
+
+import { and, desc, eq, like, or } from 'drizzle-orm'
+import { drizzle } from 'drizzle-orm/d1'
 import { Hono } from 'hono'
 import { requireAuth } from '@/api/middleware/auth'
 import { requireSysAdmin } from '@/api/middleware/sysadmin'
-import { products, brands, type Product, type NewProduct } from '@/db/schema'
-import { eq, and, like, or, desc } from 'drizzle-orm'
-import { drizzle } from 'drizzle-orm/d1'
+import { brands, type NewProduct, type Product, products } from '@/db/schema'
 
 const productsRouter = new Hono<{ Bindings: Env }>()
 
@@ -61,9 +62,7 @@ productsRouter.get('/', requireAuth(), async c => {
 
 	if (searchQuery) {
 		// Search in both name and SKU
-		conditions.push(
-			or(like(products.name, `%${searchQuery}%`), like(products.sku, `%${searchQuery}%`)),
-		)
+		conditions.push(or(like(products.name, `%${searchQuery}%`), like(products.sku, `%${searchQuery}%`)))
 	}
 
 	// Get total count for pagination

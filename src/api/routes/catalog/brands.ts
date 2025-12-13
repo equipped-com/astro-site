@@ -4,12 +4,13 @@
  * Public read access for browsing brands.
  * Sys admin only for creating/updating brands.
  */
+
+import { eq } from 'drizzle-orm'
+import { drizzle } from 'drizzle-orm/d1'
 import { Hono } from 'hono'
 import { requireAuth } from '@/api/middleware/auth'
 import { requireSysAdmin } from '@/api/middleware/sysadmin'
-import { brands, type Brand, type NewBrand } from '@/db/schema'
-import { eq } from 'drizzle-orm'
-import { drizzle } from 'drizzle-orm/d1'
+import { type Brand, brands, type NewBrand } from '@/db/schema'
 
 const brandsRouter = new Hono<{ Bindings: Env }>()
 

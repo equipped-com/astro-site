@@ -12,11 +12,11 @@
  * Uses in-memory D1 database with real Drizzle queries instead of manual mocks.
  */
 
-import type { D1Database } from '@miniflare/d1'
 import { getAuth } from '@hono/clerk-auth'
+import type { D1Database } from '@miniflare/d1'
 import { eq } from 'drizzle-orm'
 import { Hono } from 'hono'
-import { type Mock, beforeEach, describe, expect, test, vi } from 'vitest'
+import { beforeEach, describe, expect, type Mock, test, vi } from 'vitest'
 import * as schema from '@/db/schema'
 import { createTestDatabase, seedTestData } from '@/test/drizzle-helpers'
 import brandsRouter from './brands'
@@ -39,10 +39,7 @@ vi.mock('@/api/middleware/sysadmin', () => ({
 	requireSysAdmin: () => async (c: any, next: any) => {
 		// Check if sysAdmin flag is set in context
 		if (!c.get('sysAdmin')) {
-			return c.json(
-				{ error: 'Forbidden', message: 'System administrator access required' },
-				403,
-			)
+			return c.json({ error: 'Forbidden', message: 'System administrator access required' }, 403)
 		}
 		return next()
 	},

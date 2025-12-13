@@ -3,12 +3,12 @@
  *
  * Sys admin only - manage physical inventory items.
  */
+
+import { and, desc, eq, sql } from 'drizzle-orm'
+import { drizzle } from 'drizzle-orm/d1'
 import { Hono } from 'hono'
 import { requireSysAdmin } from '@/api/middleware/sysadmin'
-import { inventoryItems, products, brands, type InventoryItem, type NewInventoryItem } from '@/db/schema'
-import { eq, and, desc } from 'drizzle-orm'
-import { sql } from 'drizzle-orm'
-import { drizzle } from 'drizzle-orm/d1'
+import { brands, type InventoryItem, inventoryItems, type NewInventoryItem, products } from '@/db/schema'
 
 const inventoryRouter = new Hono<{ Bindings: Env }>()
 
