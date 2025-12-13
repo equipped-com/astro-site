@@ -40,6 +40,9 @@ bun run test:ui              # Visual UI dashboard
 ```
 
 **IMPORTANT:** Use `bun` instead of `npm` for faster execution. Falls back to `npm` if bun not available.
+- **ALWAYS use `bun run test`** - NEVER use `bun test` (uses Bun's built-in test runner which fails with errors)
+- `bun run test` uses Vitest with proper configuration (tests passing)
+- A failsafe in `bunfig.toml` will block `bun test` with an error message
 
 ## Dependency Management
 
